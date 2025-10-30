@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Request extends Model
+{
+    protected $fillable = [
+        // Page 1: Applicant Information
+        'applicant_name',
+        'corporation_name',
+        'applicant_address',
+        'corporation_address',
+        'authorized_representative_name',
+        'authorized_representative_address',
+        
+        // Page 2: Project Details
+        'project_type',
+        'project_nature',
+        'project_location_number',
+        'project_location_street',
+        'project_location_barangay',
+        'project_location_city',
+        'project_location_municipality',
+        'project_location_province',
+        'project_area_sqm',
+        'lot_area_sqm',
+        'bldg_improvement_sqm',
+        'right_over_land',
+        'project_nature_duration',
+        'project_nature_years',
+        'project_cost',
+        
+        // Page 3: Land Uses
+        'existing_land_use',
+        'has_written_notice',
+        'notice_officer_name',
+        'notice_dates',
+        'has_similar_application',
+        'similar_application_offices',
+        'similar_application_dates',
+        'preferred_release_mode',
+        'release_address',
+        
+        // Status
+        'status',
+        'user_id',
+    ];
+
+    protected $casts = [
+        'project_area_sqm' => 'decimal:2',
+        'lot_area_sqm' => 'decimal:2',
+        'bldg_improvement_sqm' => 'decimal:2',
+        'project_nature_years' => 'integer',
+    ];
+
+    /**
+     * Get the user that owns the request.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}
