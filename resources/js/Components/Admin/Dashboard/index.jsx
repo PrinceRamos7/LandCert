@@ -35,32 +35,109 @@ import {
   Edit,
   ThumbsUp,
   ThumbsDown,
-  Trash2
+  Trash2,
+  Download
 } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useForm, router } from '@inertiajs/react';
 import { useToast } from '@/Components/ui/use-toast';
+import { AnalyticsDashboard } from '@/Components/Admin/Analytics';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
-export function AdminDashboard({ applications = [], stats = {} }) {
+export function AdminDashboard({ applications, stats = {}, analytics = null }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedApp, setSelectedApp] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(true);
   const { toast } = useToast();
-  
-  const { data: quickData, setData: setQuickData, post, processing, reset } = useForm({
-    evaluation: '',
-    issued_by: 'Admin',
-  });
-  
-  const { data: editData, setData: setEditData, post: postEdit, processing: editProcessing } = useForm({
+
+  const applicationsData = applications?.data || applications || [];
+
+  const { data: editData, setData: setEditData, processing: editProcessing } = useForm({
     evaluation: '',
     description: '',
     amount: '',
     date_certified: '',
     issued_by: '',
   });
+  
+  const handleExportApplications = () => {
+    const url = route('admin.export.applications', { status: filterStatus });
+    window.location.href = url;
+    toast({
+      title: "Export Started",
+      description: "Your CSV file will download shortly.",
+    });
+  };
+  
+  const handlePageChange = (url) => {
+    if (url) {
+      router.get(url, {}, { preserveState: true, preserveScroll: true });
+    }
+  };
+  
+  const renderPaginationLinks = () => {
+    if (!applications?.links || applications.links.length <= 3) return null;
+    
+    return (
+      <Pagination className="mt-6">
+        <PaginationContent>
+          {applications.links.map((link, index) => {
+            if (index === 0) {
+              return (
+                <PaginationItem key={index}>
+                  <PaginationPrevious 
+                    onClick={() => handlePageChange(link.url)}
+                    className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+              );
+            }
+            
+            if (index === applications.links.length - 1) {
+              return (
+                <PaginationItem key={index}>
+                  <PaginationNext 
+                    onClick={() => handlePageChange(link.url)}
+                    className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+              );
+            }
+            
+            if (link.label === '...') {
+              return (
+                <PaginationItem key={index}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              );
+            }
+            
+            return (
+              <PaginationItem key={index}>
+                <PaginationLink
+                  onClick={() => handlePageChange(link.url)}
+                  isActive={link.active}
+                  className="cursor-pointer"
+                >
+                  {link.label}
+                </PaginationLink>
+              </PaginationItem>
+            );
+          })}
+        </PaginationContent>
+      </Pagination>
+    );
+  };
 
   const handleAction = (app, action) => {
     if (!app.report_id) {
@@ -108,7 +185,7 @@ export function AdminDashboard({ applications = [], stats = {} }) {
 
   const handleEditSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!selectedApp.report_id) {
       toast({
         variant: "destructive",
@@ -205,7 +282,7 @@ export function AdminDashboard({ applications = [], stats = {} }) {
   };
 
   const filteredApplications = useMemo(() => {
-    let filtered = applications;
+    let filtered = applicationsData;
 
     if (filterStatus !== 'all') {
       filtered = filtered.filter(app => app.status === filterStatus);
@@ -221,19 +298,28 @@ export function AdminDashboard({ applications = [], stats = {} }) {
     }
 
     return filtered;
-  }, [applications, filterStatus, searchTerm]);
-
-  // Pie chart data
-  const pieChartData = [
-    { name: 'Pending', value: stats.pending || 0, color: '#3b82f6' },
-    { name: 'Approved', value: stats.approved || 0, color: '#10b981' },
-    { name: 'Rejected', value: stats.rejected || 0, color: '#ef4444' },
-  ];
-
-  const COLORS = ['#3b82f6', '#10b981', '#ef4444'];
+  }, [applicationsData, filterStatus, searchTerm]);
 
   return (
     <div className="space-y-6">
+      {/* Toggle Analytics View */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Dashboard Overview</h2>
+        <Button 
+          variant="outline" 
+          onClick={() => setShowAnalytics(!showAnalytics)}
+          className="gap-2"
+        >
+          <BarChart3 className="h-4 w-4" />
+          {showAnalytics ? 'Hide' : 'Show'} Analytics
+        </Button>
+      </div>
+
+      {/* Analytics Section */}
+      {showAnalytics && analytics && (
+        <AnalyticsDashboard analytics={analytics} />
+      )}
+
       {/* Statistics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-purple-500 bg-gradient-to-br from-white to-purple-50" onClick={() => setFilterStatus('all')}>
@@ -292,77 +378,6 @@ export function AdminDashboard({ applications = [], stats = {} }) {
         </Card>
       </div>
 
-      {/* Chart Section */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Pie Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Evaluation Status Distribution
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={pieChartData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {pieChartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Quick Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Statistics</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-blue-600" />
-                <span className="font-medium">Pending Rate</span>
-              </div>
-              <span className="text-2xl font-bold text-blue-600">
-                {stats.total > 0 ? Math.round((stats.pending / stats.total) * 100) : 0}%
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                <span className="font-medium">Approval Rate</span>
-              </div>
-              <span className="text-2xl font-bold text-emerald-600">
-                {stats.total > 0 ? Math.round((stats.approved / stats.total) * 100) : 0}%
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-rose-50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <XCircle className="h-5 w-5 text-rose-600" />
-                <span className="font-medium">Rejection Rate</span>
-              </div>
-              <span className="text-2xl font-bold text-rose-600">
-                {stats.total > 0 ? Math.round((stats.rejected / stats.total) * 100) : 0}%
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Applications Table */}
       <Card>
         <CardHeader>
@@ -372,6 +387,10 @@ export function AdminDashboard({ applications = [], stats = {} }) {
               Recent Applications ({filteredApplications.length})
             </CardTitle>
             <div className="flex gap-2">
+              <Button variant="outline" onClick={handleExportApplications} className="gap-2">
+                <Download className="h-4 w-4" />
+                Export CSV
+              </Button>
               <div className="relative w-64">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -404,7 +423,7 @@ export function AdminDashboard({ applications = [], stats = {} }) {
                 </tr>
               </thead>
               <tbody>
-                {filteredApplications.slice(0, 10).map((app) => (
+                {filteredApplications.map((app) => (
                   <tr key={app.id} className="border-b hover:bg-gray-50">
                     <td className="p-3 font-mono text-sm">#{app.id}</td>
                     <td className="p-3">
@@ -455,7 +474,7 @@ export function AdminDashboard({ applications = [], stats = {} }) {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => handleAction(app, 'approved')}
-                            disabled={processing || app.status === 'approved'}
+                            disabled={app.status === 'approved'}
                             className="text-emerald-600"
                           >
                             <ThumbsUp className="h-4 w-4 mr-2" />
@@ -463,7 +482,7 @@ export function AdminDashboard({ applications = [], stats = {} }) {
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleAction(app, 'rejected')}
-                            disabled={processing || app.status === 'rejected'}
+                            disabled={app.status === 'rejected'}
                             className="text-rose-600"
                           >
                             <ThumbsDown className="h-4 w-4 mr-2" />
@@ -485,6 +504,7 @@ export function AdminDashboard({ applications = [], stats = {} }) {
               </tbody>
             </table>
           </div>
+          {renderPaginationLinks()}
         </CardContent>
       </Card>
 

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Request extends Model
 {
@@ -62,5 +64,30 @@ class Request extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the application for this request.
+     */
+    public function application()
+    {
+        return $this->hasOne(Application::class, 'applicant_name', 'applicant_name')
+            ->where('applicant_address', $this->applicant_address);
+    }
+
+    /**
+     * Get the payments for this request.
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'request_id');
+    }
+
+    /**
+     * Get the certificates for this request.
+     */
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class, 'request_id');
     }
 }

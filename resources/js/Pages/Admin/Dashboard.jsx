@@ -14,7 +14,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-export default function Page({ applications = [], stats = {} }) {
+export default function Page({ applications = [], stats = {}, analytics = null }) {
   return (
     <SidebarProvider>
       <Head title="Admin Dashboard" />
@@ -35,7 +35,7 @@ export default function Page({ applications = [], stats = {} }) {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gradient-to-br from-purple-50 to-slate-50">
-          <AdminDashboard applications={applications} stats={stats} />
+          <AdminDashboard applications={applications} stats={stats} analytics={analytics} />
         </div>
       </SidebarInset>
     </SidebarProvider>

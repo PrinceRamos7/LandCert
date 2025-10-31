@@ -6,7 +6,10 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-<link rel="icon" type="image/webp" href="{{ asset('images/ilagan.webp') }}">
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="{{ asset('images/Ilagan.png') }}">
+        <link rel="shortcut icon" type="image/png" href="{{ asset('images/Ilagan.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/Ilagan.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

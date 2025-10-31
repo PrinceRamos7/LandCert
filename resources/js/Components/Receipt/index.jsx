@@ -26,6 +26,7 @@ import { useToast } from '@/Components/ui/use-toast';
 
 export function ReceiptList({ requests = [] }) {
     const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [formData, setFormData] = useState({
         amount: '',
@@ -34,6 +35,7 @@ export function ReceiptList({ requests = [] }) {
         payment_date: new Date().toISOString().split('T')[0],
         notes: '',
         receipt_file: null,
+        other_method: '',
     });
     const { toast } = useToast();
 
@@ -83,6 +85,40 @@ export function ReceiptList({ requests = [] }) {
             return;
         }
 
+        if (!formData.amount || parseFloat(formData.amount) <= 0) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Please enter a valid payment amount.",
+            });
+            return;
+        }
+
+        // Validate receipt number for non-cash payments
+        if (formData.payment_method !== 'cash' && !formData.receipt_number) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Receipt/Reference number is required for non-cash payments.",
+            });
+            return;
+        }
+
+        // Validate other payment method specification
+        if (formData.payment_method === 'other' && !formData.other_method.trim()) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Please specify the payment method.",
+            });
+            return;
+        }
+
+        // Show confirmation dialog
+        setIsConfirmDialogOpen(true);
+    };
+
+    const confirmSubmit = () => {
         const data = new FormData();
         data.append('request_id', selectedRequest.id);
         data.append('amount', formData.amount);
@@ -96,9 +132,10 @@ export function ReceiptList({ requests = [] }) {
             onSuccess: () => {
                 toast({
                     title: "Success!",
-                    description: "Payment receipt submitted successfully!",
+                    description: "Payment receipt submitted successfully! Please wait for admin verification.",
                 });
                 setIsUploadDialogOpen(false);
+                setIsConfirmDialogOpen(false);
                 setFormData({
                     amount: '',
                     payment_method: 'cash',
@@ -114,6 +151,7 @@ export function ReceiptList({ requests = [] }) {
                     title: "Error",
                     description: "Failed to submit payment receipt.",
                 });
+                setIsConfirmDialogOpen(false);
             }
         });
     };
@@ -147,8 +185,8 @@ export function ReceiptList({ requests = [] }) {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {requests.map((request) => (
-                                <Card key={request.id} className="border-l-4 border-l-purple-500">
+                            {requests.map((request, index) => (
+                                <Card key={`request-${request.id}-${request.payment_id || index}`} className="border-l-4 border-l-purple-500">
                                     <CardContent className="pt-6">
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
@@ -287,13 +325,19 @@ export function ReceiptList({ requests = [] }) {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="receipt_number">Receipt/Reference Number</Label>
+                                <Label htmlFor="receipt_number">
+                                    Receipt/Reference Number {formData.payment_method !== 'cash' && <span className="text-red-500">*</span>}
+                                </Label>
                                 <Input
                                     id="receipt_number"
                                     value={formData.receipt_number}
                                     onChange={(e) => setFormData({ ...formData, receipt_number: e.target.value })}
-                                    placeholder="Optional"
+                                    placeholder={formData.payment_method === 'cash' ? 'Optional' : 'Required'}
+                                    required={formData.payment_method !== 'cash'}
                                 />
+                                {formData.payment_method === 'cash' && (
+                                    <p className="text-xs text-gray-500">Optional for cash payments</p>
+                                )}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="payment_date">Payment Date *</Label>
@@ -306,6 +350,19 @@ export function ReceiptList({ requests = [] }) {
                                 />
                             </div>
                         </div>
+
+                        {formData.payment_method === 'other' && (
+                            <div className="space-y-2">
+                                <Label htmlFor="other_method">Please Specify Payment Method *</Label>
+                                <Input
+                                    id="other_method"
+                                    value={formData.other_method}
+                                    onChange={(e) => setFormData({ ...formData, other_method: e.target.value })}
+                                    placeholder="e.g., Credit Card, Debit Card, etc."
+                                    required
+                                />
+                            </div>
+                        )}
 
                         <div className="space-y-2">
                             <Label htmlFor="receipt_file">Upload Receipt (PDF, JPG, PNG) *</Label>
@@ -340,6 +397,39 @@ export function ReceiptList({ requests = [] }) {
                             </Button>
                         </DialogFooter>
                     </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Confirmation Dialog */}
+            <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Payment Submission</DialogTitle>
+                        <DialogDescription>
+                            Please review your payment details before submitting.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+                        <p className="text-sm"><strong>Request ID:</strong> #{selectedRequest?.id}</p>
+                        <p className="text-sm"><strong>Applicant:</strong> {selectedRequest?.applicant_name}</p>
+                        <p className="text-sm"><strong>Amount:</strong> ₱{parseFloat(formData.amount || 0).toLocaleString()}</p>
+                        <p className="text-sm"><strong>Payment Method:</strong> {formData.payment_method === 'other' ? formData.other_method : formData.payment_method.replace('_', ' ')}</p>
+                        <p className="text-sm"><strong>Payment Date:</strong> {formData.payment_date}</p>
+                        {formData.receipt_number && (
+                            <p className="text-sm"><strong>Receipt Number:</strong> {formData.receipt_number}</p>
+                        )}
+                        {formData.receipt_file && (
+                            <p className="text-sm"><strong>File:</strong> {formData.receipt_file.name}</p>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={confirmSubmit}>
+                            Confirm & Submit
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>

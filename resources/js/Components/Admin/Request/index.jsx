@@ -34,12 +34,22 @@ import {
     Edit,
     ThumbsUp,
     ThumbsDown,
-    Trash2
+    Trash2,
+    Download
 } from 'lucide-react';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from '@/components/ui/pagination';
 import { useForm, router } from '@inertiajs/react';
 import { useToast } from '@/Components/ui/use-toast';
 
-export function AdminRequestList({ requests = [] }) {
+export function AdminRequestList({ requests }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState('all');
     const [selectedRequest, setSelectedRequest] = useState(null);
@@ -54,6 +64,8 @@ export function AdminRequestList({ requests = [] }) {
         date_certified: '',
         issued_by: '',
     });
+
+    const requestsData = requests?.data || requests || [];
 
     const handleAction = (request, action) => {
         if (!request.report_id) {
@@ -84,6 +96,15 @@ export function AdminRequestList({ requests = [] }) {
                     description: "Failed to update request status.",
                 });
             }
+        });
+    };
+
+    const handleExport = () => {
+        const url = route('admin.export.requests', { status: filterStatus });
+        window.location.href = url;
+        toast({
+            title: "Export Started",
+            description: "Your CSV file will download shortly.",
         });
     };
 
@@ -131,18 +152,29 @@ export function AdminRequestList({ requests = [] }) {
         });
     };
 
-    const handleDelete = (request) => {
-        if (!confirm('Are you sure you want to delete this request? This action cannot be undone.')) {
-            return;
-        }
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [requestToDelete, setRequestToDelete] = useState(null);
+    const [isAcceptDialogOpen, setIsAcceptDialogOpen] = useState(false);
+    const [isDeclineDialogOpen, setIsDeclineDialogOpen] = useState(false);
+    const [requestToAction, setRequestToAction] = useState(null);
 
-        router.delete(route('admin.delete-request', request.id), {
+    const handleDeleteClick = (request) => {
+        setRequestToDelete(request);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (!requestToDelete) return;
+
+        router.delete(route('admin.delete-request', requestToDelete.id), {
             preserveScroll: true,
             onSuccess: () => {
                 toast({
                     title: "Success!",
                     description: "Request deleted successfully!",
                 });
+                setIsDeleteDialogOpen(false);
+                setRequestToDelete(null);
             },
             onError: (errors) => {
                 console.error('Delete error:', errors);
@@ -150,6 +182,84 @@ export function AdminRequestList({ requests = [] }) {
                     variant: "destructive",
                     title: "Error",
                     description: "Failed to delete request.",
+                });
+            }
+        });
+    };
+
+    const handleAcceptClick = (request) => {
+        if (!request.report_id) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No report found for this request.",
+            });
+            return;
+        }
+        setRequestToAction(request);
+        setIsAcceptDialogOpen(true);
+    };
+
+    const confirmAccept = () => {
+        if (!requestToAction) return;
+
+        router.post(route('admin.update-evaluation', requestToAction.report_id), {
+            evaluation: 'approved',
+            issued_by: 'Admin',
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast({
+                    title: "Success!",
+                    description: "Request approved successfully!",
+                });
+                setIsAcceptDialogOpen(false);
+                setRequestToAction(null);
+            },
+            onError: (errors) => {
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Failed to approve request.",
+                });
+            }
+        });
+    };
+
+    const handleDeclineClick = (request) => {
+        if (!request.report_id) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No report found for this request.",
+            });
+            return;
+        }
+        setRequestToAction(request);
+        setIsDeclineDialogOpen(true);
+    };
+
+    const confirmDecline = () => {
+        if (!requestToAction) return;
+
+        router.post(route('admin.update-evaluation', requestToAction.report_id), {
+            evaluation: 'rejected',
+            issued_by: 'Admin',
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast({
+                    title: "Request Declined",
+                    description: "Request has been rejected.",
+                });
+                setIsDeclineDialogOpen(false);
+                setRequestToAction(null);
+            },
+            onError: (errors) => {
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Failed to decline request.",
                 });
             }
         });
@@ -198,7 +308,7 @@ export function AdminRequestList({ requests = [] }) {
     };
 
     const filteredRequests = useMemo(() => {
-        let filtered = requests;
+        let filtered = requestsData;
 
         // Filter by status
         if (filterStatus !== 'all') {
@@ -216,16 +326,76 @@ export function AdminRequestList({ requests = [] }) {
         }
 
         return filtered;
-    }, [requests, filterStatus, searchTerm]);
+    }, [requestsData, filterStatus, searchTerm]);
 
     const stats = useMemo(() => {
         return {
-            total: requests.length,
-            pending: requests.filter(r => r.status === 'pending').length,
-            approved: requests.filter(r => r.status === 'approved').length,
-            rejected: requests.filter(r => r.status === 'rejected').length,
+            total: requestsData.length,
+            pending: requestsData.filter(r => r.status === 'pending').length,
+            approved: requestsData.filter(r => r.status === 'approved').length,
+            rejected: requestsData.filter(r => r.status === 'rejected').length,
         };
-    }, [requests]);
+    }, [requestsData]);
+    
+    const handlePageChange = (url) => {
+        if (url) {
+            router.get(url, {}, { preserveState: true, preserveScroll: true });
+        }
+    };
+    
+    const renderPaginationLinks = () => {
+        if (!requests?.links || requests.links.length <= 3) return null;
+        
+        return (
+            <Pagination className="mt-6">
+                <PaginationContent>
+                    {requests.links.map((link, index) => {
+                        if (index === 0) {
+                            return (
+                                <PaginationItem key={index}>
+                                    <PaginationPrevious 
+                                        onClick={() => handlePageChange(link.url)}
+                                        className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                                    />
+                                </PaginationItem>
+                            );
+                        }
+                        
+                        if (index === requests.links.length - 1) {
+                            return (
+                                <PaginationItem key={index}>
+                                    <PaginationNext 
+                                        onClick={() => handlePageChange(link.url)}
+                                        className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                                    />
+                                </PaginationItem>
+                            );
+                        }
+                        
+                        if (link.label === '...') {
+                            return (
+                                <PaginationItem key={index}>
+                                    <PaginationEllipsis />
+                                </PaginationItem>
+                            );
+                        }
+                        
+                        return (
+                            <PaginationItem key={index}>
+                                <PaginationLink
+                                    onClick={() => handlePageChange(link.url)}
+                                    isActive={link.active}
+                                    className="cursor-pointer"
+                                >
+                                    {link.label}
+                                </PaginationLink>
+                            </PaginationItem>
+                        );
+                    })}
+                </PaginationContent>
+            </Pagination>
+        );
+    };
 
     return (
         <div className="space-y-6">
@@ -293,6 +463,10 @@ export function AdminRequestList({ requests = [] }) {
                             All Requests ({filteredRequests.length})
                         </CardTitle>
                         <div className="flex gap-2">
+                            <Button variant="outline" onClick={handleExport} className="gap-2">
+                                <Download className="h-4 w-4" />
+                                Export CSV
+                            </Button>
                             <div className="relative w-64">
                                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
@@ -377,16 +551,16 @@ export function AdminRequestList({ requests = [] }) {
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem
-                                                        onClick={() => handleAction(request, 'approved')}
-                                                        disabled={processing || request.status === 'approved'}
+                                                        onClick={() => handleAcceptClick(request)}
+                                                        disabled={request.status === 'approved'}
                                                         className="text-emerald-600"
                                                     >
                                                         <ThumbsUp className="h-4 w-4 mr-2" />
                                                         Accept
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
-                                                        onClick={() => handleAction(request, 'rejected')}
-                                                        disabled={processing || request.status === 'rejected'}
+                                                        onClick={() => handleDeclineClick(request)}
+                                                        disabled={request.status === 'rejected'}
                                                         className="text-rose-600"
                                                     >
                                                         <ThumbsDown className="h-4 w-4 mr-2" />
@@ -394,7 +568,7 @@ export function AdminRequestList({ requests = [] }) {
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem
-                                                        onClick={() => handleDelete(request)}
+                                                        onClick={() => handleDeleteClick(request)}
                                                         className="text-red-600"
                                                     >
                                                         <Trash2 className="h-4 w-4 mr-2" />
@@ -408,6 +582,7 @@ export function AdminRequestList({ requests = [] }) {
                             </tbody>
                         </table>
                     </div>
+                    {renderPaginationLinks()}
                 </CardContent>
             </Card>
 
@@ -750,6 +925,66 @@ export function AdminRequestList({ requests = [] }) {
                             </Button>
                         </div>
                     </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Request</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete Request #{requestToDelete?.id}? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end gap-2 pt-4">
+                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmDelete}>
+                            Delete
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Accept Confirmation Dialog */}
+            <Dialog open={isAcceptDialogOpen} onOpenChange={setIsAcceptDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Approve Request</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to approve Request #{requestToAction?.id}? The applicant will be notified via email.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end gap-2 pt-4">
+                        <Button variant="outline" onClick={() => setIsAcceptDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={confirmAccept}>
+                            Approve
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Decline Confirmation Dialog */}
+            <Dialog open={isDeclineDialogOpen} onOpenChange={setIsDeclineDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Decline Request</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to decline Request #{requestToAction?.id}? The applicant will be notified.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end gap-2 pt-4">
+                        <Button variant="outline" onClick={() => setIsDeclineDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmDecline}>
+                            Decline
+                        </Button>
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>

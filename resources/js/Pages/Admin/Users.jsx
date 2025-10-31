@@ -29,8 +29,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { MoreVertical, Pencil, Trash2, Search } from "lucide-react";
+import { useState, useMemo } from "react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +57,80 @@ export default function Users({ users }) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const usersData = users?.data || users;
+  
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm) return usersData;
+    
+    return usersData.filter(user =>
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.contact_number?.includes(searchTerm) ||
+      user.id?.toString().includes(searchTerm)
+    );
+  }, [usersData, searchTerm]);
+  
+  const handlePageChange = (url) => {
+    if (url) {
+      router.get(url, {}, { preserveState: true, preserveScroll: true });
+    }
+  };
+  
+  const renderPaginationLinks = () => {
+    if (!users?.links || users.links.length <= 3) return null;
+    
+    return (
+      <Pagination className="mt-6">
+        <PaginationContent>
+          {users.links.map((link, index) => {
+            if (index === 0) {
+              return (
+                <PaginationItem key={index}>
+                  <PaginationPrevious 
+                    onClick={() => handlePageChange(link.url)}
+                    className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+              );
+            }
+            
+            if (index === users.links.length - 1) {
+              return (
+                <PaginationItem key={index}>
+                  <PaginationNext 
+                    onClick={() => handlePageChange(link.url)}
+                    className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+              );
+            }
+            
+            if (link.label === '...') {
+              return (
+                <PaginationItem key={index}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              );
+            }
+            
+            return (
+              <PaginationItem key={index}>
+                <PaginationLink
+                  onClick={() => handlePageChange(link.url)}
+                  isActive={link.active}
+                  className="cursor-pointer"
+                >
+                  {link.label}
+                </PaginationLink>
+              </PaginationItem>
+            );
+          })}
+        </PaginationContent>
+      </Pagination>
+    );
+  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -116,10 +199,23 @@ export default function Users({ users }) {
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gradient-to-br from-purple-50 to-slate-50">
           <Card>
             <CardHeader>
-              <CardTitle>Applicant Users</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Total: {users.length} applicants
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Applicant Users</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Total: {users?.total || usersData.length} applicants
+                  </p>
+                </div>
+                <div className="relative w-64">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search users..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="rounded-md border">
@@ -137,14 +233,14 @@ export default function Users({ users }) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.length === 0 ? (
+                    {filteredUsers.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={8} className="text-center text-muted-foreground">
-                          No applicants found
+                          {searchTerm ? 'No users match your search' : 'No applicants found'}
                         </TableCell>
                       </TableRow>
                     ) : (
-                      users.map((user) => (
+                      filteredUsers.map((user) => (
                         <TableRow key={user.id}>
                           <TableCell className="font-medium">{user.id}</TableCell>
                           <TableCell>{user.name}</TableCell>
@@ -185,6 +281,7 @@ export default function Users({ users }) {
                   </TableBody>
                 </Table>
               </div>
+              {renderPaginationLinks()}
             </CardContent>
           </Card>
         </div>

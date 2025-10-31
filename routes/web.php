@@ -53,6 +53,17 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
     Route::post('/payments/{paymentId}/verify', [AdminController::class, 'verifyPayment'])->name('payments.verify');
     Route::post('/payments/{paymentId}/reject', [AdminController::class, 'rejectPayment'])->name('payments.reject');
+    
+    // Export routes
+    Route::get('/export/payments', [AdminController::class, 'exportPayments'])->name('export.payments');
+    Route::get('/export/applications', [AdminController::class, 'exportApplications'])->name('export.applications');
+    Route::get('/export/requests', [AdminController::class, 'exportRequests'])->name('export.requests');
+});
+
+// Notification routes
+Route::middleware('auth')->prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    Route::post('/mark-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read');
 });
 
 require __DIR__.'/auth.php';

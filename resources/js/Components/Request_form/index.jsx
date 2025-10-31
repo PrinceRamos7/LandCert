@@ -11,13 +11,22 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/Components/ui/dialog";
 import { useToast } from "@/Components/ui/use-toast";
-import { Check } from "lucide-react";
+import { Check, FileText, MapPin, User } from "lucide-react";
 
 export default function RequestForm() {
     const [currentStep, setCurrentStep] = useState(1);
     const [completedSteps, setCompletedSteps] = useState([]);
     const [hasRepresentative, setHasRepresentative] = useState(false);
+    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
     const { toast } = useToast();
     const page = usePage();
     const flash = page.props.flash || {};
@@ -93,6 +102,11 @@ export default function RequestForm() {
             return;
         }
 
+        // Show confirmation dialog
+        setIsConfirmDialogOpen(true);
+    };
+
+    const confirmSubmit = () => {
         post(route("request.store"), {
             preserveScroll: true,
             onSuccess: (page) => {
@@ -102,9 +116,11 @@ export default function RequestForm() {
                     description: successMessage,
                     duration: 5000,
                 });
+                setIsConfirmDialogOpen(false);
                 reset();
                 setCurrentStep(1);
                 setCompletedSteps([]);
+                setHasRepresentative(false);
             },
             onError: () => {
                 toast({
@@ -113,6 +129,7 @@ export default function RequestForm() {
                     description: "There was an error submitting your request. Please check the form and try again.",
                     duration: 5000,
                 });
+                setIsConfirmDialogOpen(false);
             }
         });
     };
@@ -1151,13 +1168,149 @@ export default function RequestForm() {
                 ) : (
                     <Button 
                         type="submit" 
+                        loading={processing}
                         disabled={processing}
-                        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg"
                     >
                         {processing ? "Submitting..." : "✓ Submit Request"}
                     </Button>
                 )}
             </div>
+
+            {/* Confirmation Dialog */}
+            <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+                <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Confirm Application Submission</DialogTitle>
+                        <DialogDescription>
+                            Please review your application details before submitting.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="space-y-4">
+                        {/* Applicant Information */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                                <User className="h-4 w-4" />
+                                Applicant Information
+                            </h3>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div>
+                                    <p className="text-gray-600">Name:</p>
+                                    <p className="font-medium">{data.applicant_name}</p>
+                                </div>
+                                {data.corporation_name && (
+                                    <div>
+                                        <p className="text-gray-600">Corporation:</p>
+                                        <p className="font-medium">{data.corporation_name}</p>
+                                    </div>
+                                )}
+                                <div className="col-span-2">
+                                    <p className="text-gray-600">Address:</p>
+                                    <p className="font-medium">{data.applicant_address}</p>
+                                </div>
+                                {hasRepresentative && data.authorized_representative_name && (
+                                    <>
+                                        <div className="col-span-2 pt-2 border-t">
+                                            <p className="text-gray-600">Authorized Representative:</p>
+                                            <p className="font-medium">{data.authorized_representative_name}</p>
+                                        </div>
+                                        {data.authorization_letter && (
+                                            <div className="col-span-2">
+                                                <p className="text-gray-600">Authorization Letter:</p>
+                                                <p className="font-medium flex items-center gap-1">
+                                                    <FileText className="h-3 w-3" />
+                                                    {data.authorization_letter.name}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Project Details */}
+                        {(data.project_type || data.project_nature || data.project_cost) && (
+                            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                <h3 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+                                    <FileText className="h-4 w-4" />
+                                    Project Details
+                                </h3>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                    {data.project_type && (
+                                        <div>
+                                            <p className="text-gray-600">Type:</p>
+                                            <p className="font-medium">{data.project_type}</p>
+                                        </div>
+                                    )}
+                                    {data.project_nature && (
+                                        <div>
+                                            <p className="text-gray-600">Nature:</p>
+                                            <p className="font-medium">{data.project_nature}</p>
+                                        </div>
+                                    )}
+                                    {data.lot_area_sqm && (
+                                        <div>
+                                            <p className="text-gray-600">Lot Area:</p>
+                                            <p className="font-medium">{parseFloat(data.lot_area_sqm).toLocaleString()} sqm</p>
+                                        </div>
+                                    )}
+                                    {data.project_cost && (
+                                        <div>
+                                            <p className="text-gray-600">Project Cost:</p>
+                                            <p className="font-medium">₱{parseFloat(data.project_cost).toLocaleString()}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Project Location */}
+                        {(data.project_location_street || data.project_location_barangay) && (
+                            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                                <h3 className="font-semibold text-emerald-900 mb-3 flex items-center gap-2">
+                                    <MapPin className="h-4 w-4" />
+                                    Project Location
+                                </h3>
+                                <p className="text-sm font-medium">
+                                    {[
+                                        data.project_location_number,
+                                        data.project_location_street,
+                                        data.project_location_barangay,
+                                        data.project_location_municipality,
+                                        data.project_location_province
+                                    ].filter(Boolean).join(', ')}
+                                </p>
+                            </div>
+                        )}
+
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                            <p className="text-sm text-amber-800">
+                                <strong>Note:</strong> Once submitted, you will receive a confirmation email. 
+                                Your application will be reviewed by our admin team.
+                            </p>
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => setIsConfirmDialogOpen(false)}
+                            disabled={processing}
+                        >
+                            Review Again
+                        </Button>
+                        <Button 
+                            onClick={confirmSubmit}
+                            disabled={processing}
+                            className="bg-gradient-to-r from-blue-600 to-blue-700"
+                        >
+                            {processing ? "Submitting..." : "✓ Confirm & Submit"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </form>
     );
 }

@@ -45,6 +45,7 @@ class PaymentController extends Controller
                 'certificates.issued_at'
             )
             ->where('reports.evaluation', 'approved')
+            ->distinct()
             ->orderBy('requests.created_at', 'desc')
             ->get();
 
@@ -97,10 +98,11 @@ class PaymentController extends Controller
             'request_id' => 'required|exists:requests,id',
             'amount' => 'required|numeric|min:0',
             'payment_method' => 'required|in:cash,bank_transfer,gcash,paymaya,check,other',
-            'receipt_number' => 'nullable|string|max:255',
+            'receipt_number' => 'required_unless:payment_method,cash|nullable|string|max:255',
             'receipt_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'payment_date' => 'required|date',
             'notes' => 'nullable|string',
+            'other_method' => 'required_if:payment_method,other|nullable|string|max:255',
         ]);
 
         // Upload receipt file
@@ -112,13 +114,19 @@ class PaymentController extends Controller
             ->where('applicant_address', $requestModel->applicant_address)
             ->first();
 
+        // Prepare payment method (use other_method if payment_method is 'other')
+        $paymentMethod = $validated['payment_method'];
+        if ($paymentMethod === 'other' && !empty($validated['other_method'])) {
+            $paymentMethod = 'other: ' . $validated['other_method'];
+        }
+
         // Create payment record
         $payment = Payment::create([
             'request_id' => $validated['request_id'],
             'application_id' => $application?->id,
             'amount' => $validated['amount'],
-            'payment_method' => $validated['payment_method'],
-            'receipt_number' => $validated['receipt_number'],
+            'payment_method' => $paymentMethod,
+            'receipt_number' => $validated['receipt_number'] ?? null,
             'receipt_file_path' => $receiptPath,
             'payment_date' => $validated['payment_date'],
             'payment_status' => 'pending',

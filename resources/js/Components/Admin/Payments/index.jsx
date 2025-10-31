@@ -19,6 +19,15 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from '@/components/ui/pagination';
 import { 
     CheckCircle2, 
     XCircle, 
@@ -30,17 +39,20 @@ import {
     ThumbsUp,
     ThumbsDown,
     DollarSign,
-    Calendar
+    Calendar,
+    Download
 } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import { useToast } from '@/Components/ui/use-toast';
 
-export function AdminPaymentList({ payments = [] }) {
+export function AdminPaymentList({ payments }) {
+    const paymentsData = payments?.data || [];
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState('all');
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
     const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+    const [isVerifyDialogOpen, setIsVerifyDialogOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
     const { toast } = useToast();
 
@@ -66,15 +78,22 @@ export function AdminPaymentList({ payments = [] }) {
         }
     };
 
-    const handleVerify = (payment) => {
-        if (!confirm('Are you sure you want to verify this payment?')) return;
+    const handleVerifyClick = (payment) => {
+        setSelectedPayment(payment);
+        setIsVerifyDialogOpen(true);
+    };
 
-        router.post(route('admin.payments.verify', payment.id), {}, {
+    const confirmVerify = () => {
+        if (!selectedPayment) return;
+
+        router.post(route('admin.payments.verify', selectedPayment.id), {}, {
             onSuccess: () => {
                 toast({
                     title: "Success!",
-                    description: "Payment verified successfully!",
+                    description: "Payment verified and certificate generated successfully!",
                 });
+                setIsVerifyDialogOpen(false);
+                setSelectedPayment(null);
             },
             onError: () => {
                 toast({
@@ -128,7 +147,7 @@ export function AdminPaymentList({ payments = [] }) {
     };
 
     const filteredPayments = useMemo(() => {
-        let filtered = payments;
+        let filtered = paymentsData;
 
         if (filterStatus !== 'all') {
             filtered = filtered.filter(p => p.payment_status === filterStatus);
@@ -143,16 +162,85 @@ export function AdminPaymentList({ payments = [] }) {
         }
 
         return filtered;
-    }, [payments, filterStatus, searchTerm]);
+    }, [paymentsData, filterStatus, searchTerm]);
 
     const stats = useMemo(() => {
         return {
-            total: payments.length,
-            pending: payments.filter(p => p.payment_status === 'pending').length,
-            verified: payments.filter(p => p.payment_status === 'verified').length,
-            rejected: payments.filter(p => p.payment_status === 'rejected').length,
+            total: paymentsData.length,
+            pending: paymentsData.filter(p => p.payment_status === 'pending').length,
+            verified: paymentsData.filter(p => p.payment_status === 'verified').length,
+            rejected: paymentsData.filter(p => p.payment_status === 'rejected').length,
         };
-    }, [payments]);
+    }, [paymentsData]);
+    
+    const handleExport = () => {
+        const url = route('admin.export.payments', { status: filterStatus });
+        window.location.href = url;
+        toast({
+            title: "Export Started",
+            description: "Your CSV file will download shortly.",
+        });
+    };
+    
+    const handlePageChange = (url) => {
+        if (url) {
+            router.get(url, {}, { preserveState: true, preserveScroll: true });
+        }
+    };
+    
+    const renderPaginationLinks = () => {
+        if (!payments?.links || payments.links.length <= 3) return null;
+        
+        return (
+            <Pagination className="mt-6">
+                <PaginationContent>
+                    {payments.links.map((link, index) => {
+                        if (index === 0) {
+                            return (
+                                <PaginationItem key={index}>
+                                    <PaginationPrevious 
+                                        onClick={() => handlePageChange(link.url)}
+                                        className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                                    />
+                                </PaginationItem>
+                            );
+                        }
+                        
+                        if (index === payments.links.length - 1) {
+                            return (
+                                <PaginationItem key={index}>
+                                    <PaginationNext 
+                                        onClick={() => handlePageChange(link.url)}
+                                        className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                                    />
+                                </PaginationItem>
+                            );
+                        }
+                        
+                        if (link.label === '...') {
+                            return (
+                                <PaginationItem key={index}>
+                                    <PaginationEllipsis />
+                                </PaginationItem>
+                            );
+                        }
+                        
+                        return (
+                            <PaginationItem key={index}>
+                                <PaginationLink
+                                    onClick={() => handlePageChange(link.url)}
+                                    isActive={link.active}
+                                    className="cursor-pointer"
+                                >
+                                    {link.label}
+                                </PaginationLink>
+                            </PaginationItem>
+                        );
+                    })}
+                </PaginationContent>
+            </Pagination>
+        );
+    };
 
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
@@ -217,6 +305,10 @@ export function AdminPaymentList({ payments = [] }) {
                             Payment Submissions ({filteredPayments.length})
                         </CardTitle>
                         <div className="flex gap-2">
+                            <Button variant="outline" onClick={handleExport} className="gap-2">
+                                <Download className="h-4 w-4" />
+                                Export CSV
+                            </Button>
                             <div className="relative w-64">
                                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
@@ -284,7 +376,7 @@ export function AdminPaymentList({ payments = [] }) {
                                                     {payment.payment_status === 'pending' && (
                                                         <>
                                                             <DropdownMenuItem
-                                                                onClick={() => handleVerify(payment)}
+                                                                onClick={() => handleVerifyClick(payment)}
                                                                 className="text-emerald-600"
                                                             >
                                                                 <ThumbsUp className="h-4 w-4 mr-2" />
@@ -307,85 +399,176 @@ export function AdminPaymentList({ payments = [] }) {
                             </tbody>
                         </table>
                     </div>
+                    {renderPaginationLinks()}
                 </CardContent>
             </Card>
 
             {/* View Details Dialog */}
             <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-                <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                        <DialogTitle>Payment Details #{selectedPayment?.id}</DialogTitle>
-                        <DialogDescription>
-                            Submitted on {formatDate(selectedPayment?.created_at)}
-                        </DialogDescription>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader className="border-b pb-4">
+                        <DialogTitle className="text-2xl font-bold">Payment Details</DialogTitle>
                     </DialogHeader>
                     {selectedPayment && (
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
+                            {/* Left Column - Payment Information */}
+                            <div className="space-y-6">
                                 <div>
-                                    <Label className="text-gray-600">Applicant Name</Label>
-                                    <p className="font-medium">{selectedPayment.applicant_name}</p>
-                                </div>
-                                <div>
-                                    <Label className="text-gray-600">Request ID</Label>
-                                    <p className="font-medium">#{selectedPayment.request_id}</p>
-                                </div>
-                                <div>
-                                    <Label className="text-gray-600">Amount</Label>
-                                    <p className="font-medium text-lg">₱{parseFloat(selectedPayment.amount).toLocaleString()}</p>
-                                </div>
-                                <div>
-                                    <Label className="text-gray-600">Payment Method</Label>
-                                    <p className="font-medium capitalize">{selectedPayment.payment_method.replace('_', ' ')}</p>
-                                </div>
-                                <div>
-                                    <Label className="text-gray-600">Receipt Number</Label>
-                                    <p className="font-medium">{selectedPayment.receipt_number || 'N/A'}</p>
-                                </div>
-                                <div>
-                                    <Label className="text-gray-600">Payment Date</Label>
-                                    <p className="font-medium">{formatDate(selectedPayment.payment_date)}</p>
-                                </div>
-                                <div className="col-span-2">
-                                    <Label className="text-gray-600">Status</Label>
-                                    <div className="mt-1">
-                                        <Badge className={getStatusColor(selectedPayment.payment_status)}>
-                                            {selectedPayment.payment_status.charAt(0).toUpperCase() + selectedPayment.payment_status.slice(1)}
-                                        </Badge>
+                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Payment Information</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <p className="text-sm text-gray-500 mb-1">Applicant Name</p>
+                                            <p className="font-semibold text-gray-900">{selectedPayment.applicant_name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500 mb-1">Email</p>
+                                            <p className="font-medium text-gray-900">{selectedPayment.applicant_email || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500 mb-1">Request ID</p>
+                                            <p className="font-medium text-gray-900">#{selectedPayment.request_id}</p>
+                                        </div>
                                     </div>
                                 </div>
+
+                                <div className="border-t pt-6">
+                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Transaction Details</h3>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-500">Payment Method</span>
+                                            <span className="font-medium text-gray-900 capitalize">{selectedPayment.payment_method.replace('_', ' ')}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-500">Receipt Number</span>
+                                            <span className="font-medium text-gray-900">{selectedPayment.receipt_number || 'N/A'}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-500">Payment Date</span>
+                                            <span className="font-medium text-gray-900">{formatDate(selectedPayment.payment_date)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center pt-2 border-t">
+                                            <span className="text-sm text-gray-500">Status</span>
+                                            <Badge className={getStatusColor(selectedPayment.payment_status)}>
+                                                <span className="flex items-center gap-1">
+                                                    {getStatusIcon(selectedPayment.payment_status)}
+                                                    {selectedPayment.payment_status.charAt(0).toUpperCase() + selectedPayment.payment_status.slice(1)}
+                                                </span>
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {selectedPayment.notes && (
-                                    <div className="col-span-2">
-                                        <Label className="text-gray-600">Notes</Label>
-                                        <p className="font-medium">{selectedPayment.notes}</p>
+                                    <div className="border-t pt-6">
+                                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Notes</h3>
+                                        <p className="text-gray-700 text-sm leading-relaxed">{selectedPayment.notes}</p>
                                     </div>
                                 )}
+
                                 {selectedPayment.rejection_reason && (
-                                    <div className="col-span-2 p-3 bg-rose-50 border border-rose-200 rounded-md">
-                                        <Label className="text-rose-800">Rejection Reason</Label>
-                                        <p className="text-rose-700 mt-1">{selectedPayment.rejection_reason}</p>
+                                    <div className="border-t pt-6">
+                                        <div className="bg-rose-50 border border-rose-200 rounded-lg p-4">
+                                            <h3 className="text-sm font-semibold text-rose-800 uppercase tracking-wide mb-2">Rejection Reason</h3>
+                                            <p className="text-rose-700 text-sm leading-relaxed">{selectedPayment.rejection_reason}</p>
+                                        </div>
                                     </div>
                                 )}
+
                                 {selectedPayment.verified_by_name && (
-                                    <div className="col-span-2">
-                                        <Label className="text-gray-600">Verified By</Label>
-                                        <p className="font-medium">{selectedPayment.verified_by_name} on {formatDate(selectedPayment.verified_at)}</p>
+                                    <div className="border-t pt-6">
+                                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Verification Info</h3>
+                                        <p className="text-gray-700 text-sm">
+                                            Verified by <span className="font-semibold">{selectedPayment.verified_by_name}</span> on {formatDate(selectedPayment.verified_at)}
+                                        </p>
                                     </div>
                                 )}
                             </div>
-                            {selectedPayment.receipt_file_path && (
-                                <div className="border-t pt-4">
-                                    <Label className="text-gray-600 mb-2 block">Receipt File</Label>
-                                    <Button variant="outline" asChild>
-                                        <a href={`/storage/${selectedPayment.receipt_file_path}`} target="_blank" rel="noopener noreferrer">
-                                            <FileText className="h-4 w-4 mr-2" />
-                                            View Receipt
-                                        </a>
-                                    </Button>
+
+                            {/* Right Column - Order Summary */}
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Payment Summary</h3>
+                                    <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                                        <div className="flex justify-between items-center pb-4 border-b border-gray-200">
+                                            <span className="text-gray-600">Payment ID</span>
+                                            <span className="font-mono font-semibold text-gray-900">#{selectedPayment.id}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center pb-4 border-b border-gray-200">
+                                            <span className="text-gray-600">Subtotal</span>
+                                            <span className="font-semibold text-gray-900">₱{parseFloat(selectedPayment.amount).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center pb-4 border-b border-gray-200">
+                                            <span className="text-gray-600">Processing Fee</span>
+                                            <span className="font-semibold text-gray-900">₱0</span>
+                                        </div>
+                                        <div className="flex justify-between items-center pt-2">
+                                            <span className="text-lg font-semibold text-gray-900">Total</span>
+                                            <span className="text-2xl font-bold text-gray-900">₱{parseFloat(selectedPayment.amount).toLocaleString()}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
+
+                                {selectedPayment.receipt_file_path && (
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Receipt Document</h3>
+                                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                                            <FileText className="h-12 w-12 mx-auto text-gray-400 mb-3" />
+                                            <p className="text-sm text-gray-600 mb-4">Receipt file uploaded</p>
+                                            <Button variant="outline" className="w-full" asChild>
+                                                <a href={`/storage/${selectedPayment.receipt_file_path}`} target="_blank" rel="noopener noreferrer">
+                                                    <Eye className="h-4 w-4 mr-2" />
+                                                    View Receipt
+                                                </a>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div className="flex items-start gap-3">
+                                        <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
+                                        <div>
+                                            <p className="text-sm font-semibold text-blue-900 mb-1">Submission Date</p>
+                                            <p className="text-sm text-blue-700">{formatDate(selectedPayment.created_at)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
+                    <DialogFooter className="border-t pt-4 mt-6">
+                        <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+                            Close
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Verify Confirmation Dialog */}
+            <Dialog open={isVerifyDialogOpen} onOpenChange={setIsVerifyDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Verify Payment</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to verify this payment? This will automatically generate and send the certificate to the applicant.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {selectedPayment && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+                            <p className="text-sm"><strong>Payment ID:</strong> #{selectedPayment.id}</p>
+                            <p className="text-sm"><strong>Applicant:</strong> {selectedPayment.applicant_name}</p>
+                            <p className="text-sm"><strong>Amount:</strong> ₱{parseFloat(selectedPayment.amount).toLocaleString()}</p>
+                            <p className="text-sm"><strong>Method:</strong> {selectedPayment.payment_method.replace('_', ' ')}</p>
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsVerifyDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={confirmVerify}>
+                            Verify & Generate Certificate
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 
@@ -395,7 +578,7 @@ export function AdminPaymentList({ payments = [] }) {
                     <DialogHeader>
                         <DialogTitle>Reject Payment</DialogTitle>
                         <DialogDescription>
-                            Please provide a reason for rejecting this payment.
+                            Please provide a reason for rejecting this payment. The applicant will be able to resubmit.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">

@@ -35,6 +35,14 @@ class StatusHistory extends Model
     }
 
     /**
+     * Alias for changer relationship (for backwards compatibility).
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'changed_by');
+    }
+
+    /**
      * Log a status change.
      */
     public static function logChange(

@@ -23,26 +23,28 @@ import {
     Briefcase
 } from 'lucide-react';
 
-export function Dashboard({ requests = [] }) {
+export function Dashboard({ requests }) {
     const [filterStatus, setFilterStatus] = useState('all');
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const requestsData = requests?.data || requests || [];
+
     // Calculate statistics
     const stats = useMemo(() => {
-        const total = requests.length;
-        const pending = requests.filter(r => r.status === 'pending').length;
-        const approved = requests.filter(r => r.status === 'approved').length;
-        const rejected = requests.filter(r => r.status === 'rejected').length;
+        const total = requestsData.length;
+        const pending = requestsData.filter(r => r.status === 'pending').length;
+        const approved = requestsData.filter(r => r.status === 'approved').length;
+        const rejected = requestsData.filter(r => r.status === 'rejected').length;
         
         return { total, pending, approved, rejected };
-    }, [requests]);
+    }, [requestsData]);
 
     // Filter requests based on selected status
     const filteredRequests = useMemo(() => {
-        if (filterStatus === 'all') return requests;
-        return requests.filter(r => r.status === filterStatus);
-    }, [requests, filterStatus]);
+        if (filterStatus === 'all') return requestsData;
+        return requestsData.filter(r => r.status === filterStatus);
+    }, [requestsData, filterStatus]);
 
     const getStatusColor = (status) => {
         switch (status) {
