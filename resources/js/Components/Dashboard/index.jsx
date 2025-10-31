@@ -235,6 +235,41 @@ export function Dashboard({ requests }) {
                                 </p>
                             </div>
 
+                            {/* Payment & Certificate Info */}
+                            {request?.payment_verified && request?.certificate_number && (
+                                <div className="pt-3 border-t bg-emerald-50 rounded-lg p-3 space-y-2">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                                        <span className="text-sm font-medium text-emerald-800">Verified</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-emerald-600 font-medium">Certificate Number:</p>
+                                        <p className="text-sm font-semibold text-emerald-800">{request.certificate_number}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-emerald-600 font-medium">Issued:</p>
+                                        <p className="text-sm font-medium text-emerald-800">{formatDate(request.certificate_issued_at)}</p>
+                                    </div>
+                                    <div className="flex gap-2 pt-2">
+                                        <a 
+                                            href={`/certificate/${request.certificate_id}/download`}
+                                            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium py-2 px-3 rounded-md flex items-center justify-center gap-1 transition-colors"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <FileText className="h-3 w-3" />
+                                            Download Certificate
+                                        </a>
+                                        <a 
+                                            href="/receipt"
+                                            className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium py-2 px-3 rounded-md flex items-center justify-center gap-1 transition-colors"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            View Receipt
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Project Details */}
                             <div className="pt-3 border-t space-y-2">
                                 {request?.project_type && (
@@ -253,6 +288,18 @@ export function Dashboard({ requests }) {
                                     <div>
                                         <p className="text-xs text-muted-foreground">Lot Area</p>
                                         <p className="text-sm font-medium">{parseFloat(request.lot_area_sqm).toLocaleString()} sqm</p>
+                                    </div>
+                                )}
+                                {request?.payment_verified && request?.payment_amount && (
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Amount Paid</p>
+                                        <p className="text-sm font-medium">₱{parseFloat(request.payment_amount).toLocaleString()}</p>
+                                    </div>
+                                )}
+                                {request?.payment_verified && request?.payment_date && (
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Payment Date</p>
+                                        <p className="text-sm font-medium">{formatDate(request.payment_date)}</p>
                                     </div>
                                 )}
                             </div>
@@ -485,6 +532,55 @@ export function Dashboard({ requests }) {
                                                 )}
                                             </div>
                                         )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Certificate Information */}
+                            {selectedRequest?.payment_verified && selectedRequest?.certificate_number && (
+                                <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg p-5 border border-emerald-200">
+                                    <h3 className="text-lg font-bold text-emerald-900 flex items-center gap-2 mb-4">
+                                        <div className="p-2 bg-emerald-100 rounded-lg">
+                                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                                        </div>
+                                        Certificate Information
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div className="bg-white p-4 rounded-md border border-emerald-100">
+                                            <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">Certificate Number</p>
+                                            <p className="font-bold text-emerald-900 text-lg">{selectedRequest.certificate_number}</p>
+                                        </div>
+                                        <div className="bg-white p-4 rounded-md border border-emerald-100">
+                                            <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">Issued</p>
+                                            <p className="font-semibold text-emerald-800">{formatDate(selectedRequest.certificate_issued_at)}</p>
+                                        </div>
+                                        {selectedRequest.payment_amount && (
+                                            <div className="bg-white p-4 rounded-md border border-emerald-100">
+                                                <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">Amount Paid</p>
+                                                <p className="font-semibold text-emerald-800">₱{parseFloat(selectedRequest.payment_amount).toLocaleString()}</p>
+                                            </div>
+                                        )}
+                                        {selectedRequest.payment_date && (
+                                            <div className="bg-white p-4 rounded-md border border-emerald-100">
+                                                <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">Payment Date</p>
+                                                <p className="font-semibold text-emerald-800">{formatDate(selectedRequest.payment_date)}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <a 
+                                            href={`/certificate/${selectedRequest.certificate_id}/download`}
+                                            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-md hover:shadow-lg"
+                                        >
+                                            <FileText className="h-5 w-5" />
+                                            Download Certificate
+                                        </a>
+                                        <a 
+                                            href="/receipt"
+                                            className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                                        >
+                                            View Receipt
+                                        </a>
                                     </div>
                                 </div>
                             )}

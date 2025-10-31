@@ -34,7 +34,7 @@ class CertificateIssued extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Land Certificate is Ready!',
+            subject: 'Payment Successfully Verified - Certificate Ready for Download!',
         );
     }
 

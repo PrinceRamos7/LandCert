@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminController extends Controller
 {
@@ -647,9 +648,14 @@ class AdminController extends Controller
 
         // Generate certificate automatically
         try {
+            \Log::info('Starting certificate generation for payment: ' . $payment->id);
             $this->generateCertificate($payment);
+            \Log::info('Certificate generation completed for payment: ' . $payment->id);
         } catch (\Exception $e) {
-            \Log::error('Failed to generate certificate: ' . $e->getMessage());
+            \Log::error('Failed to generate certificate: ' . $e->getMessage(), [
+                'payment_id' => $payment->id,
+                'trace' => $e->getTraceAsString()
+            ]);
         }
 
         return back()->with('success', 'Payment verified and certificate generated successfully!');
@@ -660,10 +666,22 @@ class AdminController extends Controller
      */
     private function generateCertificate($payment)
     {
+        \Log::info('generateCertificate called', ['payment_id' => $payment->id]);
+        
         $requestModel = RequestModel::find($payment->request_id);
         $application = Application::find($payment->application_id);
         
+        \Log::info('Found models', [
+            'request_model' => $requestModel ? $requestModel->id : 'null',
+            'application' => $application ? $application->id : 'null'
+        ]);
+        
         if (!$requestModel || !$application) {
+            \Log::error('Missing required models for certificate generation', [
+                'payment_id' => $payment->id,
+                'request_id' => $payment->request_id,
+                'application_id' => $payment->application_id
+            ]);
             return;
         }
 
@@ -691,12 +709,26 @@ class AdminController extends Controller
             'issuedBy' => auth()->user()->name,
         ];
 
+        \Log::info('Generating PDF with data', ['certificate_number' => $certificateNumber]);
+        
         // Generate PDF
-        $pdf = \PDF::loadView('certificates.template', $data);
+        try {
+            $pdf = Pdf::loadView('certificates.simple-template', $data);
+            \Log::info('PDF generated successfully');
+        } catch (\Exception $e) {
+            \Log::error('PDF generation failed: ' . $e->getMessage());
+            throw $e;
+        }
         
         // Save PDF
         $filename = 'certificates/' . $certificateNumber . '.pdf';
-        \Storage::disk('public')->put($filename, $pdf->output());
+        try {
+            \Storage::disk('public')->put($filename, $pdf->output());
+            \Log::info('PDF saved successfully', ['filename' => $filename]);
+        } catch (\Exception $e) {
+            \Log::error('PDF save failed: ' . $e->getMessage());
+            throw $e;
+        }
 
         // Create certificate record
         $certificate = \App\Models\Certificate::create([

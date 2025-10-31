@@ -26,9 +26,12 @@ class RequestController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        // Get requests for the currently logged-in user only
-        // Join with applications and reports to get the evaluation status
+        // Get requests for the currently logged-in user only with payment and certificate info
         $requests = RequestModel::where('requests.user_id', auth()->id())
+            ->with(['payments' => function($query) {
+                $query->where('payment_status', 'verified')
+                      ->with('certificate');
+            }])
             ->leftJoin('applications', function($join) {
                 $join->on('requests.applicant_name', '=', 'applications.applicant_name')
                      ->on('requests.applicant_address', '=', 'applications.applicant_address');
@@ -39,7 +42,22 @@ class RequestController extends Controller
                 DB::raw('COALESCE(reports.evaluation, requests.status) as status')
             )
             ->orderBy('requests.created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function($request) {
+                // Add payment and certificate info to each request
+                $verifiedPayment = $request->payments->first();
+                if ($verifiedPayment && $verifiedPayment->certificate) {
+                    $request->payment_verified = true;
+                    $request->payment_amount = $verifiedPayment->amount;
+                    $request->payment_date = $verifiedPayment->payment_date;
+                    $request->certificate_id = $verifiedPayment->certificate->id;
+                    $request->certificate_number = $verifiedPayment->certificate->certificate_number;
+                    $request->certificate_issued_at = $verifiedPayment->certificate->issued_at;
+                } else {
+                    $request->payment_verified = false;
+                }
+                return $request;
+            });
 
         return Inertia::render('Dashboard', [
             'requests' => $requests

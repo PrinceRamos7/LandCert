@@ -69,18 +69,18 @@
 </head>
 <body>
     <div class="header">
-        <div class="certificate-icon">📜</div>
-        <h1>Certificate Issued!</h1>
+        <div class="certificate-icon">✅</div>
+        <h1>Payment Successfully Verified!</h1>
     </div>
     
     <div class="content">
         <p>Dear <strong>{{ $applicantName }}</strong>,</p>
         
         <div class="success-badge">
-            ✓ CERTIFICATE READY
+            ✓ PAYMENT VERIFIED & APPROVED
         </div>
         
-        <p>Congratulations! Your land certification has been successfully processed and issued.</p>
+        <p>Excellent news! Your payment has been successfully verified and your land certification application has been <strong>approved</strong>. Your official certificate has been generated and is ready for download.</p>
         
         <div class="info-box">
             <p><strong>Certificate Details:</strong></p>
@@ -91,21 +91,32 @@
             @endif
         </div>
         
-        <h3>📥 Your Certificate</h3>
-        <p>Your certificate is attached to this email as a PDF file. You can also download it anytime from your account.</p>
+        <h3>📥 Download Your Certificate</h3>
+        <p>Your official certificate is attached to this email as a PDF file. You can also access it anytime through your account dashboard.</p>
         
         <div class="info-box">
             <p><strong>How to Access Your Certificate:</strong></p>
             <ol>
-                <li>Download the attached PDF file</li>
-                <li>Or login to your account and go to the Receipt page</li>
-                <li>Click the "Download Certificate" button</li>
+                <li><strong>Email Attachment:</strong> Download the PDF file attached to this email</li>
+                <li><strong>Receipt Page:</strong> Login to your account and go to the "Payment Receipt" page</li>
+                <li><strong>Download Button:</strong> Look for the green "Download Certificate" button</li>
+                <li><strong>Certificate Info:</strong> Your certificate details will be displayed in a green verification box</li>
             </ol>
         </div>
         
         <center>
-            <a href="{{ url('/receipt') }}" class="button">View in Dashboard</a>
+            <a href="{{ url('/receipt') }}" class="button">Access Receipt Page</a>
         </center>
+        
+        <div class="info-box">
+            <p><strong>🎉 Application Process Complete:</strong></p>
+            <ul>
+                <li>✅ Application submitted and reviewed</li>
+                <li>✅ Payment received and verified</li>
+                <li>✅ Certificate officially issued</li>
+                <li>✅ Ready for download and use</li>
+            </ul>
+        </div>
         
         <div class="info-box">
             <p><strong>⚠️ Important Notes:</strong></p>

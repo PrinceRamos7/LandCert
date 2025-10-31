@@ -194,7 +194,15 @@ export function ReceiptList({ requests = [] }) {
                                                     <h3 className="font-semibold text-lg">
                                                         Request #{request.id}
                                                     </h3>
-                                                    {request.payment_status && (
+                                                    {request.payment_status === 'verified' && (
+                                                        <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300">
+                                                            <span className="flex items-center gap-1">
+                                                                <CheckCircle2 className="h-4 w-4" />
+                                                                Verified
+                                                            </span>
+                                                        </Badge>
+                                                    )}
+                                                    {request.payment_status && request.payment_status !== 'verified' && (
                                                         <Badge className={getStatusColor(request.payment_status)}>
                                                             <span className="flex items-center gap-1">
                                                                 {getStatusIcon(request.payment_status)}
@@ -221,8 +229,12 @@ export function ReceiptList({ requests = [] }) {
                                                         <strong>Payment Date:</strong> {formatDate(request.payment_date)}
                                                     </p>
                                                 )}
-                                                {request.certificate_number && (
-                                                    <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-md">
+                                                {request.payment_status === 'verified' && request.certificate_number && (
+                                                    <div className="mt-3 p-4 bg-emerald-50 border-2 border-emerald-200 rounded-lg">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                                                            <span className="font-semibold text-emerald-800">Certificate Information</span>
+                                                        </div>
                                                         <p className="text-sm text-emerald-800 mb-1">
                                                             <strong>Certificate Number:</strong> {request.certificate_number}
                                                         </p>
@@ -240,35 +252,64 @@ export function ReceiptList({ requests = [] }) {
                                                 )}
                                             </div>
                                             <div className="flex flex-col gap-2">
-                                                {request.certificate_id ? (
-                                                    <Button className="bg-emerald-600 hover:bg-emerald-700" asChild>
-                                                        <a href={route('certificate.download', request.certificate_id)}>
-                                                            <FileText className="h-4 w-4 mr-2" />
-                                                            Download Certificate
-                                                        </a>
-                                                    </Button>
+                                                {request.payment_status === 'verified' && request.certificate_id ? (
+                                                    <>
+                                                        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6 py-2" asChild>
+                                                            <a href={route('certificate.download', request.certificate_id)}>
+                                                                <FileText className="h-4 w-4 mr-2" />
+                                                                Download Certificate
+                                                            </a>
+                                                        </Button>
+                                                        {request.receipt_file_path && (
+                                                            <Button variant="outline" size="sm" asChild>
+                                                                <a href={`/storage/${request.receipt_file_path}`} target="_blank" rel="noopener noreferrer">
+                                                                    <FileText className="h-4 w-4 mr-2" />
+                                                                    View Receipt
+                                                                </a>
+                                                            </Button>
+                                                        )}
+                                                    </>
                                                 ) : !request.payment_id || request.payment_status === 'rejected' ? (
                                                     <Button onClick={() => handleUploadClick(request)}>
                                                         <Upload className="h-4 w-4 mr-2" />
                                                         {request.payment_status === 'rejected' ? 'Resubmit' : 'Upload Receipt'}
                                                     </Button>
                                                 ) : request.payment_status === 'pending' ? (
-                                                    <Badge variant="outline" className="text-blue-600">
-                                                        Awaiting Verification
-                                                    </Badge>
+                                                    <>
+                                                        <Badge variant="outline" className="text-blue-600">
+                                                            Awaiting Verification
+                                                        </Badge>
+                                                        {request.receipt_file_path && (
+                                                            <Button variant="outline" size="sm" asChild>
+                                                                <a href={`/storage/${request.receipt_file_path}`} target="_blank" rel="noopener noreferrer">
+                                                                    <FileText className="h-4 w-4 mr-2" />
+                                                                    View Receipt
+                                                                </a>
+                                                            </Button>
+                                                        )}
+                                                    </>
                                                 ) : request.payment_status === 'verified' ? (
-                                                    <Badge variant="outline" className="text-emerald-600">
-                                                        Payment Verified ✓
-                                                    </Badge>
-                                                ) : null}
-                                                {request.receipt_file_path && (
+                                                    <>
+                                                        <Badge variant="outline" className="text-emerald-600">
+                                                            Payment Verified ✓
+                                                        </Badge>
+                                                        {request.receipt_file_path && (
+                                                            <Button variant="outline" size="sm" asChild>
+                                                                <a href={`/storage/${request.receipt_file_path}`} target="_blank" rel="noopener noreferrer">
+                                                                    <FileText className="h-4 w-4 mr-2" />
+                                                                    View Receipt
+                                                                </a>
+                                                            </Button>
+                                                        )}
+                                                    </>
+                                                ) : request.receipt_file_path ? (
                                                     <Button variant="outline" size="sm" asChild>
                                                         <a href={`/storage/${request.receipt_file_path}`} target="_blank" rel="noopener noreferrer">
                                                             <FileText className="h-4 w-4 mr-2" />
                                                             View Receipt
                                                         </a>
                                                     </Button>
-                                                )}
+                                                ) : null}
                                             </div>
                                         </div>
                                     </CardContent>
