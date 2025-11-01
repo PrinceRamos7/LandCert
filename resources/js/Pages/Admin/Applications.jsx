@@ -108,26 +108,35 @@ export default function Applications({ applications = [] }) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gradient-to-br from-purple-50 to-slate-50">
-          <Card>
-            <CardHeader>
+        <div className="flex flex-1 flex-col gap-6 p-6 pt-0 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
+             style={{
+               backgroundImage: `
+                 radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                 radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+                 radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 50%)
+               `
+             }}>
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-700">
+            <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                  <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                    <FileText className="h-6 w-6" />
+                  </div>
                   All Applications ({filteredApplications.length})
                 </CardTitle>
                 <div className="relative w-64">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-white/70" />
                   <Input
                     placeholder="Search applications..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8"
+                    className="pl-10 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 focus:bg-white/30"
                   />
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-8">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>

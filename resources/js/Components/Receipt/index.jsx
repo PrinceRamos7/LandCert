@@ -13,6 +13,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { NotificationModal } from '@/Components/ui/notification-modal';
 import {
     Select,
     SelectContent,
@@ -20,7 +21,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Upload, FileText, CheckCircle2, XCircle, Clock, DollarSign, Calendar } from 'lucide-react';
+import { Upload, FileText, CheckCircle2, XCircle, Clock, DollarSign, Calendar, Loader2 } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import { useToast } from '@/Components/ui/use-toast';
 
@@ -28,6 +29,7 @@ export function ReceiptList({ requests = [] }) {
     const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         amount: '',
         payment_method: 'cash',
@@ -36,6 +38,13 @@ export function ReceiptList({ requests = [] }) {
         notes: '',
         receipt_file: null,
         other_method: '',
+    });
+    const [notificationModal, setNotificationModal] = useState({
+        isOpen: false,
+        type: "success",
+        title: "",
+        message: "",
+        buttonText: "Continue"
     });
     const { toast } = useToast();
 
@@ -77,39 +86,47 @@ export function ReceiptList({ requests = [] }) {
         e.preventDefault();
 
         if (!formData.receipt_file) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Please upload a receipt file.",
+            setNotificationModal({
+                isOpen: true,
+                type: "warning",
+                title: "Receipt File Required",
+                message: "Please upload a receipt file to proceed with your payment submission.",
+                buttonText: "OK"
             });
             return;
         }
 
         if (!formData.amount || parseFloat(formData.amount) <= 0) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Please enter a valid payment amount.",
+            setNotificationModal({
+                isOpen: true,
+                type: "warning",
+                title: "Invalid Amount",
+                message: "Please enter a valid payment amount greater than zero.",
+                buttonText: "OK"
             });
             return;
         }
 
         // Validate receipt number for non-cash payments
         if (formData.payment_method !== 'cash' && !formData.receipt_number) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Receipt/Reference number is required for non-cash payments.",
+            setNotificationModal({
+                isOpen: true,
+                type: "warning",
+                title: "Receipt Number Required",
+                message: "Receipt or reference number is required for non-cash payments. Please provide the transaction reference.",
+                buttonText: "OK"
             });
             return;
         }
 
         // Validate other payment method specification
         if (formData.payment_method === 'other' && !formData.other_method.trim()) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Please specify the payment method.",
+            setNotificationModal({
+                isOpen: true,
+                type: "warning",
+                title: "Payment Method Required",
+                message: "Please specify the payment method you used for this transaction.",
+                buttonText: "OK"
             });
             return;
         }
@@ -119,6 +136,10 @@ export function ReceiptList({ requests = [] }) {
     };
 
     const confirmSubmit = () => {
+        if (isSubmitting) return; // Prevent double submission
+        
+        setIsSubmitting(true);
+        
         const data = new FormData();
         data.append('request_id', selectedRequest.id);
         data.append('amount', formData.amount);
@@ -130,12 +151,9 @@ export function ReceiptList({ requests = [] }) {
 
         router.post(route('receipt.store'), data, {
             onSuccess: () => {
-                toast({
-                    title: "Success!",
-                    description: "Payment receipt submitted successfully! Please wait for admin verification.",
-                });
                 setIsUploadDialogOpen(false);
                 setIsConfirmDialogOpen(false);
+                setIsSubmitting(false);
                 setFormData({
                     amount: '',
                     payment_method: 'cash',
@@ -144,14 +162,24 @@ export function ReceiptList({ requests = [] }) {
                     notes: '',
                     receipt_file: null,
                 });
+                setNotificationModal({
+                    isOpen: true,
+                    type: "success",
+                    title: "Receipt Submitted!",
+                    message: `Your payment receipt for Request #${selectedRequest.id} has been submitted successfully! Please wait for admin verification. You will receive an email notification once your payment is verified.`,
+                    buttonText: "Continue"
+                });
             },
             onError: (errors) => {
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Failed to submit payment receipt.",
-                });
                 setIsConfirmDialogOpen(false);
+                setIsSubmitting(false);
+                setNotificationModal({
+                    isOpen: true,
+                    type: "error",
+                    title: "Submission Failed!",
+                    message: "Failed to submit your payment receipt. Please check your information and try again. If the problem persists, contact support.",
+                    buttonText: "Try Again"
+                });
             }
         });
     };
@@ -432,9 +460,13 @@ export function ReceiptList({ requests = [] }) {
                             <Button type="button" variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
                                 Cancel
                             </Button>
-                            <Button type="submit">
-                                <Upload className="h-4 w-4 mr-2" />
-                                Submit Receipt
+                            <Button type="submit" disabled={isSubmitting}>
+                                {isSubmitting ? (
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                    <Upload className="h-4 w-4 mr-2" />
+                                )}
+                                {isSubmitting ? "Processing..." : "Submit Receipt"}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -467,12 +499,23 @@ export function ReceiptList({ requests = [] }) {
                         <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={confirmSubmit}>
-                            Confirm & Submit
+                        <Button onClick={confirmSubmit} disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                            {isSubmitting ? "Submitting..." : "Confirm & Submit"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Notification Modal */}
+            <NotificationModal
+                isOpen={notificationModal.isOpen}
+                onClose={() => setNotificationModal(prev => ({ ...prev, isOpen: false }))}
+                type={notificationModal.type}
+                title={notificationModal.title}
+                message={notificationModal.message}
+                buttonText={notificationModal.buttonText}
+            />
         </div>
     );
 }

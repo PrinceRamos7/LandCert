@@ -22,18 +22,23 @@
             align-items: center;
             margin-bottom: 15px;
         }
-        .logo {
+        .logo-placeholder {
             width: 80px;
             height: 80px;
-        }
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+            background-color: #f0f0f0;
         }
         .header-text {
             flex: 1;
             text-align: center;
+            margin: 0 20px;
         }
         .title {
             font-size: 24px;
@@ -52,17 +57,18 @@
 <body>
     <div class="header">
         <div class="logo-container">
-            <div class="logo">
-                <img src="{{ public_path('images/Ilagan.png') }}" alt="Ilagan Logo">
+            <div class="logo-placeholder">
+                ILAGAN<br>CITY<br>SEAL
             </div>
             <div class="header-text">
                 <h2>Republic of the Philippines</h2>
                 <h3>CITY PLANNING AND DEVELOPMENT OFFICE</h3>
+                <h3>CITY DISASTER RISK REDUCTION AND MANAGEMENT OFFICE</h3>
                 <h3>ILAGAN CITY, ISABELA</h3>
                 <p>City Hall Complex, Maharlika Highway, Ilagan City</p>
             </div>
-            <div class="logo">
-                <img src="{{ public_path('images/cdrrmo.jpg') }}" alt="CDRRMO Logo">
+            <div class="logo-placeholder">
+                CDRRMO<br>SEAL
             </div>
         </div>
     </div>

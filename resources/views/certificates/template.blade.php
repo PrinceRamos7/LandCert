@@ -200,7 +200,7 @@
                 <div class="office-name">CITY PLANNING AND DEVELOPMENT OFFICE</div>
                 <div class="office-name">CITY DISASTER RISK REDUCTION AND MANAGEMENT OFFICE</div>
                 <div class="office-name">ILAGAN CITY, ISABELA</div>
-                <div class="address">City Hall Complex, Maharlika Highway, Ilagan City</div>
+                <div class="address">City Hall Complex, Barangay Alibagu, Ilagan City</div>
             </div>
             <div class="cert-id">
                 LCPSA-{{ $certificateNumber }}

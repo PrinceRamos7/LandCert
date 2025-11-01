@@ -56,6 +56,8 @@ class Request extends Model
         'lot_area_sqm' => 'decimal:2',
         'bldg_improvement_sqm' => 'decimal:2',
         'project_nature_years' => 'integer',
+        'notice_dates' => 'date',
+        'similar_application_dates' => 'date',
     ];
 
     /**

@@ -146,6 +146,15 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
+        // Check for recent duplicate payment submissions (within last 2 minutes)
+        $recentPayment = Payment::where('request_id', $request->input('request_id'))
+            ->where('created_at', '>=', now()->subMinutes(2))
+            ->first();
+            
+        if ($recentPayment) {
+            return back()->withErrors(['duplicate' => 'A payment for this request was recently submitted. Please wait before submitting again.']);
+        }
+
         $validated = $request->validate([
             'request_id' => 'required|exists:requests,id',
             'amount' => 'required|numeric|min:0',

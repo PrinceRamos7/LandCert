@@ -22,8 +22,8 @@ import {
 
 const teams = [
     {
-        name: "LandCert Admin",
-        logo: "/images/ilagan.png",
+        name: "LandCert",
+        logo: "/images/ilagan1.png",
         plan: "Administrator",
     },
 ];

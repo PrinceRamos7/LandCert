@@ -77,6 +77,16 @@ class RequestController extends Controller
      */
     public function store(Request $request)
     {
+        // Check for recent duplicate submissions (within last 5 minutes)
+        $recentRequest = RequestModel::where('user_id', auth()->id())
+            ->where('applicant_name', $request->input('applicant_name'))
+            ->where('created_at', '>=', now()->subMinutes(5))
+            ->first();
+            
+        if ($recentRequest) {
+            return back()->withErrors(['duplicate' => 'A similar request was recently submitted. Please wait before submitting again.']);
+        }
+
         $validated = $request->validate([
             // Page 1: Applicant Information
             'applicant_name' => 'required|string|max:255',
@@ -108,10 +118,10 @@ class RequestController extends Controller
             'existing_land_use' => 'nullable|in:Residential,Institutional,Commercial,Industrial,Tenanted,Vacant,Agricultural,Not Tenanted',
             'has_written_notice' => 'nullable|in:yes,no',
             'notice_officer_name' => 'nullable|string|max:255',
-            'notice_dates' => 'nullable|string|max:255',
+            'notice_dates' => 'nullable|date',
             'has_similar_application' => 'nullable|in:yes,no',
             'similar_application_offices' => 'nullable|string',
-            'similar_application_dates' => 'nullable|string|max:255',
+            'similar_application_dates' => 'nullable|date',
             'preferred_release_mode' => 'nullable|in:pickup,mail_applicant,mail_representative,mail_other',
             'release_address' => 'nullable|string',
         ]);

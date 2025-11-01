@@ -27,8 +27,8 @@ import {
 const teams = [
     {
         name: "LandCert",
-        logo: "/images/ilagan.png",
-        plan: "lupa.com",
+        logo: "/images/ilagan1.png",
+        plan: "CDRRMO - Ilagan City",
     },
 ];
 

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
     Dialog,
     DialogContent,
@@ -20,7 +21,14 @@ import {
     Filter,
     DollarSign,
     Home,
-    Briefcase
+    Briefcase,
+    Plus,
+    Download,
+    Eye,
+    Award,
+    TrendingUp,
+    Activity,
+
 } from 'lucide-react';
 
 export function Dashboard({ requests }) {
@@ -30,14 +38,21 @@ export function Dashboard({ requests }) {
 
     const requestsData = requests?.data || requests || [];
 
-    // Calculate statistics
+    // Calculate enhanced statistics
     const stats = useMemo(() => {
         const total = requestsData.length;
         const pending = requestsData.filter(r => r.status === 'pending').length;
         const approved = requestsData.filter(r => r.status === 'approved').length;
         const rejected = requestsData.filter(r => r.status === 'rejected').length;
+        const withCertificates = requestsData.filter(r => r.payment_verified && r.certificate_number).length;
+        const recentRequests = requestsData.filter(r => {
+            const requestDate = new Date(r.created_at);
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            return requestDate >= thirtyDaysAgo;
+        }).length;
         
-        return { total, pending, approved, rejected };
+        return { total, pending, approved, rejected, withCertificates, recentRequests };
     }, [requestsData]);
 
     // Filter requests based on selected status
@@ -90,78 +105,198 @@ export function Dashboard({ requests }) {
 
     if (requests.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-16 px-4">
-                <div className="rounded-full bg-gradient-to-br from-blue-100 to-blue-200 p-8 mb-6 shadow-lg">
-                    <Building2 className="h-16 w-16 text-blue-600" />
+            <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
+                {/* Welcome Section */}
+                <div className="text-center mb-12">
+                    <div className="relative mb-8">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full blur-3xl opacity-20 animate-pulse"></div>
+                        <div className="relative rounded-full bg-gradient-to-br from-blue-50 to-emerald-50 p-12 shadow-2xl border border-blue-100">
+                            <Building2 className="h-20 w-20 text-blue-600 mx-auto" />
+                        </div>
+                    </div>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to LandCert</h1>
+                    <p className="text-xl text-gray-600 mb-2">Your Land Certification Dashboard</p>
+                    <p className="text-base text-gray-500 max-w-2xl mx-auto mb-8">
+                        Submit and track your land certification requests with ease. Get started by creating your first application below.
+                    </p>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">No requests yet</h3>
-                <p className="text-base text-gray-600 text-center max-w-md mb-8">
-                    Get started by submitting your first land certification request. Your applications will appear here.
-                </p>
-                <a 
-                    href="/request" 
-                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                >
-                    <FileText className="h-5 w-5 mr-2" />
-                    Submit New Request
-                </a>
+
+                {/* Quick Start Actions */}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-4xl mb-12">
+                    <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-dashed border-blue-200 hover:border-blue-400">
+                        <CardContent className="p-6 text-center">
+                            <div className="rounded-full bg-blue-100 p-4 w-16 h-16 mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
+                                <Plus className="h-8 w-8 text-blue-600" />
+                            </div>
+                            <h3 className="font-semibold text-gray-900 mb-2">New Application</h3>
+                            <p className="text-sm text-gray-600 mb-4">Start your land certification process</p>
+                            <Button asChild className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+                                <a href="/request">
+                                    <FileText className="h-4 w-4 mr-2" />
+                                    Submit Request
+                                </a>
+                            </Button>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <CardContent className="p-6 text-center">
+                            <div className="rounded-full bg-emerald-100 p-4 w-16 h-16 mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
+                                <Eye className="h-8 w-8 text-emerald-600" />
+                            </div>
+                            <h3 className="font-semibold text-gray-900 mb-2">Track Progress</h3>
+                            <p className="text-sm text-gray-600 mb-4">Monitor your application status</p>
+                            <Button variant="outline" className="w-full" disabled>
+                                <Activity className="h-4 w-4 mr-2" />
+                                No Requests Yet
+                            </Button>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <CardContent className="p-6 text-center">
+                            <div className="rounded-full bg-purple-100 p-4 w-16 h-16 mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
+                                <Award className="h-8 w-8 text-purple-600" />
+                            </div>
+                            <h3 className="font-semibold text-gray-900 mb-2">Get Certificate</h3>
+                            <p className="text-sm text-gray-600 mb-4">Download your certificates</p>
+                            <Button variant="outline" className="w-full" disabled>
+                                <Download className="h-4 w-4 mr-2" />
+                                No Certificates
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Process Steps */}
+                <div className="w-full max-w-4xl">
+                    <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">How It Works</h2>
+                    <div className="grid gap-6 md:grid-cols-4">
+                        {[
+                            { step: 1, title: "Submit", desc: "Fill out your application", icon: FileText, color: "blue" },
+                            { step: 2, title: "Review", desc: "We process your request", icon: Clock, color: "amber" },
+                            { step: 3, title: "Payment", desc: "Complete the payment", icon: DollarSign, color: "emerald" },
+                            { step: 4, title: "Certificate", desc: "Download your certificate", icon: Award, color: "purple" }
+                        ].map((item, index) => (
+                            <div key={index} className="text-center">
+                                <div className={`rounded-full bg-${item.color}-100 p-4 w-16 h-16 mx-auto mb-4`}>
+                                    <item.icon className={`h-8 w-8 text-${item.color}-600`} />
+                                </div>
+                                <h3 className="font-semibold text-gray-900 mb-1">{item.step}. {item.title}</h3>
+                                <p className="text-sm text-gray-600">{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
-            {/* Statistics Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-blue-500 bg-gradient-to-br from-white to-blue-50" onClick={() => setFilterStatus('all')}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-blue-900">Total Requests</CardTitle>
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <FileText className="h-5 w-5 text-blue-600" />
+        <div className="space-y-8">
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">My Applications</h1>
+                    <p className="text-gray-600 mt-1">Track and manage your land certification requests</p>
+                </div>
+                <Button asChild className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all">
+                    <a href="/request">
+                        <Plus className="h-4 w-4 mr-2" />
+                        New Application
+                    </a>
+                </Button>
+            </div>
+
+            {/* Enhanced Statistics Cards */}
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 border-0 bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200" onClick={() => setFilterStatus('all')}>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-blue-700 mb-1">Total</p>
+                                <p className="text-3xl font-bold text-blue-900">{stats.total}</p>
+                                <p className="text-xs text-blue-600 mt-1">All requests</p>
+                            </div>
+                            <div className="p-3 bg-blue-200 rounded-full group-hover:bg-blue-300 transition-colors">
+                                <FileText className="h-6 w-6 text-blue-700" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-blue-700">{stats.total}</div>
-                        <p className="text-xs text-blue-600 mt-1">All submissions</p>
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-amber-500 bg-gradient-to-br from-white to-amber-50" onClick={() => setFilterStatus('pending')}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-amber-900">Pending</CardTitle>
-                        <div className="p-2 bg-amber-100 rounded-lg">
-                            <Clock className="h-5 w-5 text-amber-600" />
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 border-0 bg-gradient-to-br from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200" onClick={() => setFilterStatus('pending')}>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-amber-700 mb-1">Pending</p>
+                                <p className="text-3xl font-bold text-amber-900">{stats.pending}</p>
+                                <p className="text-xs text-amber-600 mt-1">Under review</p>
+                            </div>
+                            <div className="p-3 bg-amber-200 rounded-full group-hover:bg-amber-300 transition-colors">
+                                <Clock className="h-6 w-6 text-amber-700" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-amber-700">{stats.pending}</div>
-                        <p className="text-xs text-amber-600 mt-1">Awaiting review</p>
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-emerald-500 bg-gradient-to-br from-white to-emerald-50" onClick={() => setFilterStatus('approved')}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-emerald-900">Approved</CardTitle>
-                        <div className="p-2 bg-emerald-100 rounded-lg">
-                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 border-0 bg-gradient-to-br from-emerald-50 to-emerald-100 hover:from-emerald-100 hover:to-emerald-200" onClick={() => setFilterStatus('approved')}>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-emerald-700 mb-1">Approved</p>
+                                <p className="text-3xl font-bold text-emerald-900">{stats.approved}</p>
+                                <p className="text-xs text-emerald-600 mt-1">Completed</p>
+                            </div>
+                            <div className="p-3 bg-emerald-200 rounded-full group-hover:bg-emerald-300 transition-colors">
+                                <CheckCircle2 className="h-6 w-6 text-emerald-700" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-emerald-700">{stats.approved}</div>
-                        <p className="text-xs text-emerald-600 mt-1">Successfully processed</p>
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-rose-500 bg-gradient-to-br from-white to-rose-50" onClick={() => setFilterStatus('rejected')}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-rose-900">Rejected</CardTitle>
-                        <div className="p-2 bg-rose-100 rounded-lg">
-                            <XCircle className="h-5 w-5 text-rose-600" />
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 border-0 bg-gradient-to-br from-rose-50 to-rose-100 hover:from-rose-100 hover:to-rose-200" onClick={() => setFilterStatus('rejected')}>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-rose-700 mb-1">Rejected</p>
+                                <p className="text-3xl font-bold text-rose-900">{stats.rejected}</p>
+                                <p className="text-xs text-rose-600 mt-1">Need action</p>
+                            </div>
+                            <div className="p-3 bg-rose-200 rounded-full group-hover:bg-rose-300 transition-colors">
+                                <XCircle className="h-6 w-6 text-rose-700" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-rose-700">{stats.rejected}</div>
-                        <p className="text-xs text-rose-600 mt-1">Needs attention</p>
+                    </CardContent>
+                </Card>
+
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 border-0 bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200">
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-purple-700 mb-1">Certificates</p>
+                                <p className="text-3xl font-bold text-purple-900">{stats.withCertificates}</p>
+                                <p className="text-xs text-purple-600 mt-1">Ready</p>
+                            </div>
+                            <div className="p-3 bg-purple-200 rounded-full group-hover:bg-purple-300 transition-colors">
+                                <Award className="h-6 w-6 text-purple-700" />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 border-0 bg-gradient-to-br from-indigo-50 to-indigo-100 hover:from-indigo-100 hover:to-indigo-200">
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-indigo-700 mb-1">Recent</p>
+                                <p className="text-3xl font-bold text-indigo-900">{stats.recentRequests}</p>
+                                <p className="text-xs text-indigo-600 mt-1">Last 30 days</p>
+                            </div>
+                            <div className="p-3 bg-indigo-200 rounded-full group-hover:bg-indigo-300 transition-colors">
+                                <TrendingUp className="h-6 w-6 text-indigo-700" />
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
@@ -183,129 +318,188 @@ export function Dashboard({ requests }) {
                 </div>
             )}
 
-            {/* Requests Grid */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {filteredRequests.map((request) => (
-                    <Card 
-                        key={request.id} 
-                        className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer border-t-4 border-t-blue-500 bg-white"
-                        onClick={() => {
-                            setSelectedRequest(request);
-                            setIsModalOpen(true);
-                        }}
-                    >
-                        <CardHeader className="pb-3">
-                            <div className="flex items-center justify-between mb-2">
-                                <CardTitle className="text-lg font-semibold">
-                                    Request #{request?.id}
-                                </CardTitle>
-                                <Badge className={getStatusColor(request?.status || 'pending')}>
-                                    <span className="flex items-center gap-1">
-                                        {getStatusIcon(request?.status || 'pending')}
-                                        {(request?.status || 'pending').charAt(0).toUpperCase() + (request?.status || 'pending').slice(1)}
-                                    </span>
-                                </Badge>
-                            </div>
-                            <CardDescription className="flex items-center gap-2">
-                                <CalendarDays className="h-4 w-4" />
-                                {formatDate(request?.created_at)}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                            {/* Applicant Info */}
-                            <div className="flex items-start gap-2">
-                                <User className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
-                                <div className="min-w-0 flex-1">
-                                    <p className="font-medium text-sm truncate">
-                                        {request?.applicant_name || 'Unknown Applicant'}
-                                    </p>
-                                    {request?.corporation_name && (
-                                        <p className="text-xs text-muted-foreground truncate">
-                                            {request.corporation_name}
-                                        </p>
+            {/* Enhanced Requests Grid */}
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {filteredRequests.map((request) => {
+                    const hasVerifiedPayment = request?.payment_verified && request?.certificate_number;
+                    const statusColor = hasVerifiedPayment ? 'emerald' : 
+                                      request?.status === 'approved' ? 'emerald' :
+                                      request?.status === 'rejected' ? 'rose' : 'amber';
+                    
+                    return (
+                        <Card 
+                            key={request.id} 
+                            className={`group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer border-0 bg-white overflow-hidden ${
+                                hasVerifiedPayment ? 'ring-2 ring-emerald-200' : ''
+                            }`}
+                            onClick={() => {
+                                setSelectedRequest(request);
+                                setIsModalOpen(true);
+                            }}
+                        >
+                            {/* Status Header */}
+                            <div className={`h-2 bg-gradient-to-r ${
+                                hasVerifiedPayment ? 'from-emerald-400 to-emerald-600' :
+                                request?.status === 'approved' ? 'from-emerald-400 to-emerald-600' :
+                                request?.status === 'rejected' ? 'from-rose-400 to-rose-600' : 
+                                'from-amber-400 to-amber-600'
+                            }`}></div>
+
+                            <CardHeader className="pb-4">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <CardTitle className="text-xl font-bold text-gray-900">
+                                                Request #{request?.id}
+                                            </CardTitle>
+                                            {hasVerifiedPayment && (
+                                                <div className="flex items-center gap-1 px-2 py-1 bg-emerald-100 rounded-full">
+                                                    <Award className="h-3 w-3 text-emerald-600" />
+                                                    <span className="text-xs font-medium text-emerald-700">Certified</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                            <CalendarDays className="h-4 w-4" />
+                                            <span>Submitted {formatDate(request?.created_at)}</span>
+                                        </div>
+                                    </div>
+                                    <Badge className={`${getStatusColor(request?.status || 'pending')} shadow-sm`}>
+                                        <span className="flex items-center gap-1.5">
+                                            {getStatusIcon(request?.status || 'pending')}
+                                            {(request?.status || 'pending').charAt(0).toUpperCase() + (request?.status || 'pending').slice(1)}
+                                        </span>
+                                    </Badge>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {/* Certificate Section - Priority Display */}
+                                {hasVerifiedPayment && (
+                                    <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-4 space-y-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="p-2 bg-emerald-200 rounded-full">
+                                                <Award className="h-4 w-4 text-emerald-700" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-semibold text-emerald-900">Certificate Ready</h4>
+                                                <p className="text-xs text-emerald-700">Your certificate is available for download</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3 text-sm">
+                                            <div>
+                                                <p className="text-xs font-medium text-emerald-600">Certificate No.</p>
+                                                <p className="font-mono font-semibold text-emerald-900">{request.certificate_number}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-medium text-emerald-600">Issued</p>
+                                                <p className="font-semibold text-emerald-900">{formatDate(request.certificate_issued_at)}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2 pt-2">
+                                            <Button 
+                                                asChild 
+                                                size="sm" 
+                                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 shadow-md"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <a href={`/certificate/${request.certificate_id}/download`}>
+                                                    <Download className="h-3 w-3 mr-1" />
+                                                    Download
+                                                </a>
+                                            </Button>
+                                            <Button 
+                                                asChild 
+                                                variant="outline" 
+                                                size="sm"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <a href="/receipt">
+                                                    <Eye className="h-3 w-3 mr-1" />
+                                                    Receipt
+                                                </a>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Applicant & Project Info */}
+                                <div className="space-y-3">
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-blue-100 rounded-lg">
+                                            <User className="h-4 w-4 text-blue-600" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-gray-900 truncate">
+                                                {request?.applicant_name || 'Unknown Applicant'}
+                                            </p>
+                                            {request?.corporation_name && (
+                                                <p className="text-sm text-gray-600 truncate">
+                                                    {request.corporation_name}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-purple-100 rounded-lg">
+                                            <MapPin className="h-4 w-4 text-purple-600" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm text-gray-700 line-clamp-2">
+                                                {formatLocation(request)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Project Summary */}
+                                <div className="pt-3 border-t border-gray-100 space-y-3">
+                                    <div className="grid grid-cols-2 gap-3 text-sm">
+                                        {request?.project_type && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Type</p>
+                                                <p className="font-medium text-gray-900 truncate">{request.project_type}</p>
+                                            </div>
+                                        )}
+                                        {request?.lot_area_sqm && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Area</p>
+                                                <p className="font-medium text-gray-900">{parseFloat(request.lot_area_sqm).toLocaleString()} sqm</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    {/* Payment Info for non-certified requests */}
+                                    {!hasVerifiedPayment && request?.payment_amount && (
+                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <DollarSign className="h-4 w-4 text-blue-600" />
+                                                <span className="text-sm font-medium text-blue-900">Payment Required</span>
+                                            </div>
+                                            <p className="text-sm text-blue-700">₱{parseFloat(request.payment_amount).toLocaleString()}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Rejection Reason Preview for rejected requests */}
+                                    {request?.status === 'rejected' && request?.report_description && (
+                                        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <XCircle className="h-4 w-4 text-red-600" />
+                                                <span className="text-sm font-medium text-red-900">Rejection Reason</span>
+                                            </div>
+                                            <p className="text-sm text-red-700 line-clamp-2">
+                                                {request.report_description.length > 100 
+                                                    ? `${request.report_description.substring(0, 100)}...` 
+                                                    : request.report_description}
+                                            </p>
+                                            <p className="text-xs text-red-600 mt-1 font-medium">Click to view full details</p>
+                                        </div>
                                     )}
                                 </div>
-                            </div>
-                            
-                            {/* Location */}
-                            <div className="flex items-start gap-2">
-                                <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
-                                <p className="text-sm text-muted-foreground line-clamp-2 flex-1">
-                                    {formatLocation(request)}
-                                </p>
-                            </div>
-
-                            {/* Payment & Certificate Info */}
-                            {request?.payment_verified && request?.certificate_number && (
-                                <div className="pt-3 border-t bg-emerald-50 rounded-lg p-3 space-y-2">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                                        <span className="text-sm font-medium text-emerald-800">Verified</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-emerald-600 font-medium">Certificate Number:</p>
-                                        <p className="text-sm font-semibold text-emerald-800">{request.certificate_number}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-emerald-600 font-medium">Issued:</p>
-                                        <p className="text-sm font-medium text-emerald-800">{formatDate(request.certificate_issued_at)}</p>
-                                    </div>
-                                    <div className="flex gap-2 pt-2">
-                                        <a 
-                                            href={`/certificate/${request.certificate_id}/download`}
-                                            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium py-2 px-3 rounded-md flex items-center justify-center gap-1 transition-colors"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            <FileText className="h-3 w-3" />
-                                            Download Certificate
-                                        </a>
-                                        <a 
-                                            href="/receipt"
-                                            className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium py-2 px-3 rounded-md flex items-center justify-center gap-1 transition-colors"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            View Receipt
-                                        </a>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Project Details */}
-                            <div className="pt-3 border-t space-y-2">
-                                {request?.project_type && (
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Project Type</p>
-                                        <p className="text-sm font-medium">{request.project_type}</p>
-                                    </div>
-                                )}
-                                {request?.project_nature && (
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Nature</p>
-                                        <p className="text-sm font-medium">{request.project_nature}</p>
-                                    </div>
-                                )}
-                                {request?.lot_area_sqm && (
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Lot Area</p>
-                                        <p className="text-sm font-medium">{parseFloat(request.lot_area_sqm).toLocaleString()} sqm</p>
-                                    </div>
-                                )}
-                                {request?.payment_verified && request?.payment_amount && (
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Amount Paid</p>
-                                        <p className="text-sm font-medium">₱{parseFloat(request.payment_amount).toLocaleString()}</p>
-                                    </div>
-                                )}
-                                {request?.payment_verified && request?.payment_date && (
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Payment Date</p>
-                                        <p className="text-sm font-medium">{formatDate(request.payment_date)}</p>
-                                    </div>
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
+                            </CardContent>
+                        </Card>
+                    );
+                })}
             </div>
 
             {/* No results message */}
@@ -329,28 +523,53 @@ export function Dashboard({ requests }) {
                 </div>
             )}
 
-            {/* Request Details Modal */}
+            {/* Request Details Modal - Enhanced Landscape Layout */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader className="border-b pb-4">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <DialogTitle className="text-2xl font-bold text-blue-900">
-                                    Request #{selectedRequest?.id}
-                                </DialogTitle>
-                                <DialogDescription className="flex items-center gap-2 mt-2 text-base">
-                                    <CalendarDays className="h-4 w-4" />
-                                    Submitted on {formatDate(selectedRequest?.created_at)}
-                                </DialogDescription>
+                <DialogContent className="max-w-[80vw] w-full max-h-[80vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
+                    {/* Modal Header with Gradient Background */}
+                    <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
+                        <DialogHeader>
+                            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                    <FileText className="h-6 w-6" />
+                                </div>
+                                Request Details #{selectedRequest?.id}
+                            </DialogTitle>
+                            <DialogDescription className="text-blue-100 text-lg">
+                                Submitted on {formatDate(selectedRequest?.created_at)} • Status: {(selectedRequest?.status || 'pending').charAt(0).toUpperCase() + (selectedRequest?.status || 'pending').slice(1)}
+                            </DialogDescription>
+                        </DialogHeader>
+                        
+                        {/* Rejection Reason Alert - Only show for rejected requests */}
+                        {selectedRequest?.status === 'rejected' && selectedRequest?.report_description && (
+                            <div className="mx-6 mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                                <div className="flex items-start">
+                                    <div className="flex-shrink-0">
+                                        <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div className="ml-3 flex-1">
+                                        <h3 className="text-sm font-semibold text-red-800">
+                                            Application Rejected
+                                        </h3>
+                                        <div className="mt-2 text-sm text-red-700">
+                                            <p className="font-medium mb-1">Reason for rejection:</p>
+                                            <div className="bg-white p-3 rounded border border-red-200">
+                                                <p className="text-gray-800 leading-relaxed">{selectedRequest.report_description}</p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 text-xs text-red-600">
+                                            <p>💡 Please review the feedback above and submit a new application with the necessary corrections.</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <Badge className={`${getStatusColor(selectedRequest?.status || 'pending')} text-base px-5 py-2.5`}>
-                                <span className="flex items-center gap-3">
-                                    {getStatusIcon(selectedRequest?.status || 'pending')}
-                                    {(selectedRequest?.status || 'pending').charAt(0).toUpperCase() + (selectedRequest?.status || 'pending').slice(1)}
-                                </span>
-                            </Badge>
-                        </div>
-                    </DialogHeader>
+                        )}
+                    </div>
+
+                    {/* Scrollable Content Area */}
+                    <div className="overflow-y-auto max-h-[calc(80vh-200px)] pr-2">
 
                     {selectedRequest && (
                         <div className="space-y-6 mt-6">
@@ -600,6 +819,7 @@ export function Dashboard({ requests }) {
                             </div>
                         </div>
                     )}
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>

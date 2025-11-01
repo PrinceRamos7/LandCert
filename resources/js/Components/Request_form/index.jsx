@@ -20,6 +20,7 @@ import {
     DialogTitle,
 } from "@/Components/ui/dialog";
 import { useToast } from "@/Components/ui/use-toast";
+import { NotificationModal } from "@/Components/ui/notification-modal";
 import { Check, FileText, MapPin, User } from "lucide-react";
 
 export default function RequestForm() {
@@ -27,6 +28,13 @@ export default function RequestForm() {
     const [completedSteps, setCompletedSteps] = useState([]);
     const [hasRepresentative, setHasRepresentative] = useState(false);
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+    const [notificationModal, setNotificationModal] = useState({
+        isOpen: false,
+        type: "success",
+        title: "",
+        message: "",
+        buttonText: "Continue"
+    });
     const { toast } = useToast();
     const page = usePage();
     const flash = page.props.flash || {};
@@ -83,11 +91,12 @@ export default function RequestForm() {
         }
 
         if (emptyFields.length > 0) {
-            toast({
-                variant: "destructive",
+            setNotificationModal({
+                isOpen: true,
+                type: "error",
                 title: "Required Fields Missing",
-                description: `Please fill in the following required fields: ${emptyFields.join(', ')}`,
-                duration: 5000,
+                message: `Please fill in the following required fields: ${emptyFields.join(', ')}`,
+                buttonText: "OK"
             });
             return false;
         }
@@ -98,6 +107,18 @@ export default function RequestForm() {
     const handleSubmit = (e) => {
         e.preventDefault();
         
+        // Check if user is on the final step
+        if (currentStep !== 3) {
+            setNotificationModal({
+                isOpen: true,
+                type: "warning",
+                title: "Complete All Steps",
+                message: "Please complete all steps of the application form before submitting.",
+                buttonText: "OK"
+            });
+            return;
+        }
+        
         if (!validateForm()) {
             return;
         }
@@ -107,29 +128,35 @@ export default function RequestForm() {
     };
 
     const confirmSubmit = () => {
+        if (processing) return; // Prevent double submission
+        
         post(route("request.store"), {
             preserveScroll: true,
             onSuccess: (page) => {
-                const successMessage = page.props.flash?.success || "Request submitted successfully!";
-                toast({
-                    title: "Success!",
-                    description: successMessage,
-                    duration: 5000,
-                });
+                const successMessage = page.props.flash?.success || "Your application has been submitted successfully! You will receive a confirmation email shortly.";
                 setIsConfirmDialogOpen(false);
+                setNotificationModal({
+                    isOpen: true,
+                    type: "success",
+                    title: "Success!",
+                    message: successMessage,
+                    buttonText: "Continue"
+                });
                 reset();
                 setCurrentStep(1);
                 setCompletedSteps([]);
                 setHasRepresentative(false);
             },
-            onError: () => {
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "There was an error submitting your request. Please check the form and try again.",
-                    duration: 5000,
-                });
+            onError: (errors) => {
                 setIsConfirmDialogOpen(false);
+                const errorMessage = "There was an error submitting your application. Please check the form and try again.";
+                setNotificationModal({
+                    isOpen: true,
+                    type: "error",
+                    title: "Error!",
+                    message: errorMessage,
+                    buttonText: "Try Again"
+                });
             }
         });
     };
@@ -174,6 +201,18 @@ export default function RequestForm() {
             // Mark current step as completed if filled
             if (isStepFilled(currentStep) && !completedSteps.includes(currentStep)) {
                 setCompletedSteps([...completedSteps, currentStep]);
+                
+                // Show step completion notification
+                const stepNames = {
+                    1: "Applicant Information",
+                    2: "Project Details"
+                };
+                
+                toast({
+                    title: "Step Completed!",
+                    description: `${stepNames[currentStep]} has been completed successfully.`,
+                    duration: 3000,
+                });
             }
             setCurrentStep(currentStep + 1);
         }
@@ -899,6 +938,7 @@ export default function RequestForm() {
                                     </Label>
                                     <Input
                                         id="notice_dates"
+                                        type="date"
                                         value={data.notice_dates}
                                         onChange={(e) =>
                                             setData(
@@ -906,7 +946,6 @@ export default function RequestForm() {
                                                 e.target.value
                                             )
                                         }
-                                        placeholder="e.g., January 15, 2025"
                                     />
                                     {errors.notice_dates && (
                                         <p className="text-sm text-red-500">
@@ -1005,6 +1044,7 @@ export default function RequestForm() {
                                     </Label>
                                     <Input
                                         id="similar_application_dates"
+                                        type="date"
                                         value={data.similar_application_dates}
                                         onChange={(e) =>
                                             setData(
@@ -1012,7 +1052,6 @@ export default function RequestForm() {
                                                 e.target.value
                                             )
                                         }
-                                        placeholder="e.g., January 15, 2025"
                                     />
                                     {errors.similar_application_dates && (
                                         <p className="text-sm text-red-500">
@@ -1311,6 +1350,16 @@ export default function RequestForm() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Notification Modal */}
+            <NotificationModal
+                isOpen={notificationModal.isOpen}
+                onClose={() => setNotificationModal(prev => ({ ...prev, isOpen: false }))}
+                type={notificationModal.type}
+                title={notificationModal.title}
+                message={notificationModal.message}
+                buttonText={notificationModal.buttonText}
+            />
         </form>
     );
 }

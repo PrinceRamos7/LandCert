@@ -13,6 +13,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { NotificationModal } from '@/Components/ui/notification-modal';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -54,6 +55,13 @@ export function AdminPaymentList({ payments }) {
     const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
     const [isVerifyDialogOpen, setIsVerifyDialogOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
+    const [notificationModal, setNotificationModal] = useState({
+        isOpen: false,
+        type: "success",
+        title: "",
+        message: "",
+        buttonText: "Continue"
+    });
     const { toast } = useToast();
 
     const getStatusColor = (status) => {
@@ -88,18 +96,24 @@ export function AdminPaymentList({ payments }) {
 
         router.post(route('admin.payments.verify', selectedPayment.id), {}, {
             onSuccess: () => {
-                toast({
-                    title: "Success!",
-                    description: "Payment verified and certificate generated successfully!",
-                });
                 setIsVerifyDialogOpen(false);
                 setSelectedPayment(null);
+                setNotificationModal({
+                    isOpen: true,
+                    type: "success",
+                    title: "Payment Verified!",
+                    message: `Payment for Request #${selectedPayment.request_id} has been verified successfully. The certificate has been generated and the applicant will be notified via email.`,
+                    buttonText: "Continue"
+                });
             },
             onError: () => {
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Failed to verify payment.",
+                setIsVerifyDialogOpen(false);
+                setNotificationModal({
+                    isOpen: true,
+                    type: "error",
+                    title: "Verification Failed!",
+                    message: "Failed to verify the payment. Please try again or contact support if the problem persists.",
+                    buttonText: "Try Again"
                 });
             }
         });
@@ -112,10 +126,12 @@ export function AdminPaymentList({ payments }) {
 
     const handleRejectSubmit = () => {
         if (!rejectionReason.trim()) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Please provide a rejection reason.",
+            setNotificationModal({
+                isOpen: true,
+                type: "warning",
+                title: "Rejection Reason Required",
+                message: "Please provide a reason for rejecting this payment. This feedback will be sent to the applicant to help them understand what needs to be corrected.",
+                buttonText: "OK"
             });
             return;
         }
@@ -124,18 +140,24 @@ export function AdminPaymentList({ payments }) {
             rejection_reason: rejectionReason
         }, {
             onSuccess: () => {
-                toast({
-                    title: "Payment Rejected",
-                    description: "Payment has been rejected.",
-                });
                 setIsRejectDialogOpen(false);
                 setRejectionReason('');
+                setNotificationModal({
+                    isOpen: true,
+                    type: "success",
+                    title: "Payment Rejected!",
+                    message: `Payment for Request #${selectedPayment.request_id} has been rejected. The applicant has been notified via email with your feedback.`,
+                    buttonText: "Continue"
+                });
             },
             onError: () => {
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Failed to reject payment.",
+                setIsRejectDialogOpen(false);
+                setNotificationModal({
+                    isOpen: true,
+                    type: "error",
+                    title: "Rejection Failed!",
+                    message: "Failed to reject the payment. Please try again or contact support if the problem persists.",
+                    buttonText: "Try Again"
                 });
             }
         });
@@ -252,74 +274,103 @@ export function AdminPaymentList({ payments }) {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6"
+             style={{
+               backgroundImage: `
+                 radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                 radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+                 radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 50%)
+               `
+             }}>
             {/* Statistics Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-purple-500" onClick={() => setFilterStatus('all')}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
-                        <DollarSign className="h-5 w-5 text-purple-600" />
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom duration-700">
+                <Card className="group hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-purple-50 to-purple-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500" onClick={() => setFilterStatus('all')}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
+                        <CardTitle className="text-sm font-semibold text-purple-900 group-hover:text-purple-800 transition-colors">Total Payments</CardTitle>
+                        <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg group-hover:shadow-purple-500/50 transition-all duration-300 group-hover:scale-110">
+                            <DollarSign className="h-5 w-5 text-white" />
+                        </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-purple-700">{stats.total}</div>
+                    <CardContent className="relative z-10">
+                        <div className="text-4xl font-bold text-purple-700 group-hover:text-purple-800 transition-colors mb-2">{stats.total}</div>
+                        <p className="text-sm text-purple-600 group-hover:text-purple-700 transition-colors">All submissions</p>
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-amber-500" onClick={() => setFilterStatus('pending')}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Pending</CardTitle>
-                        <Clock className="h-5 w-5 text-amber-600" />
+                <Card className="group hover:shadow-2xl hover:shadow-amber-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-amber-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500" onClick={() => setFilterStatus('pending')}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
+                        <CardTitle className="text-sm font-semibold text-amber-900 group-hover:text-amber-800 transition-colors">Pending</CardTitle>
+                        <div className="p-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg group-hover:shadow-amber-500/50 transition-all duration-300 group-hover:scale-110">
+                            <Clock className="h-5 w-5 text-white" />
+                        </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-amber-700">{stats.pending}</div>
+                    <CardContent className="relative z-10">
+                        <div className="text-4xl font-bold text-amber-700 group-hover:text-amber-800 transition-colors mb-2">{stats.pending}</div>
+                        <p className="text-sm text-amber-600 group-hover:text-amber-700 transition-colors">Awaiting verification</p>
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-emerald-500" onClick={() => setFilterStatus('verified')}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Verified</CardTitle>
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                <Card className="group hover:shadow-2xl hover:shadow-emerald-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-emerald-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500" onClick={() => setFilterStatus('verified')}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
+                        <CardTitle className="text-sm font-semibold text-emerald-900 group-hover:text-emerald-800 transition-colors">Verified</CardTitle>
+                        <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg group-hover:shadow-emerald-500/50 transition-all duration-300 group-hover:scale-110">
+                            <CheckCircle2 className="h-5 w-5 text-white" />
+                        </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-emerald-700">{stats.verified}</div>
+                    <CardContent className="relative z-10">
+                        <div className="text-4xl font-bold text-emerald-700 group-hover:text-emerald-800 transition-colors mb-2">{stats.verified}</div>
+                        <p className="text-sm text-emerald-600 group-hover:text-emerald-700 transition-colors">Successfully processed</p>
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-rose-500" onClick={() => setFilterStatus('rejected')}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Rejected</CardTitle>
-                        <XCircle className="h-5 w-5 text-rose-600" />
+                <Card className="group hover:shadow-2xl hover:shadow-rose-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-rose-50 to-rose-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-rose-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500" onClick={() => setFilterStatus('rejected')}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
+                        <CardTitle className="text-sm font-semibold text-rose-900 group-hover:text-rose-800 transition-colors">Rejected</CardTitle>
+                        <div className="p-3 bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl shadow-lg group-hover:shadow-rose-500/50 transition-all duration-300 group-hover:scale-110">
+                            <XCircle className="h-5 w-5 text-white" />
+                        </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-rose-700">{stats.rejected}</div>
+                    <CardContent className="relative z-10">
+                        <div className="text-4xl font-bold text-rose-700 group-hover:text-rose-800 transition-colors mb-2">{stats.rejected}</div>
+                        <p className="text-sm text-rose-600 group-hover:text-rose-700 transition-colors">Needs attention</p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Payments Table */}
-            <Card>
-                <CardHeader>
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-700 delay-300">
+                <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2">
-                            <FileText className="h-5 w-5" />
+                        <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                <FileText className="h-6 w-6" />
+                            </div>
                             Payment Submissions ({filteredPayments.length})
                         </CardTitle>
-                        <div className="flex gap-2">
-                            <Button variant="outline" onClick={handleExport} className="gap-2">
+                        <div className="flex gap-3">
+                            <Button 
+                                variant="outline" 
+                                onClick={handleExport} 
+                                className="gap-2 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 transition-all duration-300"
+                            >
                                 <Download className="h-4 w-4" />
                                 Export CSV
                             </Button>
                             <div className="relative w-64">
-                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Search className="absolute left-3 top-3 h-4 w-4 text-white/70" />
                                 <Input
                                     placeholder="Search payments..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-8"
+                                    className="pl-10 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 focus:bg-white/30"
                                 />
                             </div>
                             {filterStatus !== 'all' && (
-                                <Button variant="outline" onClick={() => setFilterStatus('all')}>
+                                <Button 
+                                    variant="outline" 
+                                    onClick={() => setFilterStatus('all')}
+                                    className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 transition-all duration-300"
+                                >
                                     Clear Filter
                                 </Button>
                             )}
@@ -403,144 +454,254 @@ export function AdminPaymentList({ payments }) {
                 </CardContent>
             </Card>
 
-            {/* View Details Dialog */}
+            {/* Payment Details Modal - Enhanced Landscape Layout */}
             <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader className="border-b pb-4">
-                        <DialogTitle className="text-2xl font-bold">Payment Details</DialogTitle>
-                    </DialogHeader>
-                    {selectedPayment && (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
-                            {/* Left Column - Payment Information */}
-                            <div className="space-y-6">
-                                <div>
-                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Payment Information</h3>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <p className="text-sm text-gray-500 mb-1">Applicant Name</p>
-                                            <p className="font-semibold text-gray-900">{selectedPayment.applicant_name}</p>
+                <DialogContent className="max-w-[80vw] w-full max-h-[80vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
+                    {/* Modal Header with Gradient Background */}
+                    <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
+                        <DialogHeader>
+                            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                    <DollarSign className="h-6 w-6" />
+                                </div>
+                                Payment Details #{selectedPayment?.id}
+                            </DialogTitle>
+                            <DialogDescription className="text-emerald-100 text-lg">
+                                Submitted on {formatDate(selectedPayment?.created_at)} • Status: {selectedPayment?.payment_status?.charAt(0).toUpperCase() + selectedPayment?.payment_status?.slice(1)}
+                            </DialogDescription>
+                        </DialogHeader>
+                    </div>
+
+                    {/* Scrollable Content Area */}
+                    <div className="overflow-y-auto max-h-[calc(80vh-200px)] pr-2">
+                        {selectedPayment && (
+                            <div className="space-y-8">
+                                {/* Top Row - Payment Info & Status */}
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    {/* Payment Information Card */}
+                                    <div className="group hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 bg-gradient-to-br from-white via-blue-50 to-blue-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-blue-200/50">
+                                        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4">
+                                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                                <FileText className="h-5 w-5" />
+                                                Payment Information
+                                            </h3>
                                         </div>
-                                        <div>
-                                            <p className="text-sm text-gray-500 mb-1">Email</p>
-                                            <p className="font-medium text-gray-900">{selectedPayment.applicant_email || 'N/A'}</p>
+                                        <div className="p-6 space-y-4">
+                                            <div className="p-3 bg-white/70 rounded-xl border border-blue-200">
+                                                <p className="text-sm text-gray-600 font-medium">Applicant Name</p>
+                                                <p className="text-lg font-bold text-blue-900">{selectedPayment.applicant_name}</p>
+                                            </div>
+                                            <div className="p-3 bg-white/70 rounded-xl border border-blue-200">
+                                                <p className="text-sm text-gray-600 font-medium">Email Address</p>
+                                                <p className="text-base font-semibold text-blue-900">{selectedPayment.applicant_email || 'N/A'}</p>
+                                            </div>
+                                            <div className="p-3 bg-white/70 rounded-xl border border-blue-200">
+                                                <p className="text-sm text-gray-600 font-medium">Request ID</p>
+                                                <p className="text-lg font-bold text-blue-900 font-mono">#{selectedPayment.request_id}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-sm text-gray-500 mb-1">Request ID</p>
-                                            <p className="font-medium text-gray-900">#{selectedPayment.request_id}</p>
+                                    </div>
+
+                                    {/* Transaction Details Card */}
+                                    <div className="group hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 bg-gradient-to-br from-white via-purple-50 to-purple-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-purple-200/50">
+                                        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4">
+                                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                                <Calendar className="h-5 w-5" />
+                                                Transaction Details
+                                            </h3>
+                                        </div>
+                                        <div className="p-6 space-y-4">
+                                            <div className="p-3 bg-white/70 rounded-xl border border-purple-200">
+                                                <p className="text-sm text-gray-600 font-medium">Payment Method</p>
+                                                <p className="text-lg font-bold text-purple-900 capitalize">{selectedPayment.payment_method.replace('_', ' ')}</p>
+                                            </div>
+                                            <div className="p-3 bg-white/70 rounded-xl border border-purple-200">
+                                                <p className="text-sm text-gray-600 font-medium">Receipt Number</p>
+                                                <p className="text-base font-semibold text-purple-900 font-mono">{selectedPayment.receipt_number || 'N/A'}</p>
+                                            </div>
+                                            <div className="p-3 bg-white/70 rounded-xl border border-purple-200">
+                                                <p className="text-sm text-gray-600 font-medium">Payment Date</p>
+                                                <p className="text-lg font-bold text-purple-900">{formatDate(selectedPayment.payment_date)}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Status & Amount Card */}
+                                    <div className="group hover:shadow-2xl hover:shadow-emerald-500/25 transition-all duration-500 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-emerald-200/50">
+                                        <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-4">
+                                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                                <DollarSign className="h-5 w-5" />
+                                                Payment Status
+                                            </h3>
+                                        </div>
+                                        <div className="p-6 space-y-4">
+                                            <div className="text-center p-4 bg-white/70 rounded-xl border border-emerald-200">
+                                                <p className="text-sm text-gray-600 font-medium mb-2">Current Status</p>
+                                                <Badge className={`${getStatusColor(selectedPayment.payment_status)} text-lg px-4 py-2`}>
+                                                    <span className="flex items-center gap-2">
+                                                        {getStatusIcon(selectedPayment.payment_status)}
+                                                        {selectedPayment.payment_status.charAt(0).toUpperCase() + selectedPayment.payment_status.slice(1)}
+                                                    </span>
+                                                </Badge>
+                                            </div>
+                                            <div className="text-center p-4 bg-gradient-to-r from-emerald-100 to-emerald-200 rounded-xl border border-emerald-300">
+                                                <p className="text-sm text-gray-600 font-medium mb-2">Total Amount</p>
+                                                <p className="text-3xl font-bold text-emerald-900">₱{parseFloat(selectedPayment.amount).toLocaleString()}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="border-t pt-6">
-                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Transaction Details</h3>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-sm text-gray-500">Payment Method</span>
-                                            <span className="font-medium text-gray-900 capitalize">{selectedPayment.payment_method.replace('_', ' ')}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-sm text-gray-500">Receipt Number</span>
-                                            <span className="font-medium text-gray-900">{selectedPayment.receipt_number || 'N/A'}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-sm text-gray-500">Payment Date</span>
-                                            <span className="font-medium text-gray-900">{formatDate(selectedPayment.payment_date)}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center pt-2 border-t">
-                                            <span className="text-sm text-gray-500">Status</span>
-                                            <Badge className={getStatusColor(selectedPayment.payment_status)}>
-                                                <span className="flex items-center gap-1">
-                                                    {getStatusIcon(selectedPayment.payment_status)}
-                                                    {selectedPayment.payment_status.charAt(0).toUpperCase() + selectedPayment.payment_status.slice(1)}
-                                                </span>
-                                            </Badge>
+                                {/* Payment Summary - Full Width */}
+                                <div className="group hover:shadow-2xl hover:shadow-indigo-500/25 transition-all duration-500 bg-gradient-to-br from-white via-indigo-50 to-indigo-100 backdrop-blur-sm transform hover:scale-[1.01] rounded-2xl overflow-hidden border border-indigo-200/50">
+                                    <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-4">
+                                        <h3 className="font-bold text-xl flex items-center gap-3">
+                                            <FileText className="h-6 w-6" />
+                                            Payment Breakdown & Summary
+                                        </h3>
+                                    </div>
+                                    <div className="p-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                            <div className="p-4 bg-white/70 rounded-xl border border-indigo-200 hover:shadow-lg transition-all duration-300">
+                                                <p className="text-sm text-gray-600 font-medium">Payment ID</p>
+                                                <p className="text-xl font-bold text-indigo-900 font-mono">#{selectedPayment.id}</p>
+                                            </div>
+                                            <div className="p-4 bg-white/70 rounded-xl border border-indigo-200 hover:shadow-lg transition-all duration-300">
+                                                <p className="text-sm text-gray-600 font-medium">Subtotal</p>
+                                                <p className="text-xl font-bold text-indigo-900">₱{parseFloat(selectedPayment.amount).toLocaleString()}</p>
+                                            </div>
+                                            <div className="p-4 bg-white/70 rounded-xl border border-indigo-200 hover:shadow-lg transition-all duration-300">
+                                                <p className="text-sm text-gray-600 font-medium">Processing Fee</p>
+                                                <p className="text-xl font-bold text-indigo-900">₱0.00</p>
+                                            </div>
+                                            <div className="p-4 bg-gradient-to-r from-indigo-200 to-indigo-300 rounded-xl border border-indigo-400 hover:shadow-lg transition-all duration-300">
+                                                <p className="text-sm text-indigo-800 font-medium">Total Amount</p>
+                                                <p className="text-2xl font-bold text-indigo-900">₱{parseFloat(selectedPayment.amount).toLocaleString()}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {selectedPayment.notes && (
-                                    <div className="border-t pt-6">
-                                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Notes</h3>
-                                        <p className="text-gray-700 text-sm leading-relaxed">{selectedPayment.notes}</p>
-                                    </div>
-                                )}
-
-                                {selectedPayment.rejection_reason && (
-                                    <div className="border-t pt-6">
-                                        <div className="bg-rose-50 border border-rose-200 rounded-lg p-4">
-                                            <h3 className="text-sm font-semibold text-rose-800 uppercase tracking-wide mb-2">Rejection Reason</h3>
-                                            <p className="text-rose-700 text-sm leading-relaxed">{selectedPayment.rejection_reason}</p>
+                                {/* Bottom Row - Receipt & Additional Info */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    {/* Receipt Document */}
+                                    <div className="group hover:shadow-2xl hover:shadow-amber-500/25 transition-all duration-500 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-amber-200/50">
+                                        <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4">
+                                            <h3 className="font-bold text-lg">Receipt Document</h3>
+                                        </div>
+                                        <div className="p-6">
+                                            {selectedPayment.receipt_file_path ? (
+                                                <div className="space-y-4">
+                                                    {/* Enhanced Receipt Preview */}
+                                                    {(selectedPayment.receipt_file_path.toLowerCase().endsWith('.png') || 
+                                                      selectedPayment.receipt_file_path.toLowerCase().endsWith('.jpg') || 
+                                                      selectedPayment.receipt_file_path.toLowerCase().endsWith('.jpeg')) && (
+                                                        <div className="border-2 border-amber-300 rounded-xl overflow-hidden bg-white shadow-lg hover:shadow-xl transition-all duration-300">
+                                                            <img 
+                                                                src={`/storage/${selectedPayment.receipt_file_path}`}
+                                                                alt="Payment Receipt"
+                                                                className="w-full h-auto max-h-64 object-contain"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {/* Enhanced View Button */}
+                                                    <a 
+                                                        href={`/storage/${selectedPayment.receipt_file_path}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl transform hover:scale-105"
+                                                    >
+                                                        <Eye className="h-5 w-5" />
+                                                        View Receipt Document
+                                                    </a>
+                                                </div>
+                                            ) : (
+                                                <div className="text-center py-12">
+                                                    <div className="p-4 bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                                                        <FileText className="h-8 w-8 text-gray-400" />
+                                                    </div>
+                                                    <h4 className="font-bold text-gray-700 mb-2">No Receipt Uploaded</h4>
+                                                    <p className="text-sm text-gray-500">No receipt document was provided with this payment</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                )}
 
-                                {selectedPayment.verified_by_name && (
-                                    <div className="border-t pt-6">
-                                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Verification Info</h3>
-                                        <p className="text-gray-700 text-sm">
-                                            Verified by <span className="font-semibold">{selectedPayment.verified_by_name}</span> on {formatDate(selectedPayment.verified_at)}
-                                        </p>
+                                    {/* Additional Information */}
+                                    <div className="group hover:shadow-2xl hover:shadow-teal-500/25 transition-all duration-500 bg-gradient-to-br from-white via-teal-50 to-teal-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-teal-200/50">
+                                        <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-4">
+                                            <h3 className="font-bold text-lg">Additional Information</h3>
+                                        </div>
+                                        <div className="p-6 space-y-4">
+                                            {/* Submission Date */}
+                                            <div className="p-4 bg-white/70 rounded-xl border border-teal-200">
+                                                <div className="flex items-center gap-3">
+                                                    <Calendar className="h-5 w-5 text-teal-600" />
+                                                    <div>
+                                                        <p className="text-sm text-gray-600 font-medium">Submission Date</p>
+                                                        <p className="text-lg font-bold text-teal-900">{formatDate(selectedPayment.created_at)}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Notes */}
+                                            {selectedPayment.notes && (
+                                                <div className="p-4 bg-white/70 rounded-xl border border-teal-200">
+                                                    <p className="text-sm text-gray-600 font-medium mb-2">Notes</p>
+                                                    <p className="text-base text-teal-900 leading-relaxed">{selectedPayment.notes}</p>
+                                                </div>
+                                            )}
+
+                                            {/* Rejection Reason */}
+                                            {selectedPayment.rejection_reason && (
+                                                <div className="p-4 bg-gradient-to-r from-rose-100 to-rose-200 rounded-xl border border-rose-300">
+                                                    <p className="text-sm text-rose-800 font-bold mb-2">Rejection Reason</p>
+                                                    <p className="text-base text-rose-900 leading-relaxed">{selectedPayment.rejection_reason}</p>
+                                                </div>
+                                            )}
+
+                                            {/* Verification Info */}
+                                            {selectedPayment.verified_by_name && (
+                                                <div className="p-4 bg-gradient-to-r from-emerald-100 to-emerald-200 rounded-xl border border-emerald-300">
+                                                    <p className="text-sm text-emerald-800 font-bold mb-2">Verification Information</p>
+                                                    <p className="text-base text-emerald-900">
+                                                        Verified by <span className="font-bold">{selectedPayment.verified_by_name}</span>
+                                                    </p>
+                                                    <p className="text-sm text-emerald-700 mt-1">
+                                                        on {formatDate(selectedPayment.verified_at)}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* Default message if no additional info */}
+                                            {!selectedPayment.notes && !selectedPayment.rejection_reason && !selectedPayment.verified_by_name && (
+                                                <div className="text-center py-8">
+                                                    <div className="p-3 bg-gray-100 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                                                        <FileText className="h-6 w-6 text-gray-400" />
+                                                    </div>
+                                                    <p className="text-sm text-gray-500">No additional information available</p>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                )}
+                                </div>
                             </div>
+                        )}
+                    </div>
 
-                            {/* Right Column - Order Summary */}
-                            <div className="space-y-6">
-                                <div>
-                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Payment Summary</h3>
-                                    <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                                        <div className="flex justify-between items-center pb-4 border-b border-gray-200">
-                                            <span className="text-gray-600">Payment ID</span>
-                                            <span className="font-mono font-semibold text-gray-900">#{selectedPayment.id}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center pb-4 border-b border-gray-200">
-                                            <span className="text-gray-600">Subtotal</span>
-                                            <span className="font-semibold text-gray-900">₱{parseFloat(selectedPayment.amount).toLocaleString()}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center pb-4 border-b border-gray-200">
-                                            <span className="text-gray-600">Processing Fee</span>
-                                            <span className="font-semibold text-gray-900">₱0</span>
-                                        </div>
-                                        <div className="flex justify-between items-center pt-2">
-                                            <span className="text-lg font-semibold text-gray-900">Total</span>
-                                            <span className="text-2xl font-bold text-gray-900">₱{parseFloat(selectedPayment.amount).toLocaleString()}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {selectedPayment.receipt_file_path && (
-                                    <div>
-                                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Receipt Document</h3>
-                                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                                            <FileText className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-                                            <p className="text-sm text-gray-600 mb-4">Receipt file uploaded</p>
-                                            <Button variant="outline" className="w-full" asChild>
-                                                <a href={`/storage/${selectedPayment.receipt_file_path}`} target="_blank" rel="noopener noreferrer">
-                                                    <Eye className="h-4 w-4 mr-2" />
-                                                    View Receipt
-                                                </a>
-                                            </Button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    <div className="flex items-start gap-3">
-                                        <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
-                                        <div>
-                                            <p className="text-sm font-semibold text-blue-900 mb-1">Submission Date</p>
-                                            <p className="text-sm text-blue-700">{formatDate(selectedPayment.created_at)}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    {/* Enhanced Footer */}
+                    <div className="border-t bg-white/50 backdrop-blur-sm p-4 -m-6 mt-6 rounded-b-3xl">
+                        <div className="flex justify-end">
+                            <Button 
+                                variant="outline" 
+                                onClick={() => setIsViewDialogOpen(false)}
+                                className="px-8 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold"
+                            >
+                                Close Details
+                            </Button>
                         </div>
-                    )}
-                    <DialogFooter className="border-t pt-4 mt-6">
-                        <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
-                            Close
-                        </Button>
-                    </DialogFooter>
+                    </div>
                 </DialogContent>
             </Dialog>
 
@@ -603,6 +764,16 @@ export function AdminPaymentList({ payments }) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Notification Modal */}
+            <NotificationModal
+                isOpen={notificationModal.isOpen}
+                onClose={() => setNotificationModal(prev => ({ ...prev, isOpen: false }))}
+                type={notificationModal.type}
+                title={notificationModal.title}
+                message={notificationModal.message}
+                buttonText={notificationModal.buttonText}
+            />
         </div>
     );
 }

@@ -51,6 +51,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { NotificationModal } from "@/Components/ui/notification-modal";
 
 export default function Users({ users }) {
   const [editingUser, setEditingUser] = useState(null);
@@ -58,6 +59,13 @@ export default function Users({ users }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [notificationModal, setNotificationModal] = useState({
+    isOpen: false,
+    type: "success",
+    title: "",
+    message: "",
+    buttonText: "Continue"
+  });
 
   const usersData = users?.data || users;
   
@@ -156,13 +164,42 @@ export default function Users({ users }) {
         onSuccess: () => {
           setIsDeleteDialogOpen(false);
           setUserToDelete(null);
+          setNotificationModal({
+            isOpen: true,
+            type: "success",
+            title: "User Deleted!",
+            message: `User "${userToDelete.name}" has been permanently deleted from the system.`,
+            buttonText: "Continue"
+          });
         },
+        onError: () => {
+          setIsDeleteDialogOpen(false);
+          setNotificationModal({
+            isOpen: true,
+            type: "error",
+            title: "Delete Failed!",
+            message: "Failed to delete the user. Please try again or contact support if the problem persists.",
+            buttonText: "Try Again"
+          });
+        }
       });
     }
   };
 
   const saveEdit = () => {
     if (editingUser) {
+      // Basic validation
+      if (!editingUser.name?.trim() || !editingUser.email?.trim()) {
+        setNotificationModal({
+          isOpen: true,
+          type: "warning",
+          title: "Required Fields Missing",
+          message: "Please fill in both name and email fields before saving.",
+          buttonText: "OK"
+        });
+        return;
+      }
+
       router.put(route('admin.users.update', editingUser.id), {
         name: editingUser.name,
         email: editingUser.email,
@@ -172,7 +209,24 @@ export default function Users({ users }) {
         onSuccess: () => {
           setIsEditDialogOpen(false);
           setEditingUser(null);
+          setNotificationModal({
+            isOpen: true,
+            type: "success",
+            title: "User Updated!",
+            message: `User "${editingUser.name}" has been updated successfully.`,
+            buttonText: "Continue"
+          });
         },
+        onError: () => {
+          setIsEditDialogOpen(false);
+          setNotificationModal({
+            isOpen: true,
+            type: "error",
+            title: "Update Failed!",
+            message: "Failed to update the user information. Please check the data and try again.",
+            buttonText: "Try Again"
+          });
+        }
       });
     }
   };
@@ -196,29 +250,41 @@ export default function Users({ users }) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gradient-to-br from-purple-50 to-slate-50">
-          <Card>
-            <CardHeader>
+        <div className="flex flex-1 flex-col gap-6 p-6 pt-0 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
+             style={{
+               backgroundImage: `
+                 radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                 radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+                 radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 50%)
+               `
+             }}>
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-700">
+            <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Applicant Users</CardTitle>
-                  <p className="text-sm text-muted-foreground">
+                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                    <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                      <Search className="h-6 w-6" />
+                    </div>
+                    Applicant Users
+                  </CardTitle>
+                  <p className="text-white/80 mt-2">
                     Total: {users?.total || usersData.length} applicants
                   </p>
                 </div>
                 <div className="relative w-64">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-white/70" />
                   <Input
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8"
+                    className="pl-10 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 focus:bg-white/30"
                   />
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="rounded-md border">
+            <CardContent className="p-8">
+              <div className="rounded-2xl border border-gray-200 overflow-hidden shadow-lg">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -240,8 +306,12 @@ export default function Users({ users }) {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredUsers.map((user) => (
-                        <TableRow key={user.id}>
+                      filteredUsers.map((user, index) => (
+                        <TableRow 
+                          key={user.id} 
+                          className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300"
+                          style={{ animationDelay: `${index * 50}ms` }}
+                        >
                           <TableCell className="font-medium">{user.id}</TableCell>
                           <TableCell>{user.name}</TableCell>
                           <TableCell>{user.email}</TableCell>
@@ -361,6 +431,16 @@ export default function Users({ users }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Notification Modal */}
+      <NotificationModal
+        isOpen={notificationModal.isOpen}
+        onClose={() => setNotificationModal(prev => ({ ...prev, isOpen: false }))}
+        type={notificationModal.type}
+        title={notificationModal.title}
+        message={notificationModal.message}
+        buttonText={notificationModal.buttonText}
+      />
     </SidebarProvider>
   );
 }

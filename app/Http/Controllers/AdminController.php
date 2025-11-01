@@ -10,6 +10,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Mail\ApplicationRejected;
+use App\Mail\PaymentRejected;
 
 class AdminController extends Controller
 {
@@ -56,7 +58,7 @@ class AdminController extends Controller
                 'created_at' => $request->created_at,
                 'updated_at' => $request->updated_at,
                 'application_id' => $application?->id,
-                'report_id' => $report?->report_id,
+                'report_id' => $report?->getKey(),
                 'evaluation' => $report?->evaluation,
                 'report_description' => $report?->description,
                 'report_amount' => $report?->amount,
@@ -69,23 +71,53 @@ class AdminController extends Controller
             ];
         });
 
+        // Get all requests with their status (using same logic as request page)
+        $allRequests = RequestModel::with('user')->get();
+        $applicationsData = Application::with('report')->get()->keyBy(function($app) {
+            return $app->applicant_name . '|' . $app->applicant_address;
+        });
+
+        // Calculate stats using the same logic as request page
+        $statusCounts = ['pending' => 0, 'approved' => 0, 'rejected' => 0];
+        
+        foreach ($allRequests as $request) {
+            $key = $request->applicant_name . '|' . $request->applicant_address;
+            $application = $applicationsData->get($key);
+            $report = $application?->report;
+            
+            // Use report evaluation if available, otherwise use request status
+            $status = $report?->evaluation ?? $request->status;
+            
+            if (isset($statusCounts[$status])) {
+                $statusCounts[$status]++;
+            }
+        }
+        
         $stats = [
-            'total' => RequestModel::count(),
-            'pending' => RequestModel::whereHas('application.report', function($q) {
-                $q->where('evaluation', 'pending');
-            })->orWhereDoesntHave('application')->count(),
-            'approved' => RequestModel::whereHas('application.report', function($q) {
-                $q->where('evaluation', 'approved');
-            })->count(),
-            'rejected' => RequestModel::whereHas('application.report', function($q) {
-                $q->where('evaluation', 'rejected');
-            })->count(),
+            'total' => $allRequests->count(),
+            'pending' => $statusCounts['pending'],
+            'approved' => $statusCounts['approved'],
+            'rejected' => $statusCounts['rejected'],
         ];
+
+        // Add debug logging to verify the data
+        \Log::info('Evaluation Statistics:', [
+            'status_counts' => $statusCounts,
+            'total_requests' => $allRequests->count(),
+            'final_stats' => $stats
+        ]);
+
+        // Get detailed evaluation distribution for the chart
+        $evaluationDistribution = $this->getEvaluationDistribution();
+
+        // Get detailed evaluation distribution for the chart
+        $evaluationDistribution = $this->getEvaluationDistribution();
 
         return Inertia::render('Admin/Dashboard', [
             'applications' => $applications,
             'stats' => $stats,
             'analytics' => $analytics,
+            'evaluationDistribution' => $evaluationDistribution,
         ]);
     }
     
@@ -254,7 +286,7 @@ class AdminController extends Controller
                 'created_at' => $request->created_at,
                 'updated_at' => $request->updated_at,
                 'application_id' => $application?->id,
-                'report_id' => $report?->report_id,
+                'report_id' => $report?->getKey(),
                 'evaluation' => $report?->evaluation,
                 'report_description' => $report?->description,
                 'report_amount' => $report?->amount,
@@ -297,7 +329,7 @@ class AdminController extends Controller
             $requestArray = $request->toArray();
             $requestArray['application_id'] = $application?->id;
             $requestArray['authorization_letter_path'] = $application?->authorization_letter_path;
-            $requestArray['report_id'] = $report?->report_id;
+            $requestArray['report_id'] = $report?->getKey();
             $requestArray['evaluation'] = $report?->evaluation;
             $requestArray['user_name'] = $request->user?->name;
             $requestArray['user_email'] = $request->user?->email;
@@ -327,6 +359,9 @@ class AdminController extends Controller
      */
     public function updateEvaluation(Request $request, $reportId)
     {
+        \Log::info('updateEvaluation called with reportId: ' . $reportId);
+        \Log::info('Request data: ' . json_encode($request->all()));
+        
         $validated = $request->validate([
             'evaluation' => 'required|in:pending,approved,rejected',
             'description' => 'nullable|string',
@@ -347,33 +382,63 @@ class AdminController extends Controller
             'issued_by' => $validated['issues_by'] ?? $report->issued_by,
         ]);
 
-        // Send email notification if status changed to approved
-        if ($validated['evaluation'] === 'approved' && $oldEvaluation !== 'approved') {
+        // Send email notification if status changed
+        if ($validated['evaluation'] !== $oldEvaluation) {
             try {
                 // Get the application and request details
                 $application = Application::find($report->app_id);
+                \Log::info('Application found: ' . ($application ? 'Yes - ID: ' . $application->id : 'No'));
+                
                 if ($application) {
+                    \Log::info('Looking for request with applicant_name: ' . $application->applicant_name . ' and applicant_address: ' . $application->applicant_address);
+                    
                     // Find the request associated with this application
                     $requestModel = RequestModel::where('applicant_name', $application->applicant_name)
                         ->where('applicant_address', $application->applicant_address)
                         ->first();
                     
+                    \Log::info('Request found: ' . ($requestModel ? 'Yes - ID: ' . $requestModel->id . ', User ID: ' . $requestModel->user_id : 'No'));
+                    
                     if ($requestModel && $requestModel->user_id) {
                         $user = \App\Models\User::find($requestModel->user_id);
+                        \Log::info('User found: ' . ($user ? 'Yes - Email: ' . $user->email : 'No'));
+                        
                         if ($user) {
-                            \Mail::to($user->email)->send(
-                                new \App\Mail\ApplicationApproved(
-                                    $application,
-                                    $application->applicant_name,
-                                    $requestModel->id
-                                )
-                            );
+                            if ($validated['evaluation'] === 'approved') {
+                                \Mail::to($user->email)->send(
+                                    new \App\Mail\ApplicationApproved(
+                                        $application,
+                                        $application->applicant_name,
+                                        $requestModel->id
+                                    )
+                                );
+                                \Log::info('Application approval email sent to: ' . $user->email . ' for request ID: ' . $requestModel->id);
+                            } elseif ($validated['evaluation'] === 'rejected') {
+                                // Send rejection email immediately (not queued)
+                                \Mail::to($user->email)->send(
+                                    new ApplicationRejected(
+                                        $application,
+                                        $application->applicant_name,
+                                        $requestModel->id,
+                                        $validated['description'] ?? 'Your application has been rejected. Please review and resubmit with the necessary corrections.'
+                                    )
+                                );
+                                
+                                // Log the email sending for debugging
+                                \Log::info('Application rejection email sent to: ' . $user->email . ' for request ID: ' . $requestModel->id);
+                            }
+                        } else {
+                            \Log::warning('User not found for user_id: ' . $requestModel->user_id);
                         }
+                    } else {
+                        \Log::warning('Request not found or missing user_id for application: ' . $application->applicant_name);
                     }
+                } else {
+                    \Log::warning('Application not found for report app_id: ' . $report->app_id);
                 }
             } catch (\Exception $e) {
                 // Log the error but don't fail the request
-                \Log::error('Failed to send approval email: ' . $e->getMessage());
+                \Log::error('Failed to send status change email: ' . $e->getMessage());
             }
         }
 
@@ -713,7 +778,7 @@ class AdminController extends Controller
         
         // Generate PDF
         try {
-            $pdf = Pdf::loadView('certificates.simple-template', $data);
+            $pdf = Pdf::loadView('certificates.text-logo-template', $data);
             \Log::info('PDF generated successfully');
         } catch (\Exception $e) {
             \Log::error('PDF generation failed: ' . $e->getMessage());
@@ -809,7 +874,32 @@ class AdminController extends Controller
             'Payment rejected: ' . $validated['rejection_reason']
         );
 
-        return back()->with('success', 'Payment rejected.');
+        // Send rejection email to applicant
+        try {
+            $requestModel = RequestModel::find($payment->request_id);
+            if ($requestModel && $requestModel->user_id) {
+                $user = \App\Models\User::find($requestModel->user_id);
+                if ($user) {
+                    // Send payment rejection email immediately (not queued)
+                    \Mail::to($user->email)->send(
+                        new PaymentRejected(
+                            $payment,
+                            $requestModel->applicant_name,
+                            $requestModel->id,
+                            $validated['rejection_reason']
+                        )
+                    );
+                    
+                    // Log the email sending for debugging
+                    \Log::info('Payment rejection email sent to: ' . $user->email . ' for payment ID: ' . $payment->id);
+                }
+            }
+        } catch (\Exception $e) {
+            // Log the error but don't fail the request
+            \Log::error('Failed to send payment rejection email: ' . $e->getMessage());
+        }
+
+        return back()->with('success', 'Payment rejected and notification sent to applicant.');
     }
     
     /**
@@ -916,5 +1006,60 @@ class AdminController extends Controller
         };
         
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Get detailed evaluation distribution data
+     */
+    private function getEvaluationDistribution()
+    {
+        // Use the same logic as the main stats calculation
+        $allRequests = RequestModel::with('user')->get();
+        $applicationsData = Application::with('report')->get()->keyBy(function($app) {
+            return $app->applicant_name . '|' . $app->applicant_address;
+        });
+
+        $statusCounts = ['pending' => 0, 'approved' => 0, 'rejected' => 0];
+        $requestsWithoutReports = 0;
+        $requestsWithReports = 0;
+        
+        foreach ($allRequests as $request) {
+            $key = $request->applicant_name . '|' . $request->applicant_address;
+            $application = $applicationsData->get($key);
+            $report = $application?->report;
+            
+            // Use report evaluation if available, otherwise use request status
+            $status = $report?->evaluation ?? $request->status;
+            
+            if (isset($statusCounts[$status])) {
+                $statusCounts[$status]++;
+            }
+            
+            // Track if request has report or not
+            if ($report) {
+                $requestsWithReports++;
+            } else {
+                $requestsWithoutReports++;
+            }
+        }
+
+        $total = array_sum($statusCounts);
+
+        return [
+            'pending' => $statusCounts['pending'],
+            'approved' => $statusCounts['approved'],
+            'rejected' => $statusCounts['rejected'],
+            'total' => $total,
+            'percentages' => [
+                'pending' => $total > 0 ? round(($statusCounts['pending'] / $total) * 100, 1) : 0,
+                'approved' => $total > 0 ? round(($statusCounts['approved'] / $total) * 100, 1) : 0,
+                'rejected' => $total > 0 ? round(($statusCounts['rejected'] / $total) * 100, 1) : 0,
+            ],
+            'raw_data' => [
+                'requests_with_reports' => $requestsWithReports,
+                'requests_without_reports' => $requestsWithoutReports,
+                'status_breakdown' => $statusCounts,
+            ]
+        ];
     }
 }

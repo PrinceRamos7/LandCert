@@ -36,11 +36,11 @@ export function TeamSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
               <div
-                className="flex aspect-square size-8 items-center justify-center rounded-lg bg-white p-1">
+                className="flex aspect-square size-12 items-center justify-center rounded-full p-1">
                 {typeof activeTeam.logo === 'string' ? (
                   <img src={activeTeam.logo} alt={activeTeam.name} className="size-full object-contain" />
                 ) : (
-                  <activeTeam.logo className="size-6" />
+                  <activeTeam.logo className="size-10" />
                 )}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -62,11 +62,11 @@ export function TeamSwitcher({
             </DropdownMenuLabel>
             {teams.map((team, index) => (
               <DropdownMenuItem key={team.name} onClick={() => setActiveTeam(team)} className="gap-2 p-2">
-                <div className="flex size-6 items-center justify-center rounded-sm border bg-white p-0.5">
+                <div className="flex size-8 items-center justify-center rounded-full p-0.5">
                   {typeof team.logo === 'string' ? (
                     <img src={team.logo} alt={team.name} className="size-full object-contain shrink-0" />
                   ) : (
-                    <team.logo className="size-5 shrink-0" />
+                    <team.logo className="size-6 shrink-0" />
                   )}
                 </div>
                 {team.name}

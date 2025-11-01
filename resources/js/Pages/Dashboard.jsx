@@ -39,8 +39,10 @@ export default function Page({ requests = [] }) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gradient-to-br from-blue-50 to-slate-50">
-          <Dashboard requests={requests} />
+        <div className="flex flex-1 flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+          <div className="flex-1 p-6">
+            <Dashboard requests={requests} />
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

@@ -25,6 +25,8 @@ class Project extends Model
 
     protected $casts = [
         'cost' => 'decimal:2',
+        'if_yes_b' => 'date',  // notice_dates
+        'if_yes_d' => 'date',  // similar_application_dates
     ];
 
     /**
