@@ -33,6 +33,87 @@ Route::middleware('auth')->group(function () {
     
     // Certificate download
     Route::get('/certificate/{certificateId}/download', [\App\Http\Controllers\PaymentController::class, 'downloadCertificate'])->name('certificate.download');
+    
+    // Certificate preview routes (for design testing)
+    Route::get('/certificate/preview', function() {
+        $data = [
+            'certificateNumber' => 'CERT-2024-00001',
+            'applicantName' => 'Juan Dela Cruz',
+            'projectLocation' => 'Barangay Alibagu, Ilagan City, Isabela',
+            'projectType' => 'Residential Building',
+            'projectNature' => 'Single Family Dwelling',
+            'lotArea' => '500.00',
+            'projectCost' => 2500000,
+            'issuedDate' => now()->format('F d, Y'),
+            'validUntil' => now()->addYears(5)->format('F d, Y'),
+            'issuedBy' => 'Admin User',
+        ];
+        return view('certificates.professional-template', $data);
+    })->name('certificate.preview');
+    
+    Route::get('/certificate/preview/professional', function() {
+        $data = [
+            'certificateNumber' => 'CERT-2024-00001',
+            'applicantName' => 'Juan Dela Cruz',
+            'projectLocation' => 'Barangay Alibagu, Ilagan City, Isabela',
+            'projectType' => 'Residential Building',
+            'projectNature' => 'Single Family Dwelling',
+            'lotArea' => '500.00',
+            'projectCost' => 2500000,
+            'issuedDate' => now()->format('F d, Y'),
+            'validUntil' => now()->addYears(5)->format('F d, Y'),
+            'issuedBy' => 'Admin User',
+        ];
+        return view('certificates.professional-template', $data);
+    })->name('certificate.preview.professional');
+    
+    Route::get('/certificate/preview/simple', function() {
+        $data = [
+            'certificateNumber' => 'CERT-2024-00002',
+            'applicantName' => 'Maria Santos',
+            'projectLocation' => 'Barangay San Juan, Ilagan City, Isabela',
+            'projectType' => 'Commercial Building',
+            'projectNature' => 'Office Building',
+            'lotArea' => '750.00',
+            'projectCost' => 5000000,
+            'issuedDate' => now()->format('F d, Y'),
+            'validUntil' => now()->addYears(5)->format('F d, Y'),
+            'issuedBy' => 'Admin User',
+        ];
+        return view('certificates.simple-template', $data);
+    })->name('certificate.preview.simple');
+    
+    Route::get('/certificate/preview/basic', function() {
+        $data = [
+            'certificateNumber' => 'CERT-2024-00003',
+            'applicantName' => 'Pedro Reyes',
+            'projectLocation' => 'Barangay Centro, Ilagan City, Isabela',
+            'projectType' => 'Industrial Building',
+            'projectNature' => 'Warehouse',
+            'lotArea' => '1200.00',
+            'projectCost' => 8000000,
+            'issuedDate' => now()->format('F d, Y'),
+            'validUntil' => now()->addYears(5)->format('F d, Y'),
+            'issuedBy' => 'Admin User',
+        ];
+        return view('certificates.template', $data);
+    })->name('certificate.preview.basic');
+    
+    Route::get('/certificate/preview/text-logo', function() {
+        $data = [
+            'certificateNumber' => 'CERT-2024-00004',
+            'applicantName' => 'Ana Garcia',
+            'projectLocation' => 'Barangay Maligaya, Ilagan City, Isabela',
+            'projectType' => 'Mixed-Use Building',
+            'projectNature' => 'Residential-Commercial',
+            'lotArea' => '600.00',
+            'projectCost' => 3500000,
+            'issuedDate' => now()->format('F d, Y'),
+            'validUntil' => now()->addYears(5)->format('F d, Y'),
+            'issuedBy' => 'Admin User',
+        ];
+        return view('certificates.text-logo-template', $data);
+    })->name('certificate.preview.text-logo');
 });
 
 // Admin routes
@@ -58,6 +139,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/export/payments', [AdminController::class, 'exportPayments'])->name('export.payments');
     Route::get('/export/applications', [AdminController::class, 'exportApplications'])->name('export.applications');
     Route::get('/export/requests', [AdminController::class, 'exportRequests'])->name('export.requests');
+    Route::get('/export/users', [AdminController::class, 'exportUsers'])->name('export.users');
+    
+    // Bulk action routes
+    Route::post('/bulk/approve', [AdminController::class, 'bulkApprove'])->name('bulk.approve');
+    Route::post('/bulk/reject', [AdminController::class, 'bulkReject'])->name('bulk.reject');
+    Route::delete('/bulk/delete', [AdminController::class, 'bulkDelete'])->name('bulk.delete');
 });
 
 // Notification routes

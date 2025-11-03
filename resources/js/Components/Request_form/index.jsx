@@ -78,25 +78,121 @@ export default function RequestForm() {
 
     const validateForm = () => {
         const requiredFields = {
+            // Step 1: Applicant Information (Always Required)
             applicant_name: "Applicant Name",
             applicant_address: "Applicant Address",
+            
+            // Step 2: Project Details (Required)
+            project_type: "Project Type",
+            project_nature: "Project Nature",
+            project_location_street: "Project Location Street",
+            project_location_barangay: "Project Location Barangay",
+            project_location_municipality: "Project Location Municipality/City",
+            project_location_province: "Project Location Province",
+            project_area_sqm: "Project Area (sqm)",
+            lot_area_sqm: "Lot Area (sqm)",
+            right_over_land: "Right Over Land",
+            project_nature_duration: "Project Nature Duration",
+            project_cost: "Project Cost",
+            
+            // Step 3: Land Use Information (Required)
+            existing_land_use: "Existing Land Use",
+            has_written_notice: "Written Notice to Tenants",
+            has_similar_application: "Similar Application Filed",
+            preferred_release_mode: "Preferred Release Mode"
         };
 
+        // Conditional required fields
+        const conditionalFields = {};
+        
+        // If has representative, require representative details
+        if (hasRepresentative) {
+            conditionalFields.authorized_representative_name = "Authorized Representative Name";
+            conditionalFields.authorized_representative_address = "Authorized Representative Address";
+            conditionalFields.authorization_letter = "Authorization Letter";
+        }
+        
+        // If project is temporary, require years
+        if (data.project_nature_duration === "Temporary") {
+            conditionalFields.project_nature_years = "Project Duration (Years)";
+        }
+        
+        // If written notice is yes, require officer details
+        if (data.has_written_notice === "yes") {
+            conditionalFields.notice_officer_name = "Notice Officer Name";
+            conditionalFields.notice_dates = "Notice Dates";
+        }
+        
+        // If similar application is yes, require details
+        if (data.has_similar_application === "yes") {
+            conditionalFields.similar_application_offices = "Similar Application Offices";
+            conditionalFields.similar_application_dates = "Similar Application Dates";
+        }
+        
+        // If preferred release mode is mail, require address
+        if (data.preferred_release_mode === "mail") {
+            conditionalFields.release_address = "Release Address";
+        }
+
+        // Combine all required fields
+        const allRequiredFields = { ...requiredFields, ...conditionalFields };
         const emptyFields = [];
         
-        for (const [field, label] of Object.entries(requiredFields)) {
-            if (!data[field] || data[field].trim() === '') {
+        for (const [field, label] of Object.entries(allRequiredFields)) {
+            if (field === 'authorization_letter') {
+                // Special handling for file upload
+                if (!data[field]) {
+                    emptyFields.push(label);
+                }
+            } else if (!data[field] || data[field].toString().trim() === '') {
                 emptyFields.push(label);
             }
         }
 
+        // Additional validation for numeric fields
+        const numericFields = ['project_area_sqm', 'lot_area_sqm', 'project_cost'];
+        for (const field of numericFields) {
+            if (data[field] && (isNaN(data[field]) || parseFloat(data[field]) <= 0)) {
+                emptyFields.push(`${allRequiredFields[field]} (must be a positive number)`);
+            }
+        }
+
+        // Email validation if corporation email is provided
+        if (data.corporation_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.corporation_email)) {
+            emptyFields.push("Valid Corporation Email");
+        }
+
         if (emptyFields.length > 0) {
+            // Organize errors by section
+            const step1Errors = validateStep(1);
+            const step2Errors = validateStep(2);
+            const step3Errors = validateStep(3);
+            
+            let errorMessage = "Please complete all required fields before submitting your application:\n\n";
+            
+            if (step1Errors.length > 0) {
+                errorMessage += "📝 APPLICANT INFORMATION:\n";
+                errorMessage += step1Errors.map(error => `   • ${error}`).join('\n') + '\n\n';
+            }
+            
+            if (step2Errors.length > 0) {
+                errorMessage += "🏗️ PROJECT DETAILS:\n";
+                errorMessage += step2Errors.map(error => `   • ${error}`).join('\n') + '\n\n';
+            }
+            
+            if (step3Errors.length > 0) {
+                errorMessage += "🏞️ LAND USE INFORMATION:\n";
+                errorMessage += step3Errors.map(error => `   • ${error}`).join('\n') + '\n\n';
+            }
+            
+            errorMessage += "💡 Tip: You can navigate to any section using the step indicators above to complete the missing fields.";
+            
             setNotificationModal({
                 isOpen: true,
-                type: "error",
-                title: "Required Fields Missing",
-                message: `Please fill in the following required fields: ${emptyFields.join(', ')}`,
-                buttonText: "OK"
+                type: "warning",
+                title: "Complete Required Fields",
+                message: errorMessage,
+                buttonText: "OK, I'll Complete the Form"
             });
             return false;
         }
@@ -107,20 +203,9 @@ export default function RequestForm() {
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        // Check if user is on the final step
-        if (currentStep !== 3) {
-            setNotificationModal({
-                isOpen: true,
-                type: "warning",
-                title: "Complete All Steps",
-                message: "Please complete all steps of the application form before submitting.",
-                buttonText: "OK"
-            });
-            return;
-        }
-        
+        // Comprehensive validation check
         if (!validateForm()) {
-            return;
+            return; // validateForm() already shows the detailed error modal
         }
 
         // Show confirmation dialog
@@ -171,34 +256,120 @@ export default function RequestForm() {
         }
     }, [flash?.success]);
 
-    const isStepFilled = (step) => {
+    const validateStep = (step) => {
+        const errors = [];
+        
         if (step === 1) {
-            // Check if required fields are filled
-            return data.applicant_name && 
-                   data.applicant_name.trim() !== '' && 
-                   data.applicant_address && 
-                   data.applicant_address.trim() !== '';
+            // Step 1: Applicant Information
+            if (!data.applicant_name || data.applicant_name.trim() === '') {
+                errors.push("Applicant Name");
+            }
+            if (!data.applicant_address || data.applicant_address.trim() === '') {
+                errors.push("Applicant Address");
+            }
+            
+            // If has representative, validate representative fields
+            if (hasRepresentative) {
+                if (!data.authorized_representative_name || data.authorized_representative_name.trim() === '') {
+                    errors.push("Authorized Representative Name");
+                }
+                if (!data.authorized_representative_address || data.authorized_representative_address.trim() === '') {
+                    errors.push("Authorized Representative Address");
+                }
+                if (!data.authorization_letter) {
+                    errors.push("Authorization Letter");
+                }
+            }
         } else if (step === 2) {
-            // Check if at least some project details are filled
-            return data.project_type || 
-                   data.project_nature || 
-                   data.project_location_street || 
-                   data.project_location_barangay ||
-                   data.lot_area_sqm ||
-                   data.project_cost;
+            // Step 2: Project Details
+            const requiredStep2Fields = {
+                project_type: "Project Type",
+                project_nature: "Project Nature",
+                project_location_street: "Project Location Street",
+                project_location_barangay: "Project Location Barangay",
+                project_location_municipality: "Project Location Municipality/City",
+                project_location_province: "Project Location Province",
+                project_area_sqm: "Project Area (sqm)",
+                lot_area_sqm: "Lot Area (sqm)",
+                right_over_land: "Right Over Land",
+                project_nature_duration: "Project Nature Duration",
+                project_cost: "Project Cost"
+            };
+            
+            for (const [field, label] of Object.entries(requiredStep2Fields)) {
+                if (!data[field] || data[field].toString().trim() === '') {
+                    errors.push(label);
+                }
+            }
+            
+            // If temporary project, require years
+            if (data.project_nature_duration === "Temporary") {
+                if (!data.project_nature_years || data.project_nature_years.toString().trim() === '') {
+                    errors.push("Project Duration (Years)");
+                }
+            }
+            
+            // Validate numeric fields
+            const numericFields = ['project_area_sqm', 'lot_area_sqm', 'project_cost'];
+            for (const field of numericFields) {
+                if (data[field] && (isNaN(data[field]) || parseFloat(data[field]) <= 0)) {
+                    errors.push(`${requiredStep2Fields[field]} (must be a positive number)`);
+                }
+            }
         } else if (step === 3) {
-            // Check if at least some land use info is filled
-            return data.has_written_notice || 
-                   data.has_similar_application || 
-                   data.preferred_release_mode;
+            // Step 3: Land Use Information
+            const requiredStep3Fields = {
+                existing_land_use: "Existing Land Use",
+                has_written_notice: "Written Notice to Tenants",
+                has_similar_application: "Similar Application Filed",
+                preferred_release_mode: "Preferred Release Mode"
+            };
+            
+            for (const [field, label] of Object.entries(requiredStep3Fields)) {
+                if (!data[field] || data[field].toString().trim() === '') {
+                    errors.push(label);
+                }
+            }
+            
+            // Conditional validations
+            if (data.has_written_notice === "yes") {
+                if (!data.notice_officer_name || data.notice_officer_name.trim() === '') {
+                    errors.push("Notice Officer Name");
+                }
+                if (!data.notice_dates || data.notice_dates.trim() === '') {
+                    errors.push("Notice Dates");
+                }
+            }
+            
+            if (data.has_similar_application === "yes") {
+                if (!data.similar_application_offices || data.similar_application_offices.trim() === '') {
+                    errors.push("Similar Application Offices");
+                }
+                if (!data.similar_application_dates || data.similar_application_dates.trim() === '') {
+                    errors.push("Similar Application Dates");
+                }
+            }
+            
+            if (data.preferred_release_mode === "mail") {
+                if (!data.release_address || data.release_address.trim() === '') {
+                    errors.push("Release Address");
+                }
+            }
         }
-        return false;
+        
+        return errors;
+    };
+
+    const isStepFilled = (step) => {
+        const errors = validateStep(step);
+        return errors.length === 0;
     };
 
     const nextStep = (e) => {
         e.preventDefault();
+        
         if (currentStep < 3) {
-            // Mark current step as completed if filled
+            // Mark current step as completed if filled (optional visual feedback)
             if (isStepFilled(currentStep) && !completedSteps.includes(currentStep)) {
                 setCompletedSteps([...completedSteps, currentStep]);
                 
@@ -498,7 +669,7 @@ export default function RequestForm() {
             {currentStep === 2 && (
                 <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <Label htmlFor="project_type">Project Type</Label>
+                        <Label htmlFor="project_type">Project Type <span className="text-red-500">*</span></Label>
                         <Input
                             id="project_type"
                             value={data.project_type}
@@ -515,7 +686,7 @@ export default function RequestForm() {
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="project_nature">Project Nature</Label>
+                        <Label htmlFor="project_nature">Project Nature <span className="text-red-500">*</span></Label>
                         <Input
                             id="project_nature"
                             value={data.project_nature}
@@ -558,7 +729,7 @@ export default function RequestForm() {
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="project_location_street">Street</Label>
+                        <Label htmlFor="project_location_street">Street <span className="text-red-500">*</span></Label>
                         <Input
                             id="project_location_street"
                             value={data.project_location_street}
@@ -579,7 +750,7 @@ export default function RequestForm() {
 
                     <div className="space-y-2">
                         <Label htmlFor="project_location_barangay">
-                            Barangay
+                            Barangay <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             id="project_location_barangay"
@@ -601,7 +772,7 @@ export default function RequestForm() {
 
                     <div className="space-y-2">
                         <Label htmlFor="project_location_municipality">
-                            Municipality
+                            Municipality <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             id="project_location_municipality"
@@ -623,7 +794,7 @@ export default function RequestForm() {
 
                     <div className="space-y-2">
                         <Label htmlFor="project_location_province">
-                            Province
+                            Province <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             id="project_location_province"
@@ -645,7 +816,7 @@ export default function RequestForm() {
 
                     <div className="space-y-2">
                         <Label htmlFor="project_area_sqm">
-                            Project Area (sqm)
+                            Project Area (sqm) <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             id="project_area_sqm"
@@ -665,7 +836,7 @@ export default function RequestForm() {
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="lot_area_sqm">Lot (sqm)</Label>
+                        <Label htmlFor="lot_area_sqm">Lot (sqm) <span className="text-red-500">*</span></Label>
                         <Input
                             id="lot_area_sqm"
                             type="number"
@@ -705,7 +876,7 @@ export default function RequestForm() {
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="right_over_land">Right Over Land</Label>
+                        <Label htmlFor="right_over_land">Right Over Land <span className="text-red-500">*</span></Label>
                         <Select
                             value={data.right_over_land}
                             onValueChange={(value) =>
@@ -729,7 +900,7 @@ export default function RequestForm() {
 
                     <div className="space-y-2">
                         <Label htmlFor="project_nature_duration">
-                            Project Nature
+                            Project Nature <span className="text-red-500">*</span>
                         </Label>
                         <Select
                             value={data.project_nature_duration}
@@ -783,7 +954,7 @@ export default function RequestForm() {
 
                     <div className="space-y-2">
                         <Label htmlFor="project_cost">
-                            Project Cost/Capitalization (in Pesos)
+                            Project Cost/Capitalization (in Pesos) <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             id="project_cost"
@@ -804,7 +975,7 @@ export default function RequestForm() {
 
                     <div className="space-y-2">
                         <Label htmlFor="existing_land_use">
-                            Existing Land Uses of Project Use
+                            Existing Land Uses of Project Use <span className="text-red-500">*</span>
                         </Label>
                         <Select
                             value={data.existing_land_use}
@@ -860,7 +1031,7 @@ export default function RequestForm() {
                                 zoning administrator to effect requiring for
                                 presentation of locational clearance/certificate
                                 of zoning compliance (LC/CZC) or to apply for
-                                LC/CZC?
+                                LC/CZC? <span className="text-red-500">*</span>
                             </Label>
                             <div className="flex gap-4">
                                 <label className="flex items-center space-x-2 cursor-pointer">
@@ -963,7 +1134,7 @@ export default function RequestForm() {
                                 Is the project applied for subject of similar
                                 application(s) with other offices of the
                                 commission and/or deputized zoning
-                                administrator?
+                                administrator? <span className="text-red-500">*</span>
                             </Label>
                             <div className="flex gap-4">
                                 <label className="flex items-center space-x-2 cursor-pointer">
@@ -1066,7 +1237,7 @@ export default function RequestForm() {
                     <div className="space-y-4 border-t pt-4">
                         <div className="space-y-3">
                             <Label className="text-base">
-                                Preferred mode of release of decision
+                                Preferred mode of release of decision <span className="text-red-500">*</span>
                             </Label>
                             <div className="space-y-2">
                                 <label className="flex items-center space-x-2 cursor-pointer">
@@ -1205,14 +1376,44 @@ export default function RequestForm() {
                         Next →
                     </Button>
                 ) : (
-                    <Button 
-                        type="submit" 
-                        loading={processing}
-                        disabled={processing}
-                        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg"
-                    >
-                        {processing ? "Submitting..." : "✓ Submit Request"}
-                    </Button>
+                    <>
+                        {/* Validation Summary - Informational Only */}
+                        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <h4 className="font-semibold text-blue-900 mb-2">📋 Form Completion Status</h4>
+                            <div className="space-y-1 text-sm">
+                                <div className="flex items-center gap-2">
+                                    <span className={`w-2 h-2 rounded-full ${isStepFilled(1) ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
+                                    <span className={isStepFilled(1) ? 'text-green-700' : 'text-yellow-700'}>
+                                        Applicant Information {isStepFilled(1) ? '✓ Complete' : '⚠ Incomplete'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className={`w-2 h-2 rounded-full ${isStepFilled(2) ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
+                                    <span className={isStepFilled(2) ? 'text-green-700' : 'text-yellow-700'}>
+                                        Project Details {isStepFilled(2) ? '✓ Complete' : '⚠ Incomplete'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className={`w-2 h-2 rounded-full ${isStepFilled(3) ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
+                                    <span className={isStepFilled(3) ? 'text-green-700' : 'text-yellow-700'}>
+                                        Land Use Information {isStepFilled(3) ? '✓ Complete' : '⚠ Incomplete'}
+                                    </span>
+                                </div>
+                            </div>
+                            <p className="text-xs text-blue-600 mt-2">
+                                💡 You can submit anytime, but incomplete sections will be validated before submission
+                            </p>
+                        </div>
+                        
+                        <Button 
+                            type="submit" 
+                            loading={processing}
+                            disabled={processing}
+                            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {processing ? "Submitting..." : "✓ Submit Request"}
+                        </Button>
+                    </>
                 )}
             </div>
 

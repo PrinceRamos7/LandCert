@@ -456,7 +456,7 @@ export function AdminPaymentList({ payments }) {
 
             {/* Payment Details Modal - Enhanced Landscape Layout */}
             <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-                <DialogContent className="max-w-[80vw] w-full max-h-[80vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
+                <DialogContent className="max-w-[95vw] w-full max-h-[85vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
                     {/* Modal Header with Gradient Background */}
                     <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
                         <DialogHeader>
@@ -473,7 +473,7 @@ export function AdminPaymentList({ payments }) {
                     </div>
 
                     {/* Scrollable Content Area */}
-                    <div className="overflow-y-auto max-h-[calc(80vh-200px)] pr-2">
+                    <div className="overflow-y-auto max-h-[calc(85vh-200px)] pr-2">
                         {selectedPayment && (
                             <div className="space-y-8">
                                 {/* Top Row - Payment Info & Status */}
@@ -516,12 +516,12 @@ export function AdminPaymentList({ payments }) {
                                                 <p className="text-lg font-bold text-purple-900 capitalize">{selectedPayment.payment_method.replace('_', ' ')}</p>
                                             </div>
                                             <div className="p-3 bg-white/70 rounded-xl border border-purple-200">
-                                                <p className="text-sm text-gray-600 font-medium">Receipt Number</p>
-                                                <p className="text-base font-semibold text-purple-900 font-mono">{selectedPayment.receipt_number || 'N/A'}</p>
-                                            </div>
-                                            <div className="p-3 bg-white/70 rounded-xl border border-purple-200">
                                                 <p className="text-sm text-gray-600 font-medium">Payment Date</p>
                                                 <p className="text-lg font-bold text-purple-900">{formatDate(selectedPayment.payment_date)}</p>
+                                            </div>
+                                            <div className="p-3 bg-white/70 rounded-xl border border-purple-200">
+                                                <p className="text-sm text-gray-600 font-medium">Submission Date</p>
+                                                <p className="text-lg font-bold text-purple-900">{formatDate(selectedPayment.created_at)}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -561,14 +561,10 @@ export function AdminPaymentList({ payments }) {
                                         </h3>
                                     </div>
                                     <div className="p-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             <div className="p-4 bg-white/70 rounded-xl border border-indigo-200 hover:shadow-lg transition-all duration-300">
                                                 <p className="text-sm text-gray-600 font-medium">Payment ID</p>
                                                 <p className="text-xl font-bold text-indigo-900 font-mono">#{selectedPayment.id}</p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-indigo-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">Subtotal</p>
-                                                <p className="text-xl font-bold text-indigo-900">₱{parseFloat(selectedPayment.amount).toLocaleString()}</p>
                                             </div>
                                             <div className="p-4 bg-white/70 rounded-xl border border-indigo-200 hover:shadow-lg transition-all duration-300">
                                                 <p className="text-sm text-gray-600 font-medium">Processing Fee</p>

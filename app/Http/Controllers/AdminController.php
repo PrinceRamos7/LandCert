@@ -533,7 +533,7 @@ class AdminController extends Controller
     {
         $status = $request->input('status', 'all');
         
-        $query = \App\Models\Payment::with(['request', 'verifier']);
+        $query = \App\Models\Payment::with(['request.user', 'verifier']);
         
         if ($status !== 'all') {
             $query->where('payment_status', $status);
@@ -552,37 +552,49 @@ class AdminController extends Controller
             
             // Headers
             fputcsv($file, [
-                'ID',
-                'Request ID',
+                'Payment ID',
                 'Applicant Name',
-                'Amount',
+                'Email Address',
+                'Request ID',
                 'Payment Method',
                 'Receipt Number',
                 'Payment Date',
-                'Status',
+                'Payment Status',
+                'Current Status',
+                'Total Amount',
+                'Processing Fee',
+                'Submission Date',
                 'Verified By',
-                'Verified At',
+                'Verification Date',
+                'Receipt Document',
                 'Rejection Reason',
-                'Notes',
-                'Submitted At'
+                'Notes'
             ]);
             
             // Data
             foreach ($payments as $payment) {
+                $subtotal = $payment->amount ?? 0;
+                $processingFee = 0; // Assuming no processing fee for now
+                $totalAmount = $subtotal + $processingFee;
+                
                 fputcsv($file, [
                     $payment->id,
-                    $payment->request_id,
-                    $payment->request->applicant_name,
-                    $payment->amount,
-                    $payment->payment_method,
-                    $payment->receipt_number,
-                    $payment->payment_date,
-                    $payment->payment_status,
+                    $payment->request?->applicant_name ?? '',
+                    $payment->request?->user?->email ?? '',
+                    '#' . $payment->request_id,
+                    ucfirst($payment->payment_method ?? 'cash'),
+                    $payment->receipt_number ?? 'N/A',
+                    $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('M j, Y') : '',
+                    ucfirst($payment->payment_status ?? 'pending'),
+                    ucfirst($payment->payment_status ?? 'pending'),
+                    $totalAmount ? 'PHP ' . number_format($totalAmount, 2) : '',
+                    'PHP ' . number_format($processingFee, 2),
+                    $payment->created_at ? $payment->created_at->format('M j, Y') : '',
                     $payment->verifier?->name ?? '',
-                    $payment->verified_at ?? '',
+                    $payment->verified_at ? \Carbon\Carbon::parse($payment->verified_at)->format('M j, Y') : '',
+                    $payment->receipt_file_path ? 'View Receipt Document' : 'No Receipt',
                     $payment->rejection_reason ?? '',
                     $payment->notes ?? '',
-                    $payment->created_at,
                 ]);
             }
             
@@ -609,25 +621,45 @@ class AdminController extends Controller
             $application = $applicationsData->get($key);
             $report = $application?->report;
             
+            // Build project location
+            $projectLocation = collect([
+                $request->project_location_street,
+                $request->project_location_barangay,
+                $request->project_location_city ?? $request->project_location_municipality,
+                $request->project_location_province
+            ])->filter()->implode(', ');
+            
             return (object)[
                 'id' => $request->id,
+                'full_name' => $request->user?->name,
+                'email_address' => $request->user?->email,
                 'applicant_name' => $request->applicant_name,
                 'corporation_name' => $request->corporation_name,
                 'applicant_address' => $request->applicant_address,
+                'current_status' => $report?->evaluation ?? $request->status,
+                'submission_date' => $request->created_at?->format('M j, Y'),
                 'project_type' => $request->project_type,
                 'project_nature' => $request->project_nature,
-                'lot_area_sqm' => $request->lot_area_sqm,
-                'project_cost' => $request->project_cost,
-                'user_name' => $request->user?->name,
-                'user_email' => $request->user?->email,
-                'status' => $report?->evaluation ?? $request->status,
+                'project_location' => $projectLocation,
+                'project_area' => $request->project_area_sqm,
+                'lot_area' => $request->lot_area_sqm,
+                'building_area' => $request->bldg_improvement_sqm,
+                'project_cost' => $request->project_cost ? '₱' . number_format($request->project_cost, 2) : '',
+                'right_over_land' => $request->right_over_land ?? 'Owner',
+                'project_duration' => $request->project_nature_duration ?? 'Permanent',
+                'existing_land_use' => $request->existing_land_use ?? 'Not Tenanted',
+                'written_notice_to_tenants' => $request->has_written_notice ? 'YES' : 'NO',
+                'similar_application_filed' => $request->has_similar_application ? 'YES' : 'NO',
+                'release_preference' => $request->preferred_release_mode ?? 'mail applicant',
+                'authorized_representative' => $application?->authorization_letter_path ? 'Yes' : 'No Authorized Representative',
+                'authorization_note' => $application?->authorization_letter_path ? 'Has authorized representative' : 'This application was submitted directly by the applicant',
                 'created_at' => $request->created_at,
             ];
         });
         
         if ($status !== 'all') {
             $applications = $applications->filter(function($app) use ($status) {
-                return $app->status === $status;
+                return $app->current_status === $status;
             });
         }
         
@@ -640,37 +672,59 @@ class AdminController extends Controller
         $callback = function() use ($applications) {
             $file = fopen('php://output', 'w');
             
-            // Headers
+            // Headers - User Information
             fputcsv($file, [
-                'ID',
+                'Request ID',
+                'Full Name',
+                'Email Address',
                 'Applicant Name',
-                'Corporation',
-                'Address',
+                'Corporation Name',
+                'Corporation Address',
+                'Current Status',
+                'Submission Date',
                 'Project Type',
                 'Project Nature',
+                'Project Location',
+                'Project Area (sqm)',
                 'Lot Area (sqm)',
+                'Building Area (sqm)',
                 'Project Cost',
-                'User Name',
-                'User Email',
-                'Status',
-                'Submitted At'
+                'Right Over Land',
+                'Project Duration',
+                'Existing Land Use',
+                'Written Notice to Tenants',
+                'Similar Application Filed',
+                'Release Preference',
+                'Authorized Representative',
+                'Authorization Note'
             ]);
             
             // Data
             foreach ($applications as $app) {
                 fputcsv($file, [
                     $app->id,
-                    $app->applicant_name,
+                    $app->full_name ?? '',
+                    $app->email_address ?? '',
+                    $app->applicant_name ?? '',
                     $app->corporation_name ?? '',
-                    $app->applicant_address,
+                    $app->applicant_address ?? '',
+                    ucfirst($app->current_status ?? 'Pending'),
+                    $app->submission_date ?? '',
                     $app->project_type ?? '',
                     $app->project_nature ?? '',
-                    $app->lot_area_sqm ?? '',
+                    $app->project_location ?? '',
+                    $app->project_area ?? '',
+                    $app->lot_area ?? '',
+                    $app->building_area ?? '',
                     $app->project_cost ?? '',
-                    $app->user_name,
-                    $app->user_email,
-                    $app->status,
-                    $app->created_at,
+                    $app->right_over_land ?? '',
+                    $app->project_duration ?? '',
+                    $app->existing_land_use ?? '',
+                    $app->written_notice_to_tenants ?? '',
+                    $app->similar_application_filed ?? '',
+                    $app->release_preference ?? '',
+                    $app->authorized_representative ?? '',
+                    $app->authorization_note ?? '',
                 ]);
             }
             
@@ -778,7 +832,7 @@ class AdminController extends Controller
         
         // Generate PDF
         try {
-            $pdf = Pdf::loadView('certificates.text-logo-template', $data);
+            $pdf = Pdf::loadView('certificates.professional-template', $data);
             \Log::info('PDF generated successfully');
         } catch (\Exception $e) {
             \Log::error('PDF generation failed: ' . $e->getMessage());
@@ -1009,6 +1063,62 @@ class AdminController extends Controller
     }
 
     /**
+     * Export users to CSV
+     */
+    public function exportUsers(Request $request)
+    {
+        $userType = $request->input('user_type', 'all');
+        
+        $query = \App\Models\User::query();
+        
+        if ($userType !== 'all') {
+            $query->where('user_type', $userType);
+        }
+        
+        $users = $query->orderBy('created_at', 'desc')->get();
+        
+        $filename = 'users_export_' . now()->format('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+        
+        $callback = function() use ($users) {
+            $file = fopen('php://output', 'w');
+            
+            // Headers
+            fputcsv($file, [
+                'User ID',
+                'Full Name',
+                'Email Address',
+                'Contact Number',
+                'Address',
+                'User Type',
+                'Email Verified',
+                'Registration Date'
+            ]);
+            
+            // Data
+            foreach ($users as $user) {
+                fputcsv($file, [
+                    $user->id,
+                    $user->name ?? '',
+                    $user->email ?? '',
+                    $user->contact_number ?? '',
+                    $user->address ?? '',
+                    ucfirst($user->user_type ?? 'applicant'),
+                    $user->email_verified_at ? 'Yes' : 'No',
+                    $user->created_at ? $user->created_at->format('M j, Y') : '',
+                ]);
+            }
+            
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
      * Get detailed evaluation distribution data
      */
     private function getEvaluationDistribution()
@@ -1061,5 +1171,171 @@ class AdminController extends Controller
                 'status_breakdown' => $statusCounts,
             ]
         ];
+    }
+
+    /**
+     * Bulk approve requests
+     */
+    public function bulkApprove(Request $request)
+    {
+        $request->validate([
+            'request_ids' => 'required|array',
+            'request_ids.*' => 'integer|exists:requests,id'
+        ]);
+
+        $successCount = 0;
+        $errors = [];
+
+        foreach ($request->request_ids as $requestId) {
+            try {
+                $requestModel = RequestModel::findOrFail($requestId);
+                
+                // Find the application and report
+                $application = Application::where('applicant_name', $requestModel->applicant_name)
+                    ->where('applicant_address', $requestModel->applicant_address)
+                    ->first();
+
+                if (!$application || !$application->report) {
+                    $errors[] = "No report found for request #{$requestId}";
+                    continue;
+                }
+
+                $report = $application->report;
+                $report->evaluation = 'approved';
+                $report->issued_by = auth()->user()->name ?? 'Admin';
+                $report->date_reported = now();
+                $report->save();
+
+                // Send approval email
+                try {
+                    \Mail::to($requestModel->user->email)->send(new \App\Mail\ApplicationApproved(
+                        $application,
+                        $requestModel->applicant_name,
+                        $requestModel->id
+                    ));
+                } catch (\Exception $e) {
+                    \Log::error("Failed to send approval email for request {$requestId}: " . $e->getMessage());
+                }
+
+                $successCount++;
+            } catch (\Exception $e) {
+                $errors[] = "Failed to approve request #{$requestId}: " . $e->getMessage();
+            }
+        }
+
+        $flashData = ['success' => "Successfully approved {$successCount} request(s)."];
+        
+        if (!empty($errors)) {
+            $flashData['error'] = 'Some requests failed: ' . implode(', ', $errors);
+        }
+        
+        return redirect()->back()->with($flashData);
+    }
+
+    /**
+     * Bulk reject requests
+     */
+    public function bulkReject(Request $request)
+    {
+        $request->validate([
+            'request_ids' => 'required|array',
+            'request_ids.*' => 'integer|exists:requests,id',
+            'reason' => 'required|string|max:1000'
+        ]);
+
+        $successCount = 0;
+        $errors = [];
+
+        foreach ($request->request_ids as $requestId) {
+            try {
+                $requestModel = RequestModel::findOrFail($requestId);
+                
+                // Find the application and report
+                $application = Application::where('applicant_name', $requestModel->applicant_name)
+                    ->where('applicant_address', $requestModel->applicant_address)
+                    ->first();
+
+                if (!$application || !$application->report) {
+                    $errors[] = "No report found for request #{$requestId}";
+                    continue;
+                }
+
+                $report = $application->report;
+                $report->evaluation = 'rejected';
+                $report->description = $request->reason;
+                $report->issued_by = auth()->user()->name ?? 'Admin';
+                $report->date_reported = now();
+                $report->save();
+
+                // Send rejection email
+                try {
+                    \Mail::to($requestModel->user->email)->send(new ApplicationRejected(
+                        $application,
+                        $requestModel->applicant_name,
+                        $requestModel->id,
+                        $request->reason
+                    ));
+                } catch (\Exception $e) {
+                    \Log::error("Failed to send rejection email for request {$requestId}: " . $e->getMessage());
+                }
+
+                $successCount++;
+            } catch (\Exception $e) {
+                $errors[] = "Failed to reject request #{$requestId}: " . $e->getMessage();
+            }
+        }
+
+        $flashData = ['success' => "Successfully rejected {$successCount} request(s)."];
+        
+        if (!empty($errors)) {
+            $flashData['error'] = 'Some requests failed: ' . implode(', ', $errors);
+        }
+        
+        return redirect()->back()->with($flashData);
+    }
+
+    /**
+     * Bulk delete requests
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'request_ids' => 'required|array',
+            'request_ids.*' => 'integer|exists:requests,id'
+        ]);
+
+        $successCount = 0;
+        $errors = [];
+
+        foreach ($request->request_ids as $requestId) {
+            try {
+                $requestModel = RequestModel::findOrFail($requestId);
+                
+                // Find and delete related application and report
+                $application = Application::where('applicant_name', $requestModel->applicant_name)
+                    ->where('applicant_address', $requestModel->applicant_address)
+                    ->first();
+
+                if ($application) {
+                    if ($application->report) {
+                        $application->report->delete();
+                    }
+                    $application->delete();
+                }
+
+                $requestModel->delete();
+                $successCount++;
+            } catch (\Exception $e) {
+                $errors[] = "Failed to delete request #{$requestId}: " . $e->getMessage();
+            }
+        }
+
+        $flashData = ['success' => "Successfully deleted {$successCount} request(s)."];
+        
+        if (!empty($errors)) {
+            $flashData['error'] = 'Some requests failed: ' . implode(', ', $errors);
+        }
+        
+        return redirect()->back()->with($flashData);
     }
 }

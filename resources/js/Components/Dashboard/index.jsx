@@ -9,6 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { ProgressIndicator } from '@/Components/ui/progress-indicator';
 import { 
     CalendarDays, 
     MapPin, 
@@ -109,7 +110,7 @@ export function Dashboard({ requests }) {
                 {/* Welcome Section */}
                 <div className="text-center mb-12">
                     <div className="relative mb-8">
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full blur-3xl opacity-20 animate-pulse"></div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full blur-3xl opacity-20"></div>
                         <div className="relative rounded-full bg-gradient-to-br from-blue-50 to-emerald-50 p-12 shadow-2xl border border-blue-100">
                             <Building2 className="h-20 w-20 text-blue-600 mx-auto" />
                         </div>
@@ -373,6 +374,14 @@ export function Dashboard({ requests }) {
                                 </div>
                             </CardHeader>
                             <CardContent className="space-y-4">
+                                {/* Progress Indicator */}
+                                <div className="mb-6">
+                                    <ProgressIndicator 
+                                        currentStatus={hasVerifiedPayment ? 'certificate_issued' : (request?.status || 'pending')}
+                                        rejectionReason={request?.report_description}
+                                    />
+                                </div>
+
                                 {/* Certificate Section - Priority Display */}
                                 {hasVerifiedPayment && (
                                     <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-4 space-y-3">

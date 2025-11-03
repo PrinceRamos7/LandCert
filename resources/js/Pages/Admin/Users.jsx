@@ -29,7 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Pencil, Trash2, Search } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, Search, Download } from "lucide-react";
 import { useState, useMemo } from "react";
 import {
   Pagination,
@@ -272,14 +272,24 @@ export default function Users({ users }) {
                     Total: {users?.total || usersData.length} applicants
                   </p>
                 </div>
-                <div className="relative w-64">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-white/70" />
-                  <Input
-                    placeholder="Search users..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 focus:bg-white/30"
-                  />
+                <div className="flex items-center gap-4">
+                  <Button
+                    onClick={() => window.open(route('admin.export.users'), '_blank')}
+                    className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm"
+                    variant="outline"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export CSV
+                  </Button>
+                  <div className="relative w-64">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-white/70" />
+                    <Input
+                      placeholder="Search users..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 focus:bg-white/30"
+                    />
+                  </div>
                 </div>
               </div>
             </CardHeader>

@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\UserRegistrationWelcome;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,16 +36,37 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'address' => 'nullable|string|max:500',
+            'contact_number' => 'nullable|string|max:20',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'address' => $request->address,
+            'contact_number' => $request->contact_number,
             'password' => Hash::make($request->password),
         ]);
 
         event(new Registered($user));
+
+        // Send welcome email immediately
+        try {
+            Mail::to($user->email)->send(new UserRegistrationWelcome($user));
+            Log::info('Welcome email sent successfully for user: ' . $user->email, [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'timestamp' => now()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send welcome email for user: ' . $user->email, [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'timestamp' => now()
+            ]);
+            // Continue with registration even if email fails
+        }
 
         Auth::login($user);
 

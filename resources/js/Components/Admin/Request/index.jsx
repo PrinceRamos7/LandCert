@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { NotificationModal } from '@/Components/ui/notification-modal';
+import BulkActions from '@/Components/ui/bulk-actions';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -50,14 +51,35 @@ import {
 import { useForm, router } from '@inertiajs/react';
 import { useToast } from '@/Components/ui/use-toast';
 
-export function AdminRequestList({ requests }) {
+export function AdminRequestList({ requests, flash = {} }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState('all');
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedItems, setSelectedItems] = useState([]);
+    const [bulkLoading, setBulkLoading] = useState(false);
     const { toast } = useToast();
     const { post, processing } = useForm();
+
+    // Handle flash messages
+    useEffect(() => {
+        if (flash?.success) {
+            toast({
+                title: "Success!",
+                description: flash.success,
+                duration: 5000,
+            });
+        }
+        if (flash?.error) {
+            toast({
+                variant: "destructive",
+                title: "Some operations failed",
+                description: flash.error,
+                duration: 7000,
+            });
+        }
+    }, [flash, toast]);
     const { data: editData, setData: setEditData, post: postEdit, processing: editProcessing } = useForm({
         evaluation: '',
         description: '',
@@ -311,6 +333,119 @@ export function AdminRequestList({ requests }) {
         });
     };
 
+    // Bulk Actions Handlers
+    const handleSelectAll = (checked) => {
+        if (checked) {
+            setSelectedItems(filteredRequests.map(request => request.id));
+        } else {
+            setSelectedItems([]);
+        }
+    };
+
+    const handleSelectItem = (requestId, checked) => {
+        if (checked) {
+            setSelectedItems(prev => [...prev, requestId]);
+        } else {
+            setSelectedItems(prev => prev.filter(id => id !== requestId));
+        }
+    };
+
+    const handleClearSelection = () => {
+        setSelectedItems([]);
+    };
+
+    const handleBulkApprove = async (selectedIds) => {
+        setBulkLoading(true);
+        
+        try {
+            await new Promise((resolve, reject) => {
+                router.post(route('admin.bulk.approve'), {
+                    request_ids: selectedIds
+                }, {
+                    preserveScroll: true,
+                    onSuccess: () => resolve(),
+                    onError: (errors) => reject(new Error('Failed to approve requests'))
+                });
+            });
+        } catch (error) {
+            throw error;
+        } finally {
+            setBulkLoading(false);
+        }
+    };
+
+    const handleBulkReject = async (selectedIds, reason) => {
+        setBulkLoading(true);
+        
+        try {
+            await new Promise((resolve, reject) => {
+                router.post(route('admin.bulk.reject'), {
+                    request_ids: selectedIds,
+                    reason: reason
+                }, {
+                    preserveScroll: true,
+                    onSuccess: () => resolve(),
+                    onError: (errors) => reject(new Error('Failed to reject requests'))
+                });
+            });
+        } catch (error) {
+            throw error;
+        } finally {
+            setBulkLoading(false);
+        }
+    };
+
+    const handleBulkDelete = async (selectedIds) => {
+        setBulkLoading(true);
+        
+        try {
+            await new Promise((resolve, reject) => {
+                router.delete(route('admin.bulk.delete'), {
+                    data: { request_ids: selectedIds },
+                    preserveScroll: true,
+                    onSuccess: () => resolve(),
+                    onError: (errors) => reject(new Error('Failed to delete requests'))
+                });
+            });
+        } catch (error) {
+            throw error;
+        } finally {
+            setBulkLoading(false);
+        }
+    };
+
+    const handleBulkExport = (selectedIds) => {
+        const selectedRequests = filteredRequests.filter(req => selectedIds.includes(req.id));
+        const csvContent = generateCSV(selectedRequests);
+        downloadCSV(csvContent, `selected-requests-${new Date().toISOString().split('T')[0]}.csv`);
+    };
+
+    const generateCSV = (requests) => {
+        const headers = ['ID', 'Applicant Name', 'User Email', 'Project Type', 'Status', 'Created Date'];
+        const rows = requests.map(req => [
+            req.id,
+            req.applicant_name || '',
+            req.user_email || '',
+            req.project_type || '',
+            req.status || 'pending',
+            formatDate(req.created_at)
+        ]);
+        
+        return [headers, ...rows].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+    };
+
+    const downloadCSV = (content, filename) => {
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const getStatusColor = (status) => {
         switch (status) {
             case 'approved':
@@ -548,10 +683,30 @@ export function AdminRequestList({ requests }) {
                     </div>
                 </CardHeader>
                 <CardContent className="p-8">
+                    {/* Bulk Actions */}
+                    <BulkActions
+                        selectedItems={selectedItems}
+                        onClearSelection={handleClearSelection}
+                        onBulkApprove={handleBulkApprove}
+                        onBulkReject={handleBulkReject}
+                        onBulkDelete={handleBulkDelete}
+                        onBulkExport={handleBulkExport}
+                        isLoading={bulkLoading}
+                        className="mb-6"
+                    />
+
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-gray-200">
+                                    <th className="text-left p-3 font-semibold w-12">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedItems.length === filteredRequests.length && filteredRequests.length > 0}
+                                            onChange={(e) => handleSelectAll(e.target.checked)}
+                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                    </th>
                                     <th className="text-left p-3 font-semibold">ID</th>
                                     <th className="text-left p-3 font-semibold">Applicant</th>
                                     <th className="text-left p-3 font-semibold">User</th>
@@ -566,9 +721,19 @@ export function AdminRequestList({ requests }) {
                                 {filteredRequests.map((request, index) => (
                                     <tr
                                         key={request.id}
-                                        className="border-b border-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300"
+                                        className={`border-b border-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 ${
+                                            selectedItems.includes(request.id) ? 'bg-blue-50' : ''
+                                        }`}
                                         style={{ animationDelay: `${index * 50}ms` }}
                                     >
+                                        <td className="p-3">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedItems.includes(request.id)}
+                                                onChange={(e) => handleSelectItem(request.id, e.target.checked)}
+                                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            />
+                                        </td>
                                         <td className="p-3 font-mono text-sm">#{request.id}</td>
                                         <td className="p-3">
                                             <div>
@@ -655,7 +820,7 @@ export function AdminRequestList({ requests }) {
 
             {/* Request Details Modal - Enhanced Landscape Layout */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-[80vw] w-full max-h-[80vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
+                <DialogContent className="max-w-[95vw] w-full max-h-[85vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
                     {/* Modal Header with Gradient Background */}
                     <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
                         <DialogHeader>
@@ -672,7 +837,7 @@ export function AdminRequestList({ requests }) {
                     </div>
 
                     {/* Scrollable Content Area */}
-                    <div className="overflow-y-auto max-h-[calc(80vh-200px)] pr-2">
+                    <div className="overflow-y-auto max-h-[calc(85vh-200px)] pr-2">
                         {selectedRequest && (
                             <div className="space-y-8">
                                 {/* Top Row - User & Applicant Info */}
