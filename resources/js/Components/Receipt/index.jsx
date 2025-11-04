@@ -137,9 +137,9 @@ export function ReceiptList({ requests = [] }) {
 
     const confirmSubmit = () => {
         if (isSubmitting) return; // Prevent double submission
-        
+
         setIsSubmitting(true);
-        
+
         const data = new FormData();
         data.append('request_id', selectedRequest.id);
         data.append('amount', formData.amount);
@@ -348,128 +348,257 @@ export function ReceiptList({ requests = [] }) {
                 </CardContent>
             </Card>
 
-            {/* Upload Dialog */}
+            {/* Upload Dialog - Enhanced Beautiful Design */}
             <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-                <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                        <DialogTitle>Upload Payment Receipt</DialogTitle>
-                        <DialogDescription>
-                            Request #{selectedRequest?.id} - {selectedRequest?.applicant_name}
-                        </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="amount">Amount Paid *</Label>
-                                <Input
-                                    id="amount"
-                                    type="number"
-                                    step="0.01"
-                                    required
-                                    value={formData.amount}
-                                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                                    placeholder="0.00"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="payment_method">Payment Method *</Label>
-                                <Select
-                                    value={formData.payment_method}
-                                    onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="cash">Cash</SelectItem>
-                                        <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                                        <SelectItem value="gcash">GCash</SelectItem>
-                                        <SelectItem value="paymaya">PayMaya</SelectItem>
-                                        <SelectItem value="check">Check</SelectItem>
-                                        <SelectItem value="other">Other</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
+                <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 border-0 shadow-2xl rounded-3xl">
+                    {/* Modal Header with Gradient Background */}
+                    <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
+                        <DialogHeader>
+                            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                    <Upload className="h-6 w-6" />
+                                </div>
+                                Upload Payment Receipt
+                            </DialogTitle>
+                            <DialogDescription className="text-emerald-100 text-lg">
+                                Request #{selectedRequest?.id} - {selectedRequest?.applicant_name}
+                            </DialogDescription>
+                        </DialogHeader>
+                    </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="receipt_number">
-                                    Receipt/Reference Number {formData.payment_method !== 'cash' && <span className="text-red-500">*</span>}
-                                </Label>
-                                <Input
-                                    id="receipt_number"
-                                    value={formData.receipt_number}
-                                    onChange={(e) => setFormData({ ...formData, receipt_number: e.target.value })}
-                                    placeholder={formData.payment_method === 'cash' ? 'Optional' : 'Required'}
-                                    required={formData.payment_method !== 'cash'}
-                                />
-                                {formData.payment_method === 'cash' && (
-                                    <p className="text-xs text-gray-500">Optional for cash payments</p>
-                                )}
+                    {/* Scrollable Form Content */}
+                    <div className="overflow-y-auto max-h-[calc(90vh-220px)] pr-2">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Amount & Payment Method Card */}
+                            <div className="bg-gradient-to-br from-white via-emerald-50 to-emerald-100 border-2 border-emerald-200 rounded-2xl p-6 shadow-lg">
+                                <h3 className="font-bold text-emerald-900 mb-4 flex items-center gap-2 text-lg">
+                                    <div className="p-2 bg-emerald-200 rounded-lg">
+                                        <DollarSign className="h-5 w-5 text-emerald-700" />
+                                    </div>
+                                    Payment Information
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="amount" className="text-base font-semibold text-emerald-900">Amount Paid *</Label>
+                                        <div className="relative">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-700 font-bold text-lg">₱</span>
+                                            <Input
+                                                id="amount"
+                                                type="number"
+                                                step="0.01"
+                                                required
+                                                value={formData.amount}
+                                                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                                                placeholder="0.00"
+                                                className="pl-10 p-4 border-2 border-emerald-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200 transition-all duration-300 font-bold text-emerald-900 text-lg"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="payment_method" className="text-base font-semibold text-emerald-900">Payment Method *</Label>
+                                        <Select
+                                            value={formData.payment_method}
+                                            onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
+                                        >
+                                            <SelectTrigger className="p-4 border-2 border-emerald-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200 transition-all duration-300 font-semibold text-emerald-900">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="cash">💵 Cash</SelectItem>
+                                                <SelectItem value="bank_transfer">🏦 Bank Transfer</SelectItem>
+                                                <SelectItem value="gcash">📱 GCash</SelectItem>
+                                                <SelectItem value="paymaya">💳 PayMaya</SelectItem>
+                                                <SelectItem value="check">📝 Check</SelectItem>
+                                                <SelectItem value="other">➕ Other</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="payment_date">Payment Date *</Label>
-                                <Input
-                                    id="payment_date"
-                                    type="date"
-                                    required
-                                    value={formData.payment_date}
-                                    onChange={(e) => setFormData({ ...formData, payment_date: e.target.value })}
-                                />
+
+                            {/* Receipt Details Card */}
+                            <div className="bg-gradient-to-br from-white via-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-6 shadow-lg">
+                                <h3 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg">
+                                    <div className="p-2 bg-blue-200 rounded-lg">
+                                        <FileText className="h-5 w-5 text-blue-700" />
+                                    </div>
+                                    Receipt Details
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="receipt_number" className="text-base font-semibold text-blue-900">
+                                            Receipt/Reference Number {formData.payment_method !== 'cash' && <span className="text-red-500">*</span>}
+                                        </Label>
+                                        <Input
+                                            id="receipt_number"
+                                            value={formData.receipt_number}
+                                            onChange={(e) => setFormData({ ...formData, receipt_number: e.target.value })}
+                                            placeholder={formData.payment_method === 'cash' ? 'Optional' : 'Required'}
+                                            required={formData.payment_method !== 'cash'}
+                                            className="p-4 border-2 border-blue-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 font-semibold text-blue-900"
+                                        />
+                                        {formData.payment_method === 'cash' && (
+                                            <p className="text-xs text-blue-600 font-medium">Optional for cash payments</p>
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="payment_date" className="text-base font-semibold text-blue-900">Payment Date *</Label>
+                                        <Input
+                                            id="payment_date"
+                                            type="date"
+                                            required
+                                            value={formData.payment_date}
+                                            onChange={(e) => setFormData({ ...formData, payment_date: e.target.value })}
+                                            className="p-4 border-2 border-blue-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 font-semibold text-blue-900"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        {formData.payment_method === 'other' && (
-                            <div className="space-y-2">
-                                <Label htmlFor="other_method">Please Specify Payment Method *</Label>
-                                <Input
-                                    id="other_method"
-                                    value={formData.other_method}
-                                    onChange={(e) => setFormData({ ...formData, other_method: e.target.value })}
-                                    placeholder="e.g., Credit Card, Debit Card, etc."
-                                    required
-                                />
+                            {/* Other Payment Method Specification */}
+                            {formData.payment_method === 'other' && (
+                                <div className="bg-gradient-to-br from-white via-purple-50 to-purple-100 border-2 border-purple-200 rounded-2xl p-6 shadow-lg">
+                                    <h3 className="font-bold text-purple-900 mb-4 flex items-center gap-2 text-lg">
+                                        <div className="p-2 bg-purple-200 rounded-lg">
+                                            <FileText className="h-5 w-5 text-purple-700" />
+                                        </div>
+                                        Specify Payment Method
+                                    </h3>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="other_method" className="text-base font-semibold text-purple-900">Please Specify Payment Method *</Label>
+                                        <Input
+                                            id="other_method"
+                                            value={formData.other_method}
+                                            onChange={(e) => setFormData({ ...formData, other_method: e.target.value })}
+                                            placeholder="e.g., Credit Card, Debit Card, etc."
+                                            required
+                                            className="p-4 border-2 border-purple-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 font-semibold text-purple-900"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* File Upload Card */}
+                            <div className="bg-gradient-to-br from-white via-amber-50 to-amber-100 border-2 border-amber-200 rounded-2xl p-6 shadow-lg">
+                                <h3 className="font-bold text-amber-900 mb-4 flex items-center gap-2 text-lg">
+                                    <div className="p-2 bg-amber-200 rounded-lg">
+                                        <Upload className="h-5 w-5 text-amber-700" />
+                                    </div>
+                                    Upload Receipt File
+                                </h3>
+                                <div className="space-y-3">
+                                    <Label htmlFor="receipt_file" className="text-base font-semibold text-amber-900">Receipt Document (PDF, JPG, PNG) *</Label>
+
+                                    {/* Custom File Upload Button */}
+                                    <div className="relative">
+                                        <input
+                                            id="receipt_file"
+                                            type="file"
+                                            accept=".pdf,.jpg,.jpeg,.png"
+                                            required
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
+                                        <label
+                                            htmlFor="receipt_file"
+                                            className="flex items-center justify-center gap-3 w-full p-6 border-2 border-dashed border-amber-300 rounded-xl bg-white hover:bg-amber-50 cursor-pointer transition-all duration-300 hover:border-amber-500 group"
+                                        >
+                                            <div className="p-3 bg-amber-200 rounded-lg group-hover:bg-amber-300 transition-colors">
+                                                <Upload className="h-6 w-6 text-amber-700" />
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="text-base font-bold text-amber-900 mb-1">
+                                                    {formData.receipt_file ? 'Change File' : 'Choose File'}
+                                                </p>
+                                                <p className="text-sm text-amber-700">
+                                                    Click to browse or drag and drop
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    {/* Selected File Display */}
+                                    {formData.receipt_file && (
+                                        <div className="p-4 bg-white rounded-xl border-2 border-amber-300 shadow-sm">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-amber-100 rounded-lg">
+                                                        <FileText className="h-5 w-5 text-amber-700" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-semibold text-amber-900">{formData.receipt_file.name}</p>
+                                                        <p className="text-xs text-amber-600">
+                                                            {(formData.receipt_file.size / 1024 / 1024).toFixed(2)} MB
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <p className="text-xs text-amber-700 font-medium flex items-center gap-1">
+                                        <span>ℹ️</span> Maximum file size: 5MB • Accepted formats: PDF, JPG, PNG
+                                    </p>
+                                </div>
                             </div>
-                        )}
 
-                        <div className="space-y-2">
-                            <Label htmlFor="receipt_file">Upload Receipt (PDF, JPG, PNG) *</Label>
-                            <Input
-                                id="receipt_file"
-                                type="file"
-                                accept=".pdf,.jpg,.jpeg,.png"
-                                required
-                                onChange={handleFileChange}
-                            />
-                            <p className="text-xs text-gray-500">Max file size: 5MB</p>
-                        </div>
+                            {/* Notes Card */}
+                            <div className="bg-gradient-to-br from-white via-teal-50 to-teal-100 border-2 border-teal-200 rounded-2xl p-6 shadow-lg">
+                                <h3 className="font-bold text-teal-900 mb-4 flex items-center gap-2 text-lg">
+                                    <div className="p-2 bg-teal-200 rounded-lg">
+                                        <FileText className="h-5 w-5 text-teal-700" />
+                                    </div>
+                                    Additional Notes
+                                </h3>
+                                <div className="space-y-2">
+                                    <Label htmlFor="notes" className="text-base font-semibold text-teal-900">Notes (Optional)</Label>
+                                    <Textarea
+                                        id="notes"
+                                        value={formData.notes}
+                                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                        placeholder="Any additional information about your payment..."
+                                        rows={3}
+                                        className="p-4 border-2 border-teal-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-teal-500 focus:ring-4 focus:ring-teal-200 transition-all duration-300 font-medium text-teal-900 resize-none"
+                                    />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="notes">Notes (Optional)</Label>
-                            <Textarea
-                                id="notes"
-                                value={formData.notes}
-                                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                placeholder="Any additional information..."
-                                rows={3}
-                            />
-                        </div>
-
+                    {/* Enhanced Footer with Action Buttons */}
+                    <div className="border-t bg-white/50 backdrop-blur-sm p-6 -m-6 mt-6 rounded-b-3xl">
                         <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isSubmitting}>
-                                {isSubmitting ? (
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                ) : (
-                                    <Upload className="h-4 w-4 mr-2" />
-                                )}
-                                {isSubmitting ? "Processing..." : "Submit Receipt"}
-                            </Button>
+                            <div className="flex justify-end gap-4 w-full">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setIsUploadDialogOpen(false)}
+                                    className="px-8 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold text-gray-700 rounded-xl"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    onClick={handleSubmit}
+                                    className="px-8 py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                >
+                                    {isSubmitting ? (
+                                        <span className="flex items-center gap-2">
+                                            <Loader2 className="h-5 w-5 animate-spin" />
+                                            Processing...
+                                        </span>
+                                    ) : (
+                                        <span className="flex items-center gap-2">
+                                            <Upload className="h-5 w-5" />
+                                            Submit Receipt
+                                        </span>
+                                    )}
+                                </Button>
+                            </div>
                         </DialogFooter>
-                    </form>
+                    </div>
                 </DialogContent>
             </Dialog>
 

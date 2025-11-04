@@ -39,7 +39,7 @@ export default function Page({ requests = [] }) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="flex flex-1 flex-col min-h-screen bg-white">
           <div className="flex-1 p-6">
             <Dashboard requests={requests} />
           </div>

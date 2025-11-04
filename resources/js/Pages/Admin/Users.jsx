@@ -29,7 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Pencil, Trash2, Search, Download } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, Search, Download, User, Mail, Phone, MapPin, Save } from "lucide-react";
 import { useState, useMemo } from "react";
 import {
   Pagination,
@@ -68,10 +68,10 @@ export default function Users({ users }) {
   });
 
   const usersData = users?.data || users;
-  
+
   const filteredUsers = useMemo(() => {
     if (!searchTerm) return usersData;
-    
+
     return usersData.filter(user =>
       user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,16 +79,16 @@ export default function Users({ users }) {
       user.id?.toString().includes(searchTerm)
     );
   }, [usersData, searchTerm]);
-  
+
   const handlePageChange = (url) => {
     if (url) {
       router.get(url, {}, { preserveState: true, preserveScroll: true });
     }
   };
-  
+
   const renderPaginationLinks = () => {
     if (!users?.links || users.links.length <= 3) return null;
-    
+
     return (
       <Pagination className="mt-6">
         <PaginationContent>
@@ -96,25 +96,25 @@ export default function Users({ users }) {
             if (index === 0) {
               return (
                 <PaginationItem key={index}>
-                  <PaginationPrevious 
+                  <PaginationPrevious
                     onClick={() => handlePageChange(link.url)}
                     className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                   />
                 </PaginationItem>
               );
             }
-            
+
             if (index === users.links.length - 1) {
               return (
                 <PaginationItem key={index}>
-                  <PaginationNext 
+                  <PaginationNext
                     onClick={() => handlePageChange(link.url)}
                     className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                   />
                 </PaginationItem>
               );
             }
-            
+
             if (link.label === '...') {
               return (
                 <PaginationItem key={index}>
@@ -122,7 +122,7 @@ export default function Users({ users }) {
                 </PaginationItem>
               );
             }
-            
+
             return (
               <PaginationItem key={index}>
                 <PaginationLink
@@ -251,13 +251,13 @@ export default function Users({ users }) {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-6 p-6 pt-0 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
-             style={{
-               backgroundImage: `
+          style={{
+            backgroundImage: `
                  radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
                  radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
                  radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 50%)
                `
-             }}>
+          }}>
           <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-700">
             <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6">
               <div className="flex items-center justify-between">
@@ -317,8 +317,8 @@ export default function Users({ users }) {
                       </TableRow>
                     ) : (
                       filteredUsers.map((user, index) => (
-                        <TableRow 
-                          key={user.id} 
+                        <TableRow
+                          key={user.id}
                           className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300"
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
@@ -345,7 +345,7 @@ export default function Users({ users }) {
                                   <Pencil className="mr-2 h-4 w-4" />
                                   Edit
                                 </DropdownMenuItem>
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                   onClick={() => handleDelete(user)}
                                   className="text-red-600"
                                 >
@@ -367,58 +367,132 @@ export default function Users({ users }) {
         </div>
       </SidebarInset>
 
-      {/* Edit Dialog */}
+      {/* Edit Dialog - Enhanced Beautiful Design */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-            <DialogDescription>
-              Update user information
-            </DialogDescription>
-          </DialogHeader>
-          {editingUser && (
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  value={editingUser.name}
-                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                />
+        <DialogContent className="max-w-5xl max-h-[100vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
+          {/* Modal Header with Gradient Background */}
+          <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <Pencil className="h-6 w-6" />
+                </div>
+                Edit User Profile
+              </DialogTitle>
+              <DialogDescription className="text-blue-100 text-lg">
+                Update user information and contact details
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          {/* Scrollable Form Content */}
+          <div className="overflow-y-auto max-h-[calc(90vh-200px)] pr-2">
+            {editingUser && (
+              <div className="space-y-6">
+                {/* Name Card */}
+                <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-blue-50 to-blue-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-blue-200/50 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
+                      <User className="h-5 w-5 text-white" />
+                    </div>
+                    <Label htmlFor="name" className="text-base font-bold text-blue-900">
+                      Full Name
+                    </Label>
+                  </div>
+                  <Input
+                    id="name"
+                    value={editingUser.name}
+                    onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                    className="w-full p-4 border-2 border-blue-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 font-semibold text-blue-900 text-lg"
+                    placeholder="Enter full name"
+                  />
+                </div>
+
+                {/* Email Card */}
+                <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-purple-50 to-purple-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-purple-200/50 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg">
+                      <Mail className="h-5 w-5 text-white" />
+                    </div>
+                    <Label htmlFor="email" className="text-base font-bold text-purple-900">
+                      Email Address
+                    </Label>
+                  </div>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={editingUser.email}
+                    onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                    className="w-full p-4 border-2 border-purple-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 font-semibold text-purple-900 text-lg"
+                    placeholder="user@example.com"
+                  />
+                </div>
+
+                {/* Contact Number Card */}
+                <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-emerald-200/50 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg">
+                      <Phone className="h-5 w-5 text-white" />
+                    </div>
+                    <Label htmlFor="contact" className="text-base font-bold text-emerald-900">
+                      Contact Number
+                    </Label>
+                  </div>
+                  <Input
+                    id="contact"
+                    value={editingUser.contact_number || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, contact_number: e.target.value })}
+                    className="w-full p-4 border-2 border-emerald-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200 transition-all duration-300 font-semibold text-emerald-900 text-lg"
+                    placeholder="+63 XXX XXX XXXX"
+                  />
+                </div>
+
+                {/* Address Card */}
+                <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-amber-200/50 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg">
+                      <MapPin className="h-5 w-5 text-white" />
+                    </div>
+                    <Label htmlFor="address" className="text-base font-bold text-amber-900">
+                      Address
+                    </Label>
+                  </div>
+                  <Textarea
+                    id="address"
+                    value={editingUser.address || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, address: e.target.value })}
+                    className="w-full p-4 border-2 border-amber-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-amber-500 focus:ring-4 focus:ring-amber-200 transition-all duration-300 font-medium text-amber-900 resize-none"
+                    rows="3"
+                    placeholder="Enter complete address"
+                  />
+                </div>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={editingUser.email}
-                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                />
+            )}
+          </div>
+
+          {/* Enhanced Footer with Action Buttons */}
+          <div className="border-t bg-white/50 backdrop-blur-sm p-6 -m-6 mt-6 rounded-b-3xl">
+            <DialogFooter>
+              <div className="flex justify-end gap-4 w-full">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditDialogOpen(false)}
+                  className="px-8 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold text-gray-700 rounded-xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={saveEdit}
+                  className="px-8 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  <span className="flex items-center gap-2">
+                    <Save className="h-5 w-5" />
+                    Save Changes
+                  </span>
+                </Button>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="contact">Contact Number</Label>
-                <Input
-                  id="contact"
-                  value={editingUser.contact_number || ''}
-                  onChange={(e) => setEditingUser({ ...editingUser, contact_number: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="address">Address</Label>
-                <Textarea
-                  id="address"
-                  value={editingUser.address || ''}
-                  onChange={(e) => setEditingUser({ ...editingUser, address: e.target.value })}
-                />
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={saveEdit}>Save Changes</Button>
-          </DialogFooter>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 

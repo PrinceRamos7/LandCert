@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-    TrendingUp, 
-    DollarSign, 
-    Award, 
+import {
+    TrendingUp,
+    DollarSign,
+    Award,
     Activity,
     ArrowUp,
     Users,
@@ -13,16 +13,16 @@ import {
     CreditCard,
     BarChart3
 } from 'lucide-react';
-import { 
-    LineChart, 
-    Line, 
-    BarChart, 
-    Bar, 
-    XAxis, 
-    YAxis, 
-    CartesianGrid, 
-    Tooltip, 
-    Legend, 
+import {
+    LineChart,
+    Line,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
     ResponsiveContainer,
     PieChart,
     Pie,
@@ -146,7 +146,7 @@ export function AnalyticsDashboard({ analytics }) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-amber-700">
-                            {certificate_stats.total_issued > 0 
+                            {certificate_stats.total_issued > 0
                                 ? Math.round((certificate_stats.collected / certificate_stats.total_issued) * 100)
                                 : 0}%
                         </div>
@@ -195,18 +195,18 @@ export function AnalyticsDashboard({ analytics }) {
                                     <AreaChart data={monthlyChartData}>
                                         <defs>
                                             <linearGradient id="colorSubmissions" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" />
                                         <XAxis dataKey="month" />
                                         <YAxis />
                                         <Tooltip />
-                                        <Area 
-                                            type="monotone" 
-                                            dataKey="submissions" 
-                                            stroke="#8b5cf6" 
+                                        <Area
+                                            type="monotone"
+                                            dataKey="submissions"
+                                            stroke="#8b5cf6"
                                             fillOpacity={1}
                                             fill="url(#colorSubmissions)"
                                             name="Submissions"
@@ -411,14 +411,14 @@ export function AnalyticsDashboard({ analytics }) {
                                     <div className="flex justify-between mb-1">
                                         <span className="text-xs">Approval Rate</span>
                                         <span className="text-xs font-medium">
-                                            {statusData.length > 0 
+                                            {statusData.length > 0
                                                 ? Math.round((statusData.find(s => s.name === 'Approved')?.value || 0) / statusData.reduce((sum, s) => sum + s.value, 0) * 100)
                                                 : 0}%
                                         </span>
                                     </div>
                                     <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div 
-                                            className="bg-green-600 h-2 rounded-full" 
+                                        <div
+                                            className="bg-green-600 h-2 rounded-full"
                                             style={{ width: `${statusData.length > 0 ? Math.round((statusData.find(s => s.name === 'Approved')?.value || 0) / statusData.reduce((sum, s) => sum + s.value, 0) * 100) : 0}%` }}
                                         ></div>
                                     </div>
@@ -433,8 +433,8 @@ export function AnalyticsDashboard({ analytics }) {
                                         </span>
                                     </div>
                                     <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div 
-                                            className="bg-blue-600 h-2 rounded-full" 
+                                        <div
+                                            className="bg-blue-600 h-2 rounded-full"
                                             style={{ width: `${payment_stats.verified_payments + payment_stats.pending_payments > 0 ? Math.round((payment_stats.verified_payments / (payment_stats.verified_payments + payment_stats.pending_payments)) * 100) : 0}%` }}
                                         ></div>
                                     </div>
@@ -496,7 +496,7 @@ export function AnalyticsDashboard({ analytics }) {
                                         <span className="font-semibold text-purple-900">Avg per User</span>
                                     </div>
                                     <p className="text-2xl font-bold text-purple-700">
-                                        {top_users.length > 0 
+                                        {top_users.length > 0
                                             ? (top_users.reduce((sum, u) => sum + u.count, 0) / top_users.length).toFixed(1)
                                             : 0}
                                     </p>
@@ -519,8 +519,8 @@ export function AnalyticsDashboard({ analytics }) {
                             <p className="text-sm text-gray-500 text-center py-4">No recent activity</p>
                         ) : (
                             recent_activity.map((activity) => (
-                                <div 
-                                    key={activity.id} 
+                                <div
+                                    key={activity.id}
                                     className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                                 >
                                     <div className="flex-shrink-0 mt-1">

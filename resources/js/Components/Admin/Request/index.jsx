@@ -1,24 +1,24 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useState, useMemo, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
     Dialog,
     DialogContent,
     DialogDescription,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog';
-import { NotificationModal } from '@/Components/ui/notification-modal';
-import BulkActions from '@/Components/ui/bulk-actions';
+} from "@/components/ui/dialog";
+import { NotificationModal } from "@/Components/ui/notification-modal";
+import BulkActions from "@/Components/ui/bulk-actions";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
     CalendarDays,
     MapPin,
@@ -37,8 +37,8 @@ import {
     ThumbsUp,
     ThumbsDown,
     Trash2,
-    Download
-} from 'lucide-react';
+    Download,
+} from "lucide-react";
 import {
     Pagination,
     PaginationContent,
@@ -47,13 +47,13 @@ import {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-} from '@/components/ui/pagination';
-import { useForm, router } from '@inertiajs/react';
-import { useToast } from '@/Components/ui/use-toast';
+} from "@/components/ui/pagination";
+import { useForm, router } from "@inertiajs/react";
+import { useToast } from "@/Components/ui/use-toast";
 
 export function AdminRequestList({ requests, flash = {} }) {
     const [searchTerm, setSearchTerm] = useState("");
-    const [filterStatus, setFilterStatus] = useState('all');
+    const [filterStatus, setFilterStatus] = useState("all");
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -80,12 +80,17 @@ export function AdminRequestList({ requests, flash = {} }) {
             });
         }
     }, [flash, toast]);
-    const { data: editData, setData: setEditData, post: postEdit, processing: editProcessing } = useForm({
-        evaluation: '',
-        description: '',
-        amount: '',
-        date_certified: '',
-        issued_by: '',
+    const {
+        data: editData,
+        setData: setEditData,
+        post: postEdit,
+        processing: editProcessing,
+    } = useForm({
+        evaluation: "",
+        description: "",
+        amount: "",
+        date_certified: "",
+        issued_by: "",
     });
 
     const requestsData = requests?.data || requests || [];
@@ -100,30 +105,34 @@ export function AdminRequestList({ requests, flash = {} }) {
             return;
         }
 
-        router.post(route('admin.update-evaluation', request.report_id), {
-            evaluation: action,
-            issued_by: 'Admin',
-        }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                toast({
-                    title: "Success!",
-                    description: `Request ${action} successfully!`,
-                });
+        router.post(
+            route("admin.update-evaluation", request.report_id),
+            {
+                evaluation: action,
+                issued_by: "Admin",
             },
-            onError: (errors) => {
-                console.error('Update error:', errors);
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Failed to update request status.",
-                });
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast({
+                        title: "Success!",
+                        description: `Request ${action} successfully!`,
+                    });
+                },
+                onError: (errors) => {
+                    console.error("Update error:", errors);
+                    toast({
+                        variant: "destructive",
+                        title: "Error",
+                        description: "Failed to update request status.",
+                    });
+                },
             }
-        });
+        );
     };
 
     const handleExport = () => {
-        const url = route('admin.export.requests', { status: filterStatus });
+        const url = route("admin.export.requests", { status: filterStatus });
         window.location.href = url;
         toast({
             title: "Export Started",
@@ -134,11 +143,11 @@ export function AdminRequestList({ requests, flash = {} }) {
     const handleEdit = (request) => {
         setSelectedRequest(request);
         setEditData({
-            evaluation: request.evaluation || request.status || 'pending',
-            description: request.project_nature || '',
-            amount: request.project_cost || '',
-            date_certified: '',
-            issued_by: '',
+            evaluation: request.evaluation || request.status || "pending",
+            description: request.project_nature || "",
+            amount: request.project_cost || "",
+            date_certified: "",
+            issued_by: "",
         });
         setIsEditModalOpen(true);
     };
@@ -155,24 +164,28 @@ export function AdminRequestList({ requests, flash = {} }) {
             return;
         }
 
-        router.post(route('admin.update-evaluation', selectedRequest.report_id), editData, {
-            preserveScroll: true,
-            onSuccess: () => {
-                toast({
-                    title: "Success!",
-                    description: "Request updated successfully!",
-                });
-                setIsEditModalOpen(false);
-            },
-            onError: (errors) => {
-                console.error('Update error:', errors);
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Failed to update request.",
-                });
+        router.post(
+            route("admin.update-evaluation", selectedRequest.report_id),
+            editData,
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast({
+                        title: "Success!",
+                        description: "Request updated successfully!",
+                    });
+                    setIsEditModalOpen(false);
+                },
+                onError: (errors) => {
+                    console.error("Update error:", errors);
+                    toast({
+                        variant: "destructive",
+                        title: "Error",
+                        description: "Failed to update request.",
+                    });
+                },
             }
-        });
+        );
     };
 
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -180,13 +193,13 @@ export function AdminRequestList({ requests, flash = {} }) {
     const [isAcceptDialogOpen, setIsAcceptDialogOpen] = useState(false);
     const [isDeclineDialogOpen, setIsDeclineDialogOpen] = useState(false);
     const [requestToAction, setRequestToAction] = useState(null);
-    const [rejectionFeedback, setRejectionFeedback] = useState('');
+    const [rejectionFeedback, setRejectionFeedback] = useState("");
     const [notificationModal, setNotificationModal] = useState({
         isOpen: false,
         type: "success",
         title: "",
         message: "",
-        buttonText: "Continue"
+        buttonText: "Continue",
     });
 
     const handleDeleteClick = (request) => {
@@ -197,7 +210,7 @@ export function AdminRequestList({ requests, flash = {} }) {
     const confirmDelete = () => {
         if (!requestToDelete) return;
 
-        router.delete(route('admin.delete-request', requestToDelete.id), {
+        router.delete(route("admin.delete-request", requestToDelete.id), {
             preserveScroll: true,
             onSuccess: () => {
                 setIsDeleteDialogOpen(false);
@@ -207,20 +220,21 @@ export function AdminRequestList({ requests, flash = {} }) {
                     type: "success",
                     title: "Request Deleted!",
                     message: `Request #${requestToDelete.id} has been permanently deleted from the system.`,
-                    buttonText: "Continue"
+                    buttonText: "Continue",
                 });
             },
             onError: (errors) => {
-                console.error('Delete error:', errors);
+                console.error("Delete error:", errors);
                 setIsDeleteDialogOpen(false);
                 setNotificationModal({
                     isOpen: true,
                     type: "error",
                     title: "Delete Failed!",
-                    message: "Failed to delete the request. Please try again or contact support if the problem persists.",
-                    buttonText: "Try Again"
+                    message:
+                        "Failed to delete the request. Please try again or contact support if the problem persists.",
+                    buttonText: "Try Again",
                 });
-            }
+            },
         });
     };
 
@@ -230,8 +244,9 @@ export function AdminRequestList({ requests, flash = {} }) {
                 isOpen: true,
                 type: "error",
                 title: "Error",
-                message: "No report found for this request. Please contact support if this issue persists.",
-                buttonText: "OK"
+                message:
+                    "No report found for this request. Please contact support if this issue persists.",
+                buttonText: "OK",
             });
             return;
         }
@@ -242,33 +257,38 @@ export function AdminRequestList({ requests, flash = {} }) {
     const confirmAccept = () => {
         if (!requestToAction) return;
 
-        router.post(route('admin.update-evaluation', requestToAction.report_id), {
-            evaluation: 'approved',
-            issued_by: 'Admin',
-        }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setIsAcceptDialogOpen(false);
-                setRequestToAction(null);
-                setNotificationModal({
-                    isOpen: true,
-                    type: "success",
-                    title: "Request Approved!",
-                    message: `Request #${requestToAction.id} from ${requestToAction.applicant_name} has been approved successfully. The applicant will be notified via email.`,
-                    buttonText: "Continue"
-                });
+        router.post(
+            route("admin.update-evaluation", requestToAction.report_id),
+            {
+                evaluation: "approved",
+                issued_by: "Admin",
             },
-            onError: (errors) => {
-                setIsAcceptDialogOpen(false);
-                setNotificationModal({
-                    isOpen: true,
-                    type: "error",
-                    title: "Approval Failed!",
-                    message: "Failed to approve the request. Please try again or contact support if the problem persists.",
-                    buttonText: "Try Again"
-                });
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsAcceptDialogOpen(false);
+                    setRequestToAction(null);
+                    setNotificationModal({
+                        isOpen: true,
+                        type: "success",
+                        title: "Request Approved!",
+                        message: `Request #${requestToAction.id} from ${requestToAction.applicant_name} has been approved successfully. The applicant will be notified via email.`,
+                        buttonText: "Continue",
+                    });
+                },
+                onError: (errors) => {
+                    setIsAcceptDialogOpen(false);
+                    setNotificationModal({
+                        isOpen: true,
+                        type: "error",
+                        title: "Approval Failed!",
+                        message:
+                            "Failed to approve the request. Please try again or contact support if the problem persists.",
+                        buttonText: "Try Again",
+                    });
+                },
             }
-        });
+        );
     };
 
     const handleDeclineClick = (request) => {
@@ -277,13 +297,14 @@ export function AdminRequestList({ requests, flash = {} }) {
                 isOpen: true,
                 type: "error",
                 title: "Error",
-                message: "No report found for this request. Please contact support if this issue persists.",
-                buttonText: "OK"
+                message:
+                    "No report found for this request. Please contact support if this issue persists.",
+                buttonText: "OK",
             });
             return;
         }
         setRequestToAction(request);
-        setRejectionFeedback(''); // Reset feedback
+        setRejectionFeedback(""); // Reset feedback
         setIsDeclineDialogOpen(true);
     };
 
@@ -296,47 +317,53 @@ export function AdminRequestList({ requests, flash = {} }) {
                 isOpen: true,
                 type: "warning",
                 title: "Feedback Required",
-                message: "Please provide feedback explaining why this request is being rejected. This feedback will be sent to the applicant to help them understand what needs to be corrected.",
-                buttonText: "OK"
+                message:
+                    "Please provide feedback explaining why this request is being rejected. This feedback will be sent to the applicant to help them understand what needs to be corrected.",
+                buttonText: "OK",
             });
             return;
         }
 
-        router.post(route('admin.update-evaluation', requestToAction.report_id), {
-            evaluation: 'rejected',
-            description: rejectionFeedback.trim(),
-            issued_by: 'Admin',
-        }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setIsDeclineDialogOpen(false);
-                setRequestToAction(null);
-                setRejectionFeedback('');
-                setNotificationModal({
-                    isOpen: true,
-                    type: "success",
-                    title: "Request Declined!",
-                    message: `Request #${requestToAction.id} from ${requestToAction.applicant_name} has been declined. The applicant has been notified via email with your feedback.`,
-                    buttonText: "Continue"
-                });
+        router.post(
+            route("admin.update-evaluation", requestToAction.report_id),
+            {
+                evaluation: "rejected",
+                description: rejectionFeedback.trim(),
+                issued_by: "Admin",
             },
-            onError: (errors) => {
-                setIsDeclineDialogOpen(false);
-                setNotificationModal({
-                    isOpen: true,
-                    type: "error",
-                    title: "Decline Failed!",
-                    message: "Failed to decline the request. Please try again or contact support if the problem persists.",
-                    buttonText: "Try Again"
-                });
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsDeclineDialogOpen(false);
+                    setRequestToAction(null);
+                    setRejectionFeedback("");
+                    setNotificationModal({
+                        isOpen: true,
+                        type: "success",
+                        title: "Request Declined!",
+                        message: `Request #${requestToAction.id} from ${requestToAction.applicant_name} has been declined. The applicant has been notified via email with your feedback.`,
+                        buttonText: "Continue",
+                    });
+                },
+                onError: (errors) => {
+                    setIsDeclineDialogOpen(false);
+                    setNotificationModal({
+                        isOpen: true,
+                        type: "error",
+                        title: "Decline Failed!",
+                        message:
+                            "Failed to decline the request. Please try again or contact support if the problem persists.",
+                        buttonText: "Try Again",
+                    });
+                },
             }
-        });
+        );
     };
 
     // Bulk Actions Handlers
     const handleSelectAll = (checked) => {
         if (checked) {
-            setSelectedItems(filteredRequests.map(request => request.id));
+            setSelectedItems(filteredRequests.map((request) => request.id));
         } else {
             setSelectedItems([]);
         }
@@ -344,9 +371,9 @@ export function AdminRequestList({ requests, flash = {} }) {
 
     const handleSelectItem = (requestId, checked) => {
         if (checked) {
-            setSelectedItems(prev => [...prev, requestId]);
+            setSelectedItems((prev) => [...prev, requestId]);
         } else {
-            setSelectedItems(prev => prev.filter(id => id !== requestId));
+            setSelectedItems((prev) => prev.filter((id) => id !== requestId));
         }
     };
 
@@ -356,16 +383,21 @@ export function AdminRequestList({ requests, flash = {} }) {
 
     const handleBulkApprove = async (selectedIds) => {
         setBulkLoading(true);
-        
+
         try {
             await new Promise((resolve, reject) => {
-                router.post(route('admin.bulk.approve'), {
-                    request_ids: selectedIds
-                }, {
-                    preserveScroll: true,
-                    onSuccess: () => resolve(),
-                    onError: (errors) => reject(new Error('Failed to approve requests'))
-                });
+                router.post(
+                    route("admin.bulk.approve"),
+                    {
+                        request_ids: selectedIds,
+                    },
+                    {
+                        preserveScroll: true,
+                        onSuccess: () => resolve(),
+                        onError: (errors) =>
+                            reject(new Error("Failed to approve requests")),
+                    }
+                );
             });
         } catch (error) {
             throw error;
@@ -376,17 +408,22 @@ export function AdminRequestList({ requests, flash = {} }) {
 
     const handleBulkReject = async (selectedIds, reason) => {
         setBulkLoading(true);
-        
+
         try {
             await new Promise((resolve, reject) => {
-                router.post(route('admin.bulk.reject'), {
-                    request_ids: selectedIds,
-                    reason: reason
-                }, {
-                    preserveScroll: true,
-                    onSuccess: () => resolve(),
-                    onError: (errors) => reject(new Error('Failed to reject requests'))
-                });
+                router.post(
+                    route("admin.bulk.reject"),
+                    {
+                        request_ids: selectedIds,
+                        reason: reason,
+                    },
+                    {
+                        preserveScroll: true,
+                        onSuccess: () => resolve(),
+                        onError: (errors) =>
+                            reject(new Error("Failed to reject requests")),
+                    }
+                );
             });
         } catch (error) {
             throw error;
@@ -397,14 +434,15 @@ export function AdminRequestList({ requests, flash = {} }) {
 
     const handleBulkDelete = async (selectedIds) => {
         setBulkLoading(true);
-        
+
         try {
             await new Promise((resolve, reject) => {
-                router.delete(route('admin.bulk.delete'), {
+                router.delete(route("admin.bulk.delete"), {
                     data: { request_ids: selectedIds },
                     preserveScroll: true,
                     onSuccess: () => resolve(),
-                    onError: (errors) => reject(new Error('Failed to delete requests'))
+                    onError: (errors) =>
+                        reject(new Error("Failed to delete requests")),
                 });
             });
         } catch (error) {
@@ -415,32 +453,46 @@ export function AdminRequestList({ requests, flash = {} }) {
     };
 
     const handleBulkExport = (selectedIds) => {
-        const selectedRequests = filteredRequests.filter(req => selectedIds.includes(req.id));
+        const selectedRequests = filteredRequests.filter((req) =>
+            selectedIds.includes(req.id)
+        );
         const csvContent = generateCSV(selectedRequests);
-        downloadCSV(csvContent, `selected-requests-${new Date().toISOString().split('T')[0]}.csv`);
+        downloadCSV(
+            csvContent,
+            `selected-requests-${new Date().toISOString().split("T")[0]}.csv`
+        );
     };
 
     const generateCSV = (requests) => {
-        const headers = ['ID', 'Applicant Name', 'User Email', 'Project Type', 'Status', 'Created Date'];
-        const rows = requests.map(req => [
+        const headers = [
+            "ID",
+            "Applicant Name",
+            "User Email",
+            "Project Type",
+            "Status",
+            "Created Date",
+        ];
+        const rows = requests.map((req) => [
             req.id,
-            req.applicant_name || '',
-            req.user_email || '',
-            req.project_type || '',
-            req.status || 'pending',
-            formatDate(req.created_at)
+            req.applicant_name || "",
+            req.user_email || "",
+            req.project_type || "",
+            req.status || "pending",
+            formatDate(req.created_at),
         ]);
-        
-        return [headers, ...rows].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+
+        return [headers, ...rows]
+            .map((row) => row.map((field) => `"${field}"`).join(","))
+            .join("\n");
     };
 
     const downloadCSV = (content, filename) => {
-        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
+        const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = "hidden";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -448,20 +500,20 @@ export function AdminRequestList({ requests, flash = {} }) {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'approved':
-                return 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-300';
-            case 'rejected':
-                return 'bg-rose-100 text-rose-800 hover:bg-rose-200 border-rose-300';
+            case "approved":
+                return "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-300";
+            case "rejected":
+                return "bg-rose-100 text-rose-800 hover:bg-rose-200 border-rose-300";
             default:
-                return 'bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-300';
+                return "bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-300";
         }
     };
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'approved':
+            case "approved":
                 return <CheckCircle2 className="h-4 w-4" />;
-            case 'rejected':
+            case "rejected":
                 return <XCircle className="h-4 w-4" />;
             default:
                 return <Clock className="h-4 w-4" />;
@@ -469,12 +521,12 @@ export function AdminRequestList({ requests, flash = {} }) {
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
+        return date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
         });
     };
 
@@ -482,27 +534,35 @@ export function AdminRequestList({ requests, flash = {} }) {
         const parts = [
             request?.project_location_street,
             request?.project_location_barangay,
-            request?.project_location_city || request?.project_location_municipality,
-            request?.project_location_province
+            request?.project_location_city ||
+                request?.project_location_municipality,
+            request?.project_location_province,
         ].filter(Boolean);
-        return parts.join(', ') || 'Location not specified';
+        return parts.join(", ") || "Location not specified";
     };
 
     const filteredRequests = useMemo(() => {
         let filtered = requestsData;
 
         // Filter by status
-        if (filterStatus !== 'all') {
-            filtered = filtered.filter(r => r.status === filterStatus);
+        if (filterStatus !== "all") {
+            filtered = filtered.filter((r) => r.status === filterStatus);
         }
 
         // Filter by search term
         if (searchTerm) {
-            filtered = filtered.filter(r =>
-                r.applicant_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                r.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                r.project_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                r.id?.toString().includes(searchTerm)
+            filtered = filtered.filter(
+                (r) =>
+                    r.applicant_name
+                        ?.toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                    r.user_email
+                        ?.toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                    r.project_type
+                        ?.toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                    r.id?.toString().includes(searchTerm)
             );
         }
 
@@ -512,9 +572,11 @@ export function AdminRequestList({ requests, flash = {} }) {
     const stats = useMemo(() => {
         return {
             total: requestsData.length,
-            pending: requestsData.filter(r => r.status === 'pending').length,
-            approved: requestsData.filter(r => r.status === 'approved').length,
-            rejected: requestsData.filter(r => r.status === 'rejected').length,
+            pending: requestsData.filter((r) => r.status === "pending").length,
+            approved: requestsData.filter((r) => r.status === "approved")
+                .length,
+            rejected: requestsData.filter((r) => r.status === "rejected")
+                .length,
         };
     }, [requestsData]);
 
@@ -535,8 +597,14 @@ export function AdminRequestList({ requests, flash = {} }) {
                             return (
                                 <PaginationItem key={index}>
                                     <PaginationPrevious
-                                        onClick={() => handlePageChange(link.url)}
-                                        className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                                        onClick={() =>
+                                            handlePageChange(link.url)
+                                        }
+                                        className={
+                                            !link.url
+                                                ? "pointer-events-none opacity-50"
+                                                : "cursor-pointer"
+                                        }
                                     />
                                 </PaginationItem>
                             );
@@ -546,14 +614,20 @@ export function AdminRequestList({ requests, flash = {} }) {
                             return (
                                 <PaginationItem key={index}>
                                     <PaginationNext
-                                        onClick={() => handlePageChange(link.url)}
-                                        className={!link.url ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                                        onClick={() =>
+                                            handlePageChange(link.url)
+                                        }
+                                        className={
+                                            !link.url
+                                                ? "pointer-events-none opacity-50"
+                                                : "cursor-pointer"
+                                        }
                                     />
                                 </PaginationItem>
                             );
                         }
 
-                        if (link.label === '...') {
+                        if (link.label === "...") {
                             return (
                                 <PaginationItem key={index}>
                                     <PaginationEllipsis />
@@ -579,65 +653,103 @@ export function AdminRequestList({ requests, flash = {} }) {
     };
 
     return (
-        <div className="space-y-6 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6"
+        <div
+            className="space-y-6 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6"
             style={{
                 backgroundImage: `
                  radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
                  radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
                  radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 50%)
-               `
-            }}>
+               `,
+            }}
+        >
             {/* Statistics Cards */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom duration-700">
-                <Card className="group hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-purple-50 to-purple-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500" onClick={() => setFilterStatus('all')}>
+                <Card
+                    className="group hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-purple-50 to-purple-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    onClick={() => setFilterStatus("all")}
+                >
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-purple-900 group-hover:text-purple-800 transition-colors">Total Requests</CardTitle>
+                        <CardTitle className="text-sm font-semibold text-purple-900 group-hover:text-purple-800 transition-colors">
+                            Total Requests
+                        </CardTitle>
                         <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg group-hover:shadow-purple-500/50 transition-all duration-300 group-hover:scale-110">
                             <FileText className="h-5 w-5 text-white" />
                         </div>
                     </CardHeader>
                     <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-purple-700 group-hover:text-purple-800 transition-colors mb-2">{stats.total}</div>
-                        <p className="text-sm text-purple-600 group-hover:text-purple-700 transition-colors">All submissions</p>
+                        <div className="text-4xl font-bold text-purple-700 group-hover:text-purple-800 transition-colors mb-2">
+                            {stats.total}
+                        </div>
+                        <p className="text-sm text-purple-600 group-hover:text-purple-700 transition-colors">
+                            All submissions
+                        </p>
                     </CardContent>
                 </Card>
 
-                <Card className="group hover:shadow-2xl hover:shadow-amber-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-amber-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500" onClick={() => setFilterStatus('pending')}>
+                <Card
+                    className="group hover:shadow-2xl hover:shadow-amber-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-amber-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    onClick={() => setFilterStatus("pending")}
+                >
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-amber-900 group-hover:text-amber-800 transition-colors">Pending</CardTitle>
+                        <CardTitle className="text-sm font-semibold text-amber-900 group-hover:text-amber-800 transition-colors">
+                            Pending
+                        </CardTitle>
                         <div className="p-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg group-hover:shadow-amber-500/50 transition-all duration-300 group-hover:scale-110">
                             <Clock className="h-5 w-5 text-white" />
                         </div>
                     </CardHeader>
                     <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-amber-700 group-hover:text-amber-800 transition-colors mb-2">{stats.pending}</div>
-                        <p className="text-sm text-amber-600 group-hover:text-amber-700 transition-colors">Awaiting review</p>
+                        <div className="text-4xl font-bold text-amber-700 group-hover:text-amber-800 transition-colors mb-2">
+                            {stats.pending}
+                        </div>
+                        <p className="text-sm text-amber-600 group-hover:text-amber-700 transition-colors">
+                            Awaiting review
+                        </p>
                     </CardContent>
                 </Card>
 
-                <Card className="group hover:shadow-2xl hover:shadow-emerald-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-emerald-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500" onClick={() => setFilterStatus('approved')}>
+                <Card
+                    className="group hover:shadow-2xl hover:shadow-emerald-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-emerald-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    onClick={() => setFilterStatus("approved")}
+                >
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-emerald-900 group-hover:text-emerald-800 transition-colors">Approved</CardTitle>
+                        <CardTitle className="text-sm font-semibold text-emerald-900 group-hover:text-emerald-800 transition-colors">
+                            Approved
+                        </CardTitle>
                         <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg group-hover:shadow-emerald-500/50 transition-all duration-300 group-hover:scale-110">
                             <CheckCircle2 className="h-5 w-5 text-white" />
                         </div>
                     </CardHeader>
                     <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-emerald-700 group-hover:text-emerald-800 transition-colors mb-2">{stats.approved}</div>
-                        <p className="text-sm text-emerald-600 group-hover:text-emerald-700 transition-colors">Successfully processed</p>
+                        <div className="text-4xl font-bold text-emerald-700 group-hover:text-emerald-800 transition-colors mb-2">
+                            {stats.approved}
+                        </div>
+                        <p className="text-sm text-emerald-600 group-hover:text-emerald-700 transition-colors">
+                            Successfully processed
+                        </p>
                     </CardContent>
                 </Card>
 
-                <Card className="group hover:shadow-2xl hover:shadow-rose-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-rose-50 to-rose-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-rose-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500" onClick={() => setFilterStatus('rejected')}>
+                <Card
+                    className="group hover:shadow-2xl hover:shadow-rose-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-rose-50 to-rose-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-rose-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    onClick={() => setFilterStatus("rejected")}
+                >
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-rose-900 group-hover:text-rose-800 transition-colors">Rejected</CardTitle>
+                        <CardTitle className="text-sm font-semibold text-rose-900 group-hover:text-rose-800 transition-colors">
+                            Rejected
+                        </CardTitle>
                         <div className="p-3 bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl shadow-lg group-hover:shadow-rose-500/50 transition-all duration-300 group-hover:scale-110">
                             <XCircle className="h-5 w-5 text-white" />
                         </div>
                     </CardHeader>
                     <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-rose-700 group-hover:text-rose-800 transition-colors mb-2">{stats.rejected}</div>
-                        <p className="text-sm text-rose-600 group-hover:text-rose-700 transition-colors">Needs attention</p>
+                        <div className="text-4xl font-bold text-rose-700 group-hover:text-rose-800 transition-colors mb-2">
+                            {stats.rejected}
+                        </div>
+                        <p className="text-sm text-rose-600 group-hover:text-rose-700 transition-colors">
+                            Needs attention
+                        </p>
                     </CardContent>
                 </Card>
             </div>
@@ -666,14 +778,16 @@ export function AdminRequestList({ requests, flash = {} }) {
                                 <Input
                                     placeholder="Search requests..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) =>
+                                        setSearchTerm(e.target.value)
+                                    }
                                     className="pl-10 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 focus:bg-white/30"
                                 />
                             </div>
-                            {filterStatus !== 'all' && (
+                            {filterStatus !== "all" && (
                                 <Button
                                     variant="outline"
-                                    onClick={() => setFilterStatus('all')}
+                                    onClick={() => setFilterStatus("all")}
                                     className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 transition-all duration-300"
                                 >
                                     Clear Filter
@@ -702,19 +816,43 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     <th className="text-left p-3 font-semibold w-12">
                                         <input
                                             type="checkbox"
-                                            checked={selectedItems.length === filteredRequests.length && filteredRequests.length > 0}
-                                            onChange={(e) => handleSelectAll(e.target.checked)}
+                                            checked={
+                                                selectedItems.length ===
+                                                    filteredRequests.length &&
+                                                filteredRequests.length > 0
+                                            }
+                                            onChange={(e) =>
+                                                handleSelectAll(
+                                                    e.target.checked
+                                                )
+                                            }
                                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                         />
                                     </th>
-                                    <th className="text-left p-3 font-semibold">ID</th>
-                                    <th className="text-left p-3 font-semibold">Applicant</th>
-                                    <th className="text-left p-3 font-semibold">User</th>
-                                    <th className="text-left p-3 font-semibold">Project Type</th>
-                                    <th className="text-left p-3 font-semibold">Location</th>
-                                    <th className="text-left p-3 font-semibold">Date</th>
-                                    <th className="text-left p-3 font-semibold">Status</th>
-                                    <th className="text-left p-3 font-semibold">Actions</th>
+                                    <th className="text-left p-3 font-semibold">
+                                        ID
+                                    </th>
+                                    <th className="text-left p-3 font-semibold">
+                                        Applicant
+                                    </th>
+                                    <th className="text-left p-3 font-semibold">
+                                        User
+                                    </th>
+                                    <th className="text-left p-3 font-semibold">
+                                        Project Type
+                                    </th>
+                                    <th className="text-left p-3 font-semibold">
+                                        Location
+                                    </th>
+                                    <th className="text-left p-3 font-semibold">
+                                        Date
+                                    </th>
+                                    <th className="text-left p-3 font-semibold">
+                                        Status
+                                    </th>
+                                    <th className="text-left p-3 font-semibold">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -722,77 +860,146 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     <tr
                                         key={request.id}
                                         className={`border-b border-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 ${
-                                            selectedItems.includes(request.id) ? 'bg-blue-50' : ''
+                                            selectedItems.includes(request.id)
+                                                ? "bg-blue-50"
+                                                : ""
                                         }`}
-                                        style={{ animationDelay: `${index * 50}ms` }}
+                                        style={{
+                                            animationDelay: `${index * 50}ms`,
+                                        }}
                                     >
                                         <td className="p-3">
                                             <input
                                                 type="checkbox"
-                                                checked={selectedItems.includes(request.id)}
-                                                onChange={(e) => handleSelectItem(request.id, e.target.checked)}
+                                                checked={selectedItems.includes(
+                                                    request.id
+                                                )}
+                                                onChange={(e) =>
+                                                    handleSelectItem(
+                                                        request.id,
+                                                        e.target.checked
+                                                    )
+                                                }
                                                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                             />
                                         </td>
-                                        <td className="p-3 font-mono text-sm">#{request.id}</td>
+                                        <td className="p-3 font-mono text-sm">
+                                            #{request.id}
+                                        </td>
                                         <td className="p-3">
                                             <div>
-                                                <p className="font-medium">{request.applicant_name}</p>
+                                                <p className="font-medium">
+                                                    {request.applicant_name}
+                                                </p>
                                                 {request.corporation_name && (
-                                                    <p className="text-xs text-gray-500">{request.corporation_name}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        {
+                                                            request.corporation_name
+                                                        }
+                                                    </p>
                                                 )}
                                             </div>
                                         </td>
                                         <td className="p-3">
                                             <div>
-                                                <p className="text-sm font-medium">{request.user_name}</p>
-                                                <p className="text-xs text-gray-500">{request.user_email}</p>
+                                                <p className="text-sm font-medium">
+                                                    {request.user_name}
+                                                </p>
+                                                <p className="text-xs text-gray-500">
+                                                    {request.user_email}
+                                                </p>
                                             </div>
                                         </td>
-                                        <td className="p-3 text-sm">{request.project_type || 'N/A'}</td>
-                                        <td className="p-3 text-sm max-w-xs truncate">{formatLocation(request)}</td>
-                                        <td className="p-3 text-sm">{formatDate(request.created_at)}</td>
+                                        <td className="p-3 text-sm">
+                                            {request.project_type || "N/A"}
+                                        </td>
+                                        <td className="p-3 text-sm max-w-xs truncate">
+                                            {formatLocation(request)}
+                                        </td>
+                                        <td className="p-3 text-sm">
+                                            {formatDate(request.created_at)}
+                                        </td>
                                         <td className="p-3">
-                                            <Badge className={getStatusColor(request.status)}>
+                                            <Badge
+                                                className={getStatusColor(
+                                                    request.status
+                                                )}
+                                            >
                                                 <span className="flex items-center gap-1">
-                                                    {getStatusIcon(request.status)}
-                                                    {(request.status || 'pending').charAt(0).toUpperCase() + (request.status || 'pending').slice(1)}
+                                                    {getStatusIcon(
+                                                        request.status
+                                                    )}
+                                                    {(
+                                                        request.status ||
+                                                        "pending"
+                                                    )
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                        (
+                                                            request.status ||
+                                                            "pending"
+                                                        ).slice(1)}
                                                 </span>
                                             </Badge>
                                         </td>
                                         <td className="p-3">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="sm">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                    >
                                                         <MoreVertical className="h-4 w-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuItem
                                                         onClick={() => {
-                                                            setSelectedRequest(request);
-                                                            setIsModalOpen(true);
+                                                            setSelectedRequest(
+                                                                request
+                                                            );
+                                                            setIsModalOpen(
+                                                                true
+                                                            );
                                                         }}
                                                     >
                                                         <Eye className="h-4 w-4 mr-2" />
                                                         View
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleEdit(request)}>
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            handleEdit(request)
+                                                        }
+                                                    >
                                                         <Edit className="h-4 w-4 mr-2" />
                                                         Edit
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem
-                                                        onClick={() => handleAcceptClick(request)}
-                                                        disabled={request.status === 'approved'}
+                                                        onClick={() =>
+                                                            handleAcceptClick(
+                                                                request
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            request.status ===
+                                                            "approved"
+                                                        }
                                                         className="text-emerald-600"
                                                     >
                                                         <ThumbsUp className="h-4 w-4 mr-2" />
                                                         Accept
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
-                                                        onClick={() => handleDeclineClick(request)}
-                                                        disabled={request.status === 'rejected'}
+                                                        onClick={() =>
+                                                            handleDeclineClick(
+                                                                request
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            request.status ===
+                                                            "rejected"
+                                                        }
                                                         className="text-rose-600"
                                                     >
                                                         <ThumbsDown className="h-4 w-4 mr-2" />
@@ -800,7 +1007,11 @@ export function AdminRequestList({ requests, flash = {} }) {
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem
-                                                        onClick={() => handleDeleteClick(request)}
+                                                        onClick={() =>
+                                                            handleDeleteClick(
+                                                                request
+                                                            )
+                                                        }
                                                         className="text-red-600"
                                                     >
                                                         <Trash2 className="h-4 w-4 mr-2" />
@@ -820,7 +1031,7 @@ export function AdminRequestList({ requests, flash = {} }) {
 
             {/* Request Details Modal - Enhanced Landscape Layout */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-[95vw] w-full max-h-[85vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
+                <DialogContent className="max-w-[90vw] w-full max-h-[85vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
                     {/* Modal Header with Gradient Background */}
                     <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
                         <DialogHeader>
@@ -831,7 +1042,15 @@ export function AdminRequestList({ requests, flash = {} }) {
                                 Request Details #{selectedRequest?.id}
                             </DialogTitle>
                             <DialogDescription className="text-blue-100 text-lg">
-                                Submitted on {formatDate(selectedRequest?.created_at)} • Status: {(selectedRequest?.status || 'pending').charAt(0).toUpperCase() + (selectedRequest?.status || 'pending').slice(1)}
+                                Submitted on{" "}
+                                {formatDate(selectedRequest?.created_at)} •
+                                Status:{" "}
+                                {(selectedRequest?.status || "pending")
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                    (
+                                        selectedRequest?.status || "pending"
+                                    ).slice(1)}
                             </DialogDescription>
                         </DialogHeader>
                     </div>
@@ -853,8 +1072,14 @@ export function AdminRequestList({ requests, flash = {} }) {
                                         <div className="p-6 space-y-4">
                                             <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl border border-blue-200">
                                                 <div>
-                                                    <p className="text-sm text-gray-600 font-medium">Full Name</p>
-                                                    <p className="text-lg font-bold text-blue-900">{selectedRequest.user_name}</p>
+                                                    <p className="text-sm text-gray-600 font-medium">
+                                                        Full Name
+                                                    </p>
+                                                    <p className="text-lg font-bold text-blue-900">
+                                                        {
+                                                            selectedRequest.user_name
+                                                        }
+                                                    </p>
                                                 </div>
                                                 <div className="p-2 bg-blue-100 rounded-lg">
                                                     <User className="h-5 w-5 text-blue-600" />
@@ -862,10 +1087,14 @@ export function AdminRequestList({ requests, flash = {} }) {
                                             </div>
                                             <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl border border-blue-200">
                                                 <div>
-                                                    <p className="text-sm text-gray-600 font-medium">Email Address</p>
+                                                    <p className="text-sm text-gray-600 font-medium">
+                                                        Email Address
+                                                    </p>
                                                     <p className="text-lg font-bold text-blue-900 flex items-center gap-2">
                                                         <Mail className="h-4 w-4" />
-                                                        {selectedRequest.user_email}
+                                                        {
+                                                            selectedRequest.user_email
+                                                        }
                                                     </p>
                                                 </div>
                                                 <div className="p-2 bg-blue-100 rounded-lg">
@@ -886,21 +1115,44 @@ export function AdminRequestList({ requests, flash = {} }) {
                                         <div className="p-6 space-y-4">
                                             <div className="grid grid-cols-1 gap-4">
                                                 <div className="p-3 bg-white/70 rounded-xl border border-emerald-200">
-                                                    <p className="text-sm text-gray-600 font-medium">Applicant Name</p>
-                                                    <p className="text-lg font-bold text-emerald-900">{selectedRequest.applicant_name}</p>
+                                                    <p className="text-sm text-gray-600 font-medium">
+                                                        Applicant Name
+                                                    </p>
+                                                    <p className="text-lg font-bold text-emerald-900">
+                                                        {
+                                                            selectedRequest.applicant_name
+                                                        }
+                                                    </p>
                                                 </div>
                                                 <div className="p-3 bg-white/70 rounded-xl border border-emerald-200">
-                                                    <p className="text-sm text-gray-600 font-medium">Corporation</p>
-                                                    <p className="text-lg font-bold text-emerald-900">{selectedRequest.corporation_name || 'Individual Applicant'}</p>
+                                                    <p className="text-sm text-gray-600 font-medium">
+                                                        Corporation
+                                                    </p>
+                                                    <p className="text-lg font-bold text-emerald-900">
+                                                        {selectedRequest.corporation_name ||
+                                                            "Individual Applicant"}
+                                                    </p>
                                                 </div>
                                                 <div className="p-3 bg-white/70 rounded-xl border border-emerald-200">
-                                                    <p className="text-sm text-gray-600 font-medium">Address</p>
-                                                    <p className="text-base font-semibold text-emerald-900">{selectedRequest.applicant_address}</p>
+                                                    <p className="text-sm text-gray-600 font-medium">
+                                                        Address
+                                                    </p>
+                                                    <p className="text-base font-semibold text-emerald-900">
+                                                        {
+                                                            selectedRequest.applicant_address
+                                                        }
+                                                    </p>
                                                 </div>
                                                 {selectedRequest.corporation_address && (
                                                     <div className="p-3 bg-white/70 rounded-xl border border-emerald-200">
-                                                        <p className="text-sm text-gray-600 font-medium">Corporation Address</p>
-                                                        <p className="text-base font-semibold text-emerald-900">{selectedRequest.corporation_address}</p>
+                                                        <p className="text-sm text-gray-600 font-medium">
+                                                            Corporation Address
+                                                        </p>
+                                                        <p className="text-base font-semibold text-emerald-900">
+                                                            {
+                                                                selectedRequest.corporation_address
+                                                            }
+                                                        </p>
                                                     </div>
                                                 )}
                                             </div>
@@ -913,23 +1165,46 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg">
-                                                {getStatusIcon(selectedRequest.status)}
+                                                {getStatusIcon(
+                                                    selectedRequest.status
+                                                )}
                                             </div>
                                             <div>
-                                                <p className="text-sm text-gray-600 font-medium">Current Status</p>
-                                                <Badge className={`${getStatusColor(selectedRequest.status)} text-lg px-4 py-2 mt-1`}>
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Current Status
+                                                </p>
+                                                <Badge
+                                                    className={`${getStatusColor(
+                                                        selectedRequest.status
+                                                    )} text-lg px-4 py-2 mt-1`}
+                                                >
                                                     <span className="flex items-center gap-2">
-                                                        {getStatusIcon(selectedRequest.status)}
-                                                        {(selectedRequest.status || 'pending').charAt(0).toUpperCase() + (selectedRequest.status || 'pending').slice(1)}
+                                                        {getStatusIcon(
+                                                            selectedRequest.status
+                                                        )}
+                                                        {(
+                                                            selectedRequest.status ||
+                                                            "pending"
+                                                        )
+                                                            .charAt(0)
+                                                            .toUpperCase() +
+                                                            (
+                                                                selectedRequest.status ||
+                                                                "pending"
+                                                            ).slice(1)}
                                                     </span>
                                                 </Badge>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-sm text-gray-600 font-medium">Submission Date</p>
+                                            <p className="text-sm text-gray-600 font-medium">
+                                                Submission Date
+                                            </p>
                                             <p className="text-xl font-bold text-gray-900 flex items-center gap-2">
                                                 <CalendarDays className="h-5 w-5" />
-                                                {formatDate(selectedRequest.created_at)}
+                                                {formatDate(
+                                                    selectedRequest.created_at
+                                                )}
                                             </p>
                                         </div>
                                     </div>
@@ -946,48 +1221,101 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     <div className="p-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                             <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">Project Type</p>
-                                                <p className="text-lg font-bold text-purple-900">{selectedRequest.project_type || 'N/A'}</p>
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Project Type
+                                                </p>
+                                                <p className="text-lg font-bold text-purple-900">
+                                                    {selectedRequest.project_type ||
+                                                        "N/A"}
+                                                </p>
                                             </div>
                                             <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">Project Nature</p>
-                                                <p className="text-lg font-bold text-purple-900">{selectedRequest.project_nature || 'N/A'}</p>
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Project Nature
+                                                </p>
+                                                <p className="text-lg font-bold text-purple-900">
+                                                    {selectedRequest.project_nature ||
+                                                        "N/A"}
+                                                </p>
                                             </div>
                                             <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300 md:col-span-2">
                                                 <p className="text-sm text-gray-600 font-medium flex items-center gap-1">
                                                     <MapPin className="h-4 w-4" />
                                                     Project Location
                                                 </p>
-                                                <p className="text-base font-bold text-purple-900">{formatLocation(selectedRequest)}</p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">Project Area</p>
-                                                <p className="text-lg font-bold text-purple-900">{selectedRequest.project_area_sqm ? `${parseFloat(selectedRequest.project_area_sqm).toLocaleString()} sqm` : 'N/A'}</p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">Lot Area</p>
-                                                <p className="text-lg font-bold text-purple-900">{selectedRequest.lot_area_sqm ? `${parseFloat(selectedRequest.lot_area_sqm).toLocaleString()} sqm` : 'N/A'}</p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">Building Area</p>
-                                                <p className="text-lg font-bold text-purple-900">{selectedRequest.bldg_improvement_sqm ? `${parseFloat(selectedRequest.bldg_improvement_sqm).toLocaleString()} sqm` : 'N/A'}</p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">Project Cost</p>
-                                                <p className="text-lg font-bold text-purple-900 flex items-center gap-1">
-                                                    <DollarSign className="h-4 w-4" />
-                                                    {selectedRequest.project_cost ? `₱${parseFloat(selectedRequest.project_cost).toLocaleString()}` : 'N/A'}
+                                                <p className="text-base font-bold text-purple-900">
+                                                    {formatLocation(
+                                                        selectedRequest
+                                                    )}
                                                 </p>
                                             </div>
                                             <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">Right Over Land</p>
-                                                <p className="text-lg font-bold text-purple-900">{selectedRequest.right_over_land || 'N/A'}</p>
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Project Area
+                                                </p>
+                                                <p className="text-lg font-bold text-purple-900">
+                                                    {selectedRequest.project_area_sqm
+                                                        ? `${parseFloat(
+                                                              selectedRequest.project_area_sqm
+                                                          ).toLocaleString()} sqm`
+                                                        : "N/A"}
+                                                </p>
                                             </div>
                                             <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">Project Duration</p>
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Lot Area
+                                                </p>
                                                 <p className="text-lg font-bold text-purple-900">
-                                                    {selectedRequest.project_nature_duration || 'N/A'}
-                                                    {selectedRequest.project_nature_years && ` (${selectedRequest.project_nature_years} years)`}
+                                                    {selectedRequest.lot_area_sqm
+                                                        ? `${parseFloat(
+                                                              selectedRequest.lot_area_sqm
+                                                          ).toLocaleString()} sqm`
+                                                        : "N/A"}
+                                                </p>
+                                            </div>
+                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Building Area
+                                                </p>
+                                                <p className="text-lg font-bold text-purple-900">
+                                                    {selectedRequest.bldg_improvement_sqm
+                                                        ? `${parseFloat(
+                                                              selectedRequest.bldg_improvement_sqm
+                                                          ).toLocaleString()} sqm`
+                                                        : "N/A"}
+                                                </p>
+                                            </div>
+                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Project Cost
+                                                </p>
+                                                <p className="text-lg font-bold text-purple-900 flex items-center gap-1">
+                                                    <DollarSign className="h-4 w-4" />
+                                                    {selectedRequest.project_cost
+                                                        ? `₱${parseFloat(
+                                                              selectedRequest.project_cost
+                                                          ).toLocaleString()}`
+                                                        : "N/A"}
+                                                </p>
+                                            </div>
+                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Right Over Land
+                                                </p>
+                                                <p className="text-lg font-bold text-purple-900">
+                                                    {selectedRequest.right_over_land ||
+                                                        "N/A"}
+                                                </p>
+                                            </div>
+                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Project Duration
+                                                </p>
+                                                <p className="text-lg font-bold text-purple-900">
+                                                    {selectedRequest.project_nature_duration ||
+                                                        "N/A"}
+                                                    {selectedRequest.project_nature_years &&
+                                                        ` (${selectedRequest.project_nature_years} years)`}
                                                 </p>
                                             </div>
                                         </div>
@@ -999,58 +1327,114 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     {/* Land Use Information */}
                                     <div className="group hover:shadow-2xl hover:shadow-indigo-500/25 transition-all duration-500 bg-gradient-to-br from-white via-indigo-50 to-indigo-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-indigo-200/50">
                                         <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-4">
-                                            <h3 className="font-bold text-lg">Land Use & Compliance</h3>
+                                            <h3 className="font-bold text-lg">
+                                                Land Use & Compliance
+                                            </h3>
                                         </div>
                                         <div className="p-6 space-y-4">
                                             <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                <p className="text-sm text-gray-600 font-medium">Existing Land Use</p>
-                                                <p className="text-lg font-bold text-indigo-900">{selectedRequest.existing_land_use || 'N/A'}</p>
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Existing Land Use
+                                                </p>
+                                                <p className="text-lg font-bold text-indigo-900">
+                                                    {selectedRequest.existing_land_use ||
+                                                        "N/A"}
+                                                </p>
                                             </div>
                                             <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                <p className="text-sm text-gray-600 font-medium">Written Notice to Tenants</p>
-                                                <p className="text-lg font-bold text-indigo-900">{selectedRequest.has_written_notice ? selectedRequest.has_written_notice.toUpperCase() : 'N/A'}</p>
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Written Notice to Tenants
+                                                </p>
+                                                <p className="text-lg font-bold text-indigo-900">
+                                                    {selectedRequest.has_written_notice
+                                                        ? selectedRequest.has_written_notice.toUpperCase()
+                                                        : "N/A"}
+                                                </p>
                                             </div>
-                                            {selectedRequest.has_written_notice === 'yes' && (
+                                            {selectedRequest.has_written_notice ===
+                                                "yes" && (
                                                 <>
                                                     <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                        <p className="text-sm text-gray-600 font-medium">Notice Officer</p>
-                                                        <p className="text-base font-semibold text-indigo-900">{selectedRequest.notice_officer_name || 'N/A'}</p>
+                                                        <p className="text-sm text-gray-600 font-medium">
+                                                            Notice Officer
+                                                        </p>
+                                                        <p className="text-base font-semibold text-indigo-900">
+                                                            {selectedRequest.notice_officer_name ||
+                                                                "N/A"}
+                                                        </p>
                                                     </div>
                                                     <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                        <p className="text-sm text-gray-600 font-medium">Notice Dates</p>
-                                                        <p className="text-base font-semibold text-indigo-900">{selectedRequest.notice_dates || 'N/A'}</p>
+                                                        <p className="text-sm text-gray-600 font-medium">
+                                                            Notice Dates
+                                                        </p>
+                                                        <p className="text-base font-semibold text-indigo-900">
+                                                            {selectedRequest.notice_dates ||
+                                                                "N/A"}
+                                                        </p>
                                                     </div>
                                                 </>
                                             )}
                                             <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                <p className="text-sm text-gray-600 font-medium">Similar Application Filed</p>
-                                                <p className="text-lg font-bold text-indigo-900">{selectedRequest.has_similar_application ? selectedRequest.has_similar_application.toUpperCase() : 'N/A'}</p>
+                                                <p className="text-sm text-gray-600 font-medium">
+                                                    Similar Application Filed
+                                                </p>
+                                                <p className="text-lg font-bold text-indigo-900">
+                                                    {selectedRequest.has_similar_application
+                                                        ? selectedRequest.has_similar_application.toUpperCase()
+                                                        : "N/A"}
+                                                </p>
                                             </div>
-                                            {selectedRequest.has_similar_application === 'yes' && (
+                                            {selectedRequest.has_similar_application ===
+                                                "yes" && (
                                                 <>
                                                     <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                        <p className="text-sm text-gray-600 font-medium">Application Offices</p>
-                                                        <p className="text-base font-semibold text-indigo-900">{selectedRequest.similar_application_offices || 'N/A'}</p>
+                                                        <p className="text-sm text-gray-600 font-medium">
+                                                            Application Offices
+                                                        </p>
+                                                        <p className="text-base font-semibold text-indigo-900">
+                                                            {selectedRequest.similar_application_offices ||
+                                                                "N/A"}
+                                                        </p>
                                                     </div>
                                                     <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                        <p className="text-sm text-gray-600 font-medium">Application Dates</p>
-                                                        <p className="text-base font-semibold text-indigo-900">{selectedRequest.similar_application_dates || 'N/A'}</p>
+                                                        <p className="text-sm text-gray-600 font-medium">
+                                                            Application Dates
+                                                        </p>
+                                                        <p className="text-base font-semibold text-indigo-900">
+                                                            {selectedRequest.similar_application_dates ||
+                                                                "N/A"}
+                                                        </p>
                                                     </div>
                                                 </>
                                             )}
 
                                             {/* Release Preference */}
                                             <div className="mt-6 p-4 bg-gradient-to-r from-teal-50 to-teal-100 rounded-xl border border-teal-200">
-                                                <h4 className="font-bold text-teal-900 mb-3">Release Preference</h4>
+                                                <h4 className="font-bold text-teal-900 mb-3">
+                                                    Release Preference
+                                                </h4>
                                                 <div className="space-y-2">
                                                     <div>
-                                                        <p className="text-sm text-gray-600 font-medium">Preferred Mode</p>
-                                                        <p className="text-base font-bold text-teal-900 capitalize">{selectedRequest.preferred_release_mode?.replace('_', ' ') || 'N/A'}</p>
+                                                        <p className="text-sm text-gray-600 font-medium">
+                                                            Preferred Mode
+                                                        </p>
+                                                        <p className="text-base font-bold text-teal-900 capitalize">
+                                                            {selectedRequest.preferred_release_mode?.replace(
+                                                                "_",
+                                                                " "
+                                                            ) || "N/A"}
+                                                        </p>
                                                     </div>
                                                     {selectedRequest.release_address && (
                                                         <div>
-                                                            <p className="text-sm text-gray-600 font-medium">Release Address</p>
-                                                            <p className="text-base font-semibold text-teal-900">{selectedRequest.release_address}</p>
+                                                            <p className="text-sm text-gray-600 font-medium">
+                                                                Release Address
+                                                            </p>
+                                                            <p className="text-base font-semibold text-teal-900">
+                                                                {
+                                                                    selectedRequest.release_address
+                                                                }
+                                                            </p>
                                                         </div>
                                                     )}
                                                 </div>
@@ -1061,35 +1445,68 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     {/* Authorization & Documents */}
                                     <div className="group hover:shadow-2xl hover:shadow-amber-500/25 transition-all duration-500 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-amber-200/50">
                                         <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4">
-                                            <h3 className="font-bold text-lg">Authorization & Documents</h3>
+                                            <h3 className="font-bold text-lg">
+                                                Authorization & Documents
+                                            </h3>
                                         </div>
                                         <div className="p-6">
                                             {selectedRequest.authorized_representative_name ? (
                                                 <div className="space-y-4">
                                                     <div className="p-4 bg-white/70 rounded-xl border border-amber-200">
-                                                        <p className="text-sm text-gray-600 font-medium">Representative Name</p>
-                                                        <p className="text-lg font-bold text-amber-900">{selectedRequest.authorized_representative_name}</p>
+                                                        <p className="text-sm text-gray-600 font-medium">
+                                                            Representative Name
+                                                        </p>
+                                                        <p className="text-lg font-bold text-amber-900">
+                                                            {
+                                                                selectedRequest.authorized_representative_name
+                                                            }
+                                                        </p>
                                                     </div>
                                                     <div className="p-4 bg-white/70 rounded-xl border border-amber-200">
-                                                        <p className="text-sm text-gray-600 font-medium">Representative Address</p>
-                                                        <p className="text-base font-semibold text-amber-900">{selectedRequest.authorized_representative_address || 'N/A'}</p>
+                                                        <p className="text-sm text-gray-600 font-medium">
+                                                            Representative
+                                                            Address
+                                                        </p>
+                                                        <p className="text-base font-semibold text-amber-900">
+                                                            {selectedRequest.authorized_representative_address ||
+                                                                "N/A"}
+                                                        </p>
                                                     </div>
                                                     {selectedRequest.authorization_letter_path && (
                                                         <div className="space-y-4">
-                                                            <p className="text-sm text-gray-600 font-medium">Authorization Letter</p>
+                                                            <p className="text-sm text-gray-600 font-medium">
+                                                                Authorization
+                                                                Letter
+                                                            </p>
 
-                                                            {/* Enhanced Image Preview */}
-                                                            {(selectedRequest.authorization_letter_path.toLowerCase().endsWith('.png') ||
-                                                                selectedRequest.authorization_letter_path.toLowerCase().endsWith('.jpg') ||
-                                                                selectedRequest.authorization_letter_path.toLowerCase().endsWith('.jpeg')) && (
-                                                                    <div className="border-2 border-amber-300 rounded-xl overflow-hidden bg-white shadow-lg hover:shadow-xl transition-all duration-300">
-                                                                        <img
-                                                                            src={`/storage/${selectedRequest.authorization_letter_path}`}
-                                                                            alt="Authorization Letter"
-                                                                            className="w-full h-auto max-h-64 object-contain"
-                                                                        />
-                                                                    </div>
-                                                                )}
+                                                            {/* Enhanced Image Preview - Landscape Optimized */}
+                                                            {(selectedRequest.authorization_letter_path
+                                                                .toLowerCase()
+                                                                .endsWith(
+                                                                    ".png"
+                                                                ) ||
+                                                                selectedRequest.authorization_letter_path
+                                                                    .toLowerCase()
+                                                                    .endsWith(
+                                                                        ".jpg"
+                                                                    ) ||
+                                                                selectedRequest.authorization_letter_path
+                                                                    .toLowerCase()
+                                                                    .endsWith(
+                                                                        ".jpeg"
+                                                                    )) && (
+                                                                <div className="border-2 border-amber-300 rounded-xl overflow-hidden bg-white shadow-lg hover:shadow-xl transition-all duration-300">
+                                                                    <img
+                                                                        src={`/storage/${selectedRequest.authorization_letter_path}`}
+                                                                        alt="Authorization Letter"
+                                                                        className="w-full h-auto object-contain"
+                                                                        style={{
+                                                                            maxHeight:
+                                                                                "70vh",
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            )}
 
                                                             {/* Enhanced View/Download Button */}
                                                             <a
@@ -1099,11 +1516,23 @@ export function AdminRequestList({ requests, flash = {} }) {
                                                                 className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl transform hover:scale-105"
                                                             >
                                                                 <FileText className="h-5 w-5" />
-                                                                {(selectedRequest.authorization_letter_path.toLowerCase().endsWith('.png') ||
-                                                                    selectedRequest.authorization_letter_path.toLowerCase().endsWith('.jpg') ||
-                                                                    selectedRequest.authorization_letter_path.toLowerCase().endsWith('.jpeg'))
-                                                                    ? 'View Full Size Document'
-                                                                    : 'View Authorization Letter'}
+                                                                {selectedRequest.authorization_letter_path
+                                                                    .toLowerCase()
+                                                                    .endsWith(
+                                                                        ".png"
+                                                                    ) ||
+                                                                selectedRequest.authorization_letter_path
+                                                                    .toLowerCase()
+                                                                    .endsWith(
+                                                                        ".jpg"
+                                                                    ) ||
+                                                                selectedRequest.authorization_letter_path
+                                                                    .toLowerCase()
+                                                                    .endsWith(
+                                                                        ".jpeg"
+                                                                    )
+                                                                    ? "View Full Size Document"
+                                                                    : "View Authorization Letter"}
                                                             </a>
                                                         </div>
                                                     )}
@@ -1113,8 +1542,15 @@ export function AdminRequestList({ requests, flash = {} }) {
                                                     <div className="p-4 bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                                                         <User className="h-8 w-8 text-gray-400" />
                                                     </div>
-                                                    <h4 className="font-bold text-gray-700 mb-2">No Authorized Representative</h4>
-                                                    <p className="text-sm text-gray-500">This application was submitted directly by the applicant</p>
+                                                    <h4 className="font-bold text-gray-700 mb-2">
+                                                        No Authorized
+                                                        Representative
+                                                    </h4>
+                                                    <p className="text-sm text-gray-500">
+                                                        This application was
+                                                        submitted directly by
+                                                        the applicant
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>
@@ -1126,98 +1562,215 @@ export function AdminRequestList({ requests, flash = {} }) {
                 </DialogContent>
             </Dialog>
 
-            {/* Edit Modal */}
+            {/* Edit Modal - Enhanced Beautiful Design */}
             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                        <DialogTitle>Edit Request #{selectedRequest?.id}</DialogTitle>
-                        <DialogDescription>
-                            Update the evaluation and report details
-                        </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleEditSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Evaluation Status</label>
-                            <select
-                                value={editData.evaluation}
-                                onChange={(e) => setEditData('evaluation', e.target.value)}
-                                className="w-full p-2 border rounded-md"
+                <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
+                    {/* Modal Header with Gradient Background */}
+                    <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
+                        <DialogHeader>
+                            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                    <Edit className="h-6 w-6" />
+                                </div>
+                                Edit Request #{selectedRequest?.id}
+                            </DialogTitle>
+                            <DialogDescription className="text-indigo-100 text-lg">
+                                Update the evaluation status and report details
+                                for this request
+                            </DialogDescription>
+                        </DialogHeader>
+                    </div>
+
+                    {/* Scrollable Form Content */}
+                    <div className="overflow-y-auto max-h-[calc(90vh-200px)] pr-2">
+                        <form onSubmit={handleEditSubmit} className="space-y-6">
+                            {/* Evaluation Status Card */}
+                            <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-purple-50 to-purple-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-purple-200/50 p-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg">
+                                        <CheckCircle2 className="h-5 w-5 text-white" />
+                                    </div>
+                                    <label className="text-base font-bold text-purple-900">
+                                        Evaluation Status
+                                    </label>
+                                </div>
+                                <select
+                                    value={editData.evaluation}
+                                    onChange={(e) =>
+                                        setEditData(
+                                            "evaluation",
+                                            e.target.value
+                                        )
+                                    }
+                                    className="w-full p-4 border-2 border-purple-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 font-semibold text-purple-900 text-lg"
+                                >
+                                    <option value="pending">
+                                        ⏳ Pending Review
+                                    </option>
+                                    <option value="approved">
+                                        ✅ Approved
+                                    </option>
+                                    <option value="rejected">
+                                        ❌ Rejected
+                                    </option>
+                                </select>
+                            </div>
+
+                            {/* Description Card */}
+                            <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-blue-50 to-blue-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-blue-200/50 p-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
+                                        <FileText className="h-5 w-5 text-white" />
+                                    </div>
+                                    <label className="text-base font-bold text-blue-900">
+                                        Description / Notes
+                                    </label>
+                                </div>
+                                <textarea
+                                    value={editData.description}
+                                    onChange={(e) =>
+                                        setEditData(
+                                            "description",
+                                            e.target.value
+                                        )
+                                    }
+                                    className="w-full p-4 border-2 border-blue-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 font-medium text-blue-900 resize-none"
+                                    rows="4"
+                                    placeholder="Enter detailed description or notes about this request..."
+                                />
+                            </div>
+
+                            {/* Amount and Date Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Amount Card */}
+                                <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-emerald-200/50 p-6">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="p-2 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg">
+                                            <DollarSign className="h-5 w-5 text-white" />
+                                        </div>
+                                        <label className="text-base font-bold text-emerald-900">
+                                            Amount (₱)
+                                        </label>
+                                    </div>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-700 font-bold text-lg">
+                                            ₱
+                                        </span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={editData.amount}
+                                            onChange={(e) =>
+                                                setEditData(
+                                                    "amount",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="w-full pl-10 pr-4 py-4 border-2 border-emerald-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200 transition-all duration-300 font-bold text-emerald-900 text-lg"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Date Certified Card */}
+                                <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-amber-200/50 p-6">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="p-2 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg">
+                                            <CalendarDays className="h-5 w-5 text-white" />
+                                        </div>
+                                        <label className="text-base font-bold text-amber-900">
+                                            Date Certified
+                                        </label>
+                                    </div>
+                                    <input
+                                        type="date"
+                                        value={editData.date_certified}
+                                        onChange={(e) =>
+                                            setEditData(
+                                                "date_certified",
+                                                e.target.value
+                                            )
+                                        }
+                                        className="w-full p-4 border-2 border-amber-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-amber-500 focus:ring-4 focus:ring-amber-200 transition-all duration-300 font-semibold text-amber-900"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Issued By Card */}
+                            <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-teal-50 to-teal-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-teal-200/50 p-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg">
+                                        <User className="h-5 w-5 text-white" />
+                                    </div>
+                                    <label className="text-base font-bold text-teal-900">
+                                        Issued By (Official Name)
+                                    </label>
+                                </div>
+                                <input
+                                    type="text"
+                                    value={editData.issued_by}
+                                    onChange={(e) =>
+                                        setEditData("issued_by", e.target.value)
+                                    }
+                                    className="w-full p-4 border-2 border-teal-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-teal-500 focus:ring-4 focus:ring-teal-200 transition-all duration-300 font-semibold text-teal-900"
+                                    placeholder="Enter the name of the issuing official"
+                                />
+                            </div>
+                        </form>
+                    </div>
+
+                    {/* Enhanced Footer with Action Buttons */}
+                    <div className="border-t bg-white/50 backdrop-blur-sm p-6 -m-6 mt-6 rounded-b-3xl">
+                        <div className="flex justify-end gap-4">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsEditModalOpen(false)}
+                                className="px-8 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold text-gray-700 rounded-xl"
                             >
-                                <option value="pending">Pending</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Description</label>
-                            <textarea
-                                value={editData.description}
-                                onChange={(e) => setEditData('description', e.target.value)}
-                                className="w-full p-2 border rounded-md"
-                                rows="3"
-                                placeholder="Enter description"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Amount</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    value={editData.amount}
-                                    onChange={(e) => setEditData('amount', e.target.value)}
-                                    className="w-full p-2 border rounded-md"
-                                    placeholder="0.00"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Date Certified</label>
-                                <input
-                                    type="date"
-                                    value={editData.date_certified}
-                                    onChange={(e) => setEditData('date_certified', e.target.value)}
-                                    className="w-full p-2 border rounded-md"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Issued By</label>
-                            <input
-                                type="text"
-                                value={editData.issued_by}
-                                onChange={(e) => setEditData('issued_by', e.target.value)}
-                                className="w-full p-2 border rounded-md"
-                                placeholder="Enter issuer name"
-                            />
-                        </div>
-
-                        <div className="flex justify-end gap-2 pt-4">
-                            <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={editProcessing}>
-                                {editProcessing ? 'Updating...' : 'Update'}
+                            <Button
+                                type="submit"
+                                disabled={editProcessing}
+                                onClick={handleEditSubmit}
+                                className="px-8 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            >
+                                {editProcessing ? (
+                                    <span className="flex items-center gap-2">
+                                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                        Updating...
+                                    </span>
+                                ) : (
+                                    <span className="flex items-center gap-2">
+                                        <CheckCircle2 className="h-5 w-5" />
+                                        Update Request
+                                    </span>
+                                )}
                             </Button>
                         </div>
-                    </form>
+                    </div>
                 </DialogContent>
             </Dialog>
 
             {/* Delete Confirmation Dialog */}
-            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <Dialog
+                open={isDeleteDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Delete Request</DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to delete Request #{requestToDelete?.id}? This action cannot be undone.
+                            Are you sure you want to delete Request #
+                            {requestToDelete?.id}? This action cannot be undone.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex justify-end gap-2 pt-4">
-                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                        >
                             Cancel
                         </Button>
                         <Button variant="destructive" onClick={confirmDelete}>
@@ -1228,19 +1781,30 @@ export function AdminRequestList({ requests, flash = {} }) {
             </Dialog>
 
             {/* Accept Confirmation Dialog */}
-            <Dialog open={isAcceptDialogOpen} onOpenChange={setIsAcceptDialogOpen}>
+            <Dialog
+                open={isAcceptDialogOpen}
+                onOpenChange={setIsAcceptDialogOpen}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Approve Request</DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to approve Request #{requestToAction?.id}? The applicant will be notified via email.
+                            Are you sure you want to approve Request #
+                            {requestToAction?.id}? The applicant will be
+                            notified via email.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex justify-end gap-2 pt-4">
-                        <Button variant="outline" onClick={() => setIsAcceptDialogOpen(false)}>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsAcceptDialogOpen(false)}
+                        >
                             Cancel
                         </Button>
-                        <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={confirmAccept}>
+                        <Button
+                            className="bg-emerald-600 hover:bg-emerald-700"
+                            onClick={confirmAccept}
+                        >
                             Approve
                         </Button>
                     </div>
@@ -1248,32 +1812,48 @@ export function AdminRequestList({ requests, flash = {} }) {
             </Dialog>
 
             {/* Decline Confirmation Dialog */}
-            <Dialog open={isDeclineDialogOpen} onOpenChange={setIsDeclineDialogOpen}>
+            <Dialog
+                open={isDeclineDialogOpen}
+                onOpenChange={setIsDeclineDialogOpen}
+            >
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-rose-700">Decline Request</DialogTitle>
+                        <DialogTitle className="text-xl font-bold text-rose-700">
+                            Decline Request
+                        </DialogTitle>
                         <DialogDescription>
-                            You are about to decline Request #{requestToAction?.id} from {requestToAction?.applicant_name}.
-                            Please provide detailed feedback explaining why this request is being rejected. This feedback will be sent to the applicant via email.
+                            You are about to decline Request #
+                            {requestToAction?.id} from{" "}
+                            {requestToAction?.applicant_name}. Please provide
+                            detailed feedback explaining why this request is
+                            being rejected. This feedback will be sent to the
+                            applicant via email.
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="space-y-4 py-4">
                         <div>
-                            <label htmlFor="rejection-feedback" className="block text-sm font-medium text-gray-700 mb-2">
-                                Rejection Feedback <span className="text-red-500">*</span>
+                            <label
+                                htmlFor="rejection-feedback"
+                                className="block text-sm font-medium text-gray-700 mb-2"
+                            >
+                                Rejection Feedback{" "}
+                                <span className="text-red-500">*</span>
                             </label>
                             <textarea
                                 id="rejection-feedback"
                                 value={rejectionFeedback}
-                                onChange={(e) => setRejectionFeedback(e.target.value)}
+                                onChange={(e) =>
+                                    setRejectionFeedback(e.target.value)
+                                }
                                 placeholder="Please explain why this request is being rejected. Include specific issues that need to be addressed and any requirements that were not met..."
                                 className="w-full min-h-[120px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 resize-vertical"
                                 maxLength={1000}
                             />
                             <div className="flex justify-between items-center mt-1">
                                 <p className="text-xs text-gray-500">
-                                    This feedback will be included in the rejection email sent to the applicant.
+                                    This feedback will be included in the
+                                    rejection email sent to the applicant.
                                 </p>
                                 <p className="text-xs text-gray-400">
                                     {rejectionFeedback.length}/1000
@@ -1284,14 +1864,26 @@ export function AdminRequestList({ requests, flash = {} }) {
                         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
                             <div className="flex items-start gap-2">
                                 <div className="text-amber-600 mt-0.5">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    <svg
+                                        className="w-4 h-4"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                            clipRule="evenodd"
+                                        />
                                     </svg>
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-amber-800">Important</p>
+                                    <p className="text-sm font-medium text-amber-800">
+                                        Important
+                                    </p>
                                     <p className="text-xs text-amber-700">
-                                        The applicant will receive an email with your feedback. Please be clear and constructive in your explanation.
+                                        The applicant will receive an email with
+                                        your feedback. Please be clear and
+                                        constructive in your explanation.
                                     </p>
                                 </div>
                             </div>
@@ -1303,7 +1895,7 @@ export function AdminRequestList({ requests, flash = {} }) {
                             variant="outline"
                             onClick={() => {
                                 setIsDeclineDialogOpen(false);
-                                setRejectionFeedback('');
+                                setRejectionFeedback("");
                             }}
                         >
                             Cancel
@@ -1323,7 +1915,9 @@ export function AdminRequestList({ requests, flash = {} }) {
             {/* Notification Modal */}
             <NotificationModal
                 isOpen={notificationModal.isOpen}
-                onClose={() => setNotificationModal(prev => ({ ...prev, isOpen: false }))}
+                onClose={() =>
+                    setNotificationModal((prev) => ({ ...prev, isOpen: false }))
+                }
                 type={notificationModal.type}
                 title={notificationModal.title}
                 message={notificationModal.message}
