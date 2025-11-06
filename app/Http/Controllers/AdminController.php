@@ -527,11 +527,12 @@ class AdminController extends Controller
     }
     
     /**
-     * Export payments to CSV
+     * Export payments to CSV or PDF
      */
     public function exportPayments(Request $request)
     {
         $status = $request->input('status', 'all');
+        $format = $request->input('format', 'csv');
         
         $query = \App\Models\Payment::with(['request.user', 'verifier']);
         
@@ -541,6 +542,11 @@ class AdminController extends Controller
         
         $payments = $query->orderBy('created_at', 'desc')->get();
         
+        if ($format === 'pdf') {
+            return $this->exportPaymentsPDF($payments, $status);
+        }
+        
+        // CSV Export
         $filename = 'payments_export_' . now()->format('Y-m-d_His') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
@@ -603,13 +609,33 @@ class AdminController extends Controller
         
         return response()->stream($callback, 200, $headers);
     }
+
+    /**
+     * Export payments to PDF
+     */
+    private function exportPaymentsPDF($payments, $status)
+    {
+        $data = [
+            'payments' => $payments,
+            'status' => $status,
+            'exportDate' => now()->format('F j, Y'),
+            'totalPayments' => $payments->count(),
+            'totalAmount' => $payments->sum('amount'),
+        ];
+
+        $pdf = \PDF::loadView('exports.payments-pdf', $data);
+        $filename = 'payments_export_' . now()->format('Y-m-d_His') . '.pdf';
+        
+        return $pdf->download($filename);
+    }
     
     /**
-     * Export applications to CSV
+     * Export applications to CSV or PDF
      */
     public function exportApplications(Request $request)
     {
         $status = $request->input('status', 'all');
+        $format = $request->input('format', 'csv');
         
         $requests = RequestModel::with('user')->orderBy('created_at', 'desc')->get();
         $applicationsData = Application::with('report')->get()->keyBy(function($app) {
@@ -662,7 +688,12 @@ class AdminController extends Controller
                 return $app->current_status === $status;
             });
         }
+
+        if ($format === 'pdf') {
+            return $this->exportApplicationsPDF($applications, $status);
+        }
         
+        // CSV Export
         $filename = 'applications_export_' . now()->format('Y-m-d_His') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
@@ -732,6 +763,25 @@ class AdminController extends Controller
         };
         
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export applications to PDF
+     */
+    private function exportApplicationsPDF($applications, $status)
+    {
+        $data = [
+            'applications' => $applications,
+            'status' => $status,
+            'exportDate' => now()->format('F j, Y'),
+            'totalApplications' => $applications->count(),
+        ];
+
+        $pdf = \PDF::loadView('exports.applications-pdf', $data);
+        $pdf->setPaper('a4', 'landscape');
+        $filename = 'applications_export_' . now()->format('Y-m-d_His') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 
     /**
@@ -957,11 +1007,12 @@ class AdminController extends Controller
     }
     
     /**
-     * Export requests to CSV
+     * Export requests to CSV or PDF
      */
     public function exportRequests(Request $request)
     {
         $status = $request->input('status', 'all');
+        $format = $request->input('format', 'csv');
         
         $requestsData = RequestModel::with('user')->orderBy('created_at', 'desc')->get();
         $applicationsData = Application::with('report')->get()->keyBy(function($app) {
@@ -1000,7 +1051,12 @@ class AdminController extends Controller
                 return $req->status === $status;
             });
         }
+
+        if ($format === 'pdf') {
+            return $this->exportRequestsPDF($requests, $status);
+        }
         
+        // CSV Export
         $filename = 'requests_export_' . now()->format('Y-m-d_His') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
@@ -1063,11 +1119,31 @@ class AdminController extends Controller
     }
 
     /**
-     * Export users to CSV
+     * Export requests to PDF
+     */
+    private function exportRequestsPDF($requests, $status)
+    {
+        $data = [
+            'requests' => $requests,
+            'status' => $status,
+            'exportDate' => now()->format('F j, Y'),
+            'totalRequests' => $requests->count(),
+        ];
+
+        $pdf = \PDF::loadView('exports.requests-pdf', $data);
+        $pdf->setPaper('a4', 'landscape');
+        $filename = 'requests_export_' . now()->format('Y-m-d_His') . '.pdf';
+        
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Export users to CSV or PDF
      */
     public function exportUsers(Request $request)
     {
         $userType = $request->input('user_type', 'all');
+        $format = $request->input('format', 'csv');
         
         $query = \App\Models\User::query();
         
@@ -1076,7 +1152,12 @@ class AdminController extends Controller
         }
         
         $users = $query->orderBy('created_at', 'desc')->get();
+
+        if ($format === 'pdf') {
+            return $this->exportUsersPDF($users, $userType);
+        }
         
+        // CSV Export
         $filename = 'users_export_' . now()->format('Y-m-d_His') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
@@ -1116,6 +1197,24 @@ class AdminController extends Controller
         };
         
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export users to PDF
+     */
+    private function exportUsersPDF($users, $userType)
+    {
+        $data = [
+            'users' => $users,
+            'userType' => $userType,
+            'exportDate' => now()->format('F j, Y'),
+            'totalUsers' => $users->count(),
+        ];
+
+        $pdf = \PDF::loadView('exports.users-pdf', $data);
+        $filename = 'users_export_' . now()->format('Y-m-d_His') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 
     /**

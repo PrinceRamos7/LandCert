@@ -57,10 +57,11 @@ export default function Welcome({ auth }) {
                     {heroImages.map((image, index) => (
                         <div
                             key={index}
-                            className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide
-                                ? "opacity-30"
-                                : "opacity-0"
-                                }`}
+                            className={`absolute inset-0 transition-opacity duration-1000 ${
+                                index === currentSlide
+                                    ? "opacity-30"
+                                    : "opacity-0"
+                            }`}
                         >
                             <img
                                 src={image}
@@ -75,10 +76,11 @@ export default function Welcome({ auth }) {
                 {/* Navigation */}
                 <nav className="relative z-10 flex items-center justify-between p-6 lg:px-8">
                     <div
-                        className={`flex items-center space-x-4 transform transition-all duration-1000 ${isVisible
-                            ? "translate-x-0 opacity-100"
-                            : "-translate-x-10 opacity-0"
-                            }`}
+                        className={`flex items-center space-x-4 transform transition-all duration-1000 ${
+                            isVisible
+                                ? "translate-x-0 opacity-100"
+                                : "-translate-x-10 opacity-0"
+                        }`}
                     >
                         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg p-1">
                             <img
@@ -98,10 +100,11 @@ export default function Welcome({ auth }) {
                     </div>
 
                     <div
-                        className={`flex items-center space-x-4 transform transition-all duration-1000 delay-300 ${isVisible
-                            ? "translate-x-0 opacity-100"
-                            : "translate-x-10 opacity-0"
-                            }`}
+                        className={`flex items-center space-x-4 transform transition-all duration-1000 delay-300 ${
+                            isVisible
+                                ? "translate-x-0 opacity-100"
+                                : "translate-x-10 opacity-0"
+                        }`}
                     >
                         {auth.user ? (
                             <Link
@@ -133,10 +136,11 @@ export default function Welcome({ auth }) {
                 <div className="relative z-10 flex items-center justify-center min-h-[80vh] px-6">
                     <div className="text-center max-w-4xl mx-auto">
                         <div
-                            className={`transform transition-all duration-1000 delay-500 ${isVisible
-                                ? "translate-y-0 opacity-100"
-                                : "translate-y-10 opacity-0"
-                                }`}
+                            className={`transform transition-all duration-1000 delay-500 ${
+                                isVisible
+                                    ? "translate-y-0 opacity-100"
+                                    : "translate-y-10 opacity-0"
+                            }`}
                         >
                             <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
                                 City Disaster Risk
@@ -147,10 +151,11 @@ export default function Welcome({ auth }) {
                         </div>
 
                         <div
-                            className={`transform transition-all duration-1000 delay-700 ${isVisible
-                                ? "translate-y-0 opacity-100"
-                                : "translate-y-10 opacity-0"
-                                }`}
+                            className={`transform transition-all duration-1000 delay-700 ${
+                                isVisible
+                                    ? "translate-y-0 opacity-100"
+                                    : "translate-y-10 opacity-0"
+                            }`}
                         >
                             <p className="text-xl lg:text-2xl text-blue-100 mb-8 leading-relaxed">
                                 Streamlined land use certification process for
@@ -161,10 +166,11 @@ export default function Welcome({ auth }) {
                         </div>
 
                         <div
-                            className={`flex flex-col sm:flex-row gap-4 justify-center transform transition-all duration-1000 delay-1000 ${isVisible
-                                ? "translate-y-0 opacity-100"
-                                : "translate-y-10 opacity-0"
-                                }`}
+                            className={`flex flex-col sm:flex-row gap-4 justify-center transform transition-all duration-1000 delay-1000 ${
+                                isVisible
+                                    ? "translate-y-0 opacity-100"
+                                    : "translate-y-10 opacity-0"
+                            }`}
                         >
                             {!auth.user && (
                                 <>
@@ -196,10 +202,11 @@ export default function Welcome({ auth }) {
 
                 {/* Scroll Indicator */}
                 <div
-                    className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-1200 ${isVisible
-                        ? "translate-y-0 opacity-100"
-                        : "translate-y-10 opacity-0"
-                        }`}
+                    className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-1200 ${
+                        isVisible
+                            ? "translate-y-0 opacity-100"
+                            : "translate-y-10 opacity-0"
+                    }`}
                 >
                     <div className="animate-bounce">
                         <svg
@@ -236,10 +243,11 @@ export default function Welcome({ auth }) {
                         {features.map((feature, index) => (
                             <div
                                 key={index}
-                                className={`group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 ${isVisible
-                                    ? "animate-fade-in-up"
-                                    : "opacity-0"
-                                    }`}
+                                className={`group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 ${
+                                    isVisible
+                                        ? "animate-fade-in-up"
+                                        : "opacity-0"
+                                }`}
                                 style={{ animationDelay: `${index * 200}ms` }}
                             >
                                 <div className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -295,10 +303,11 @@ export default function Welcome({ auth }) {
                         ].map((item, index) => (
                             <div
                                 key={index}
-                                className={`text-center group transform transition-all duration-500 hover:scale-105 ${isVisible
-                                    ? "animate-fade-in-up"
-                                    : "opacity-0"
-                                    }`}
+                                className={`text-center group transform transition-all duration-500 hover:scale-105 ${
+                                    isVisible
+                                        ? "animate-fade-in-up"
+                                        : "opacity-0"
+                                }`}
                                 style={{ animationDelay: `${index * 300}ms` }}
                             >
                                 <div className="relative mb-6">
@@ -325,10 +334,11 @@ export default function Welcome({ auth }) {
             <section className="py-20 bg-gradient-to-b from-white to-gray-50">
                 <div className="max-w-4xl mx-auto text-center px-6">
                     <div
-                        className={`transform transition-all duration-1000 ${isVisible
-                            ? "translate-y-0 opacity-100"
-                            : "translate-y-10 opacity-0"
-                            }`}
+                        className={`transform transition-all duration-1000 ${
+                            isVisible
+                                ? "translate-y-0 opacity-100"
+                                : "translate-y-10 opacity-0"
+                        }`}
                     >
                         <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
                             Ready to Get Started?

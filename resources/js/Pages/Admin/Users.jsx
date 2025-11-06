@@ -258,28 +258,29 @@ export default function Users({ users }) {
                  radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 50%)
                `
           }}>
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-700">
-            <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6">
+          <Card className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <CardHeader className="bg-blue-600 border-b border-blue-700 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                  <CardTitle className="text-2xl font-bold flex items-center gap-3 text-white">
                     <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                      <Search className="h-6 w-6" />
+                      <Search className="h-6 w-6 text-white" />
                     </div>
                     Applicant Users
                   </CardTitle>
-                  <p className="text-white/80 mt-2">
+                  <p className="text-blue-100 mt-2">
                     Total: {users?.total || usersData.length} applicants
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
                   <Button
-                    onClick={() => window.open(route('admin.export.users'), '_blank')}
-                    className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm"
+                    onClick={() => window.open(route('admin.export.users', { format: 'pdf' }), '_blank')}
                     variant="outline"
+                    size="sm"
+                    className="gap-1 bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm"
                   >
-                    <Download className="h-4 w-4 mr-2" />
-                    Export CSV
+                    <Download className="h-3 w-3" />
+                    Export PDF
                   </Button>
                   <div className="relative w-64">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-white/70" />

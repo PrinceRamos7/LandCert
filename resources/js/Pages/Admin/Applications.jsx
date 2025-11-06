@@ -128,12 +128,12 @@ export default function Applications({ applications = [] }) {
                 </CardTitle>
                 <div className="flex items-center gap-4">
                   <Button
-                    onClick={() => window.open(route('admin.export.applications'), '_blank')}
+                    onClick={() => window.open(route('admin.export.applications', { format: 'pdf' }), '_blank')}
                     className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm"
                     variant="outline"
                   >
                     <Download className="h-4 w-4 mr-2" />
-                    Export CSV
+                    Export PDF
                   </Button>
                   <div className="relative w-64">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-white/70" />

@@ -1599,22 +1599,15 @@ export default function RequestForm() {
                 open={isConfirmDialogOpen}
                 onOpenChange={setIsConfirmDialogOpen}
             >
-                <DialogContent className="max-w-[88vw] w-full max-h-[100vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
-                    {/* Modal Header */}
-                    <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
-                        <DialogHeader>
-                            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                                    <FileText className="h-6 w-6" />
-                                </div>
-                                Confirm Application Submission
-                            </DialogTitle>
-                            <DialogDescription className="text-blue-100 text-lg">
-                                Please review all your application details
-                                carefully before submitting.
-                            </DialogDescription>
-                        </DialogHeader>
-                    </div>
+                <DialogContent className="max-w-4xl bg-white border border-gray-200 rounded-lg">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg font-semibold">
+                            Confirm Application Submission
+                        </DialogTitle>
+                        <DialogDescription>
+                            Please review your application details before submitting.
+                        </DialogDescription>
+                    </DialogHeader>
 
                     {/* Scrollable Content */}
                     <div className="overflow-y-auto max-h-[calc(85vh-200px)] pr-2 space-y-6">

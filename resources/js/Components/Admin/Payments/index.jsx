@@ -219,11 +219,11 @@ export function AdminPaymentList({ payments }) {
     }, [paymentsData]);
 
     const handleExport = () => {
-        const url = route("admin.export.payments", { status: filterStatus });
+        const url = route("admin.export.payments", { status: filterStatus, format: 'pdf' });
         window.location.href = url;
         toast({
             title: "Export Started",
-            description: "Your CSV file will download shortly.",
+            description: "Your PDF file will download shortly.",
         });
     };
 
@@ -411,12 +411,12 @@ export function AdminPaymentList({ payments }) {
             </div>
 
             {/* Payments Table */}
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-700 delay-300">
-                <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6">
+            <Card className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <CardHeader className="bg-blue-600 border-b border-blue-700 p-4">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                        <CardTitle className="flex items-center gap-3 text-xl font-bold text-white">
                             <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                                <FileText className="h-6 w-6" />
+                                <FileText className="h-6 w-6 text-white" />
                             </div>
                             Payment Submissions ({filteredPayments.length})
                         </CardTitle>
@@ -427,7 +427,7 @@ export function AdminPaymentList({ payments }) {
                                 className="gap-2 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 transition-all duration-300"
                             >
                                 <Download className="h-4 w-4" />
-                                Export CSV
+                                Export PDF
                             </Button>
                             <div className="relative w-64">
                                 <Search className="absolute left-3 top-3 h-4 w-4 text-white/70" />
@@ -592,9 +592,9 @@ export function AdminPaymentList({ payments }) {
                 </CardContent>
             </Card>
 
-            {/* Payment Details Modal - Enhanced Landscape Layout */}
+            {/* Payment Details Modal - Minimal Design */}
             <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-                <DialogContent className="max-w-[88vw] w-full max-h-[85vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
+                <DialogContent className="max-w-2xl bg-white border border-gray-200 rounded-lg">
                     {/* Modal Header with Gradient Background */}
                     <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
                         <DialogHeader>
