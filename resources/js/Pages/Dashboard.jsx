@@ -39,8 +39,8 @@ export default function Page({ requests = [] }) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col min-h-screen bg-white">
-          <div className="flex-1 p-6">
+        <div className="flex flex-1 flex-col min-h-screen bg-white overflow-x-hidden">
+          <div className="flex-1 p-6 overflow-x-hidden">
             <Dashboard requests={requests} />
           </div>
         </div>

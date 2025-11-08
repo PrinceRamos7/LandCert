@@ -7,6 +7,7 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
@@ -38,6 +39,7 @@ import {
     ThumbsDown,
     Trash2,
     Download,
+    Home,
 } from "lucide-react";
 import {
     Pagination,
@@ -132,11 +134,11 @@ export function AdminRequestList({ requests, flash = {} }) {
     };
 
     const handleExport = () => {
-        const url = route("admin.export.requests", { status: filterStatus });
+        const url = route("admin.export.requests", { status: filterStatus, format: 'pdf' });
         window.location.href = url;
         toast({
             title: "Export Started",
-            description: "Your CSV file will download shortly.",
+            description: "Your PDF file will download shortly.",
         });
     };
 
@@ -653,114 +655,89 @@ export function AdminRequestList({ requests, flash = {} }) {
     };
 
     return (
-        <div
-            className="space-y-6 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6"
-            style={{
-                backgroundImage: `
-                 radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                 radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
-                 radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 50%)
-               `,
-            }}
-        >
+        <div className="space-y-6 min-h-screen bg-white p-6">
             {/* Statistics Cards */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom duration-700">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card
-                    className="group hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-purple-50 to-purple-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    className="cursor-pointer bg-purple-50 border-0"
                     onClick={() => setFilterStatus("all")}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-purple-900 group-hover:text-purple-800 transition-colors">
-                            Total Requests
-                        </CardTitle>
-                        <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg group-hover:shadow-purple-500/50 transition-all duration-300 group-hover:scale-110">
-                            <FileText className="h-5 w-5 text-white" />
+                    <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs text-purple-700 font-medium mb-1">Total Requests</p>
+                                <p className="text-2xl font-bold text-purple-900">{stats.total}</p>
+                                <p className="text-xs text-purple-600 mt-0.5">All submissions</p>
+                            </div>
+                            <div className="p-2 bg-purple-500 rounded-lg">
+                                <FileText className="h-5 w-5 text-white" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-purple-700 group-hover:text-purple-800 transition-colors mb-2">
-                            {stats.total}
-                        </div>
-                        <p className="text-sm text-purple-600 group-hover:text-purple-700 transition-colors">
-                            All submissions
-                        </p>
                     </CardContent>
                 </Card>
 
                 <Card
-                    className="group hover:shadow-2xl hover:shadow-amber-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-amber-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    className="cursor-pointer bg-yellow-50 border-0"
                     onClick={() => setFilterStatus("pending")}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-amber-900 group-hover:text-amber-800 transition-colors">
-                            Pending
-                        </CardTitle>
-                        <div className="p-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg group-hover:shadow-amber-500/50 transition-all duration-300 group-hover:scale-110">
-                            <Clock className="h-5 w-5 text-white" />
+                    <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs text-yellow-700 font-medium mb-1">Pending</p>
+                                <p className="text-2xl font-bold text-yellow-900">{stats.pending}</p>
+                                <p className="text-xs text-yellow-600 mt-0.5">Awaiting review</p>
+                            </div>
+                            <div className="p-2 bg-yellow-500 rounded-lg">
+                                <Clock className="h-5 w-5 text-white" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-amber-700 group-hover:text-amber-800 transition-colors mb-2">
-                            {stats.pending}
-                        </div>
-                        <p className="text-sm text-amber-600 group-hover:text-amber-700 transition-colors">
-                            Awaiting review
-                        </p>
                     </CardContent>
                 </Card>
 
                 <Card
-                    className="group hover:shadow-2xl hover:shadow-emerald-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-emerald-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    className="cursor-pointer bg-green-50 border-0"
                     onClick={() => setFilterStatus("approved")}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-emerald-900 group-hover:text-emerald-800 transition-colors">
-                            Approved
-                        </CardTitle>
-                        <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg group-hover:shadow-emerald-500/50 transition-all duration-300 group-hover:scale-110">
-                            <CheckCircle2 className="h-5 w-5 text-white" />
+                    <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs text-green-700 font-medium mb-1">Approved</p>
+                                <p className="text-2xl font-bold text-green-900">{stats.approved}</p>
+                                <p className="text-xs text-green-600 mt-0.5">Successfully processed</p>
+                            </div>
+                            <div className="p-2 bg-green-500 rounded-lg">
+                                <CheckCircle2 className="h-5 w-5 text-white" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-emerald-700 group-hover:text-emerald-800 transition-colors mb-2">
-                            {stats.approved}
-                        </div>
-                        <p className="text-sm text-emerald-600 group-hover:text-emerald-700 transition-colors">
-                            Successfully processed
-                        </p>
                     </CardContent>
                 </Card>
 
                 <Card
-                    className="group hover:shadow-2xl hover:shadow-rose-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-rose-50 to-rose-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-rose-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    className="cursor-pointer bg-red-50 border-0"
                     onClick={() => setFilterStatus("rejected")}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-rose-900 group-hover:text-rose-800 transition-colors">
-                            Rejected
-                        </CardTitle>
-                        <div className="p-3 bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl shadow-lg group-hover:shadow-rose-500/50 transition-all duration-300 group-hover:scale-110">
-                            <XCircle className="h-5 w-5 text-white" />
+                    <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs text-red-700 font-medium mb-1">Rejected</p>
+                                <p className="text-2xl font-bold text-red-900">{stats.rejected}</p>
+                                <p className="text-xs text-red-600 mt-0.5">Needs attention</p>
+                            </div>
+                            <div className="p-2 bg-red-500 rounded-lg">
+                                <XCircle className="h-5 w-5 text-white" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-rose-700 group-hover:text-rose-800 transition-colors mb-2">
-                            {stats.rejected}
-                        </div>
-                        <p className="text-sm text-rose-600 group-hover:text-rose-700 transition-colors">
-                            Needs attention
-                        </p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Requests Table */}
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-700 delay-300">
-                <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6">
+            <Card className="bg-white border border-gray-200 rounded-lg overflow-hidden animate-in fade-in slide-in-from-bottom duration-700 delay-300">
+                <CardHeader className="bg-blue-600 border-b border-blue-700 p-4">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                        <CardTitle className="flex items-center gap-3 text-xl font-bold text-white">
                             <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                                <FileText className="h-6 w-6" />
+                                <FileText className="h-6 w-6 text-white" />
                             </div>
                             All Requests ({filteredRequests.length})
                         </CardTitle>
@@ -771,7 +748,7 @@ export function AdminRequestList({ requests, flash = {} }) {
                                 className="gap-2 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 transition-all duration-300"
                             >
                                 <Download className="h-4 w-4" />
-                                Export CSV
+                                Export PDF
                             </Button>
                             <div className="relative w-64">
                                 <Search className="absolute left-3 top-3 h-4 w-4 text-white/70" />
@@ -796,7 +773,7 @@ export function AdminRequestList({ requests, flash = {} }) {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="p-8">
+                <CardContent>
                     {/* Bulk Actions */}
                     <BulkActions
                         selectedItems={selectedItems}
@@ -812,7 +789,7 @@ export function AdminRequestList({ requests, flash = {} }) {
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-gray-200">
+                                <tr className="border-b">
                                     <th className="text-left p-3 font-semibold w-12">
                                         <input
                                             type="checkbox"
@@ -859,14 +836,11 @@ export function AdminRequestList({ requests, flash = {} }) {
                                 {filteredRequests.map((request, index) => (
                                     <tr
                                         key={request.id}
-                                        className={`border-b border-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 ${
+                                        className={`border-b hover:bg-gray-50 ${
                                             selectedItems.includes(request.id)
                                                 ? "bg-blue-50"
                                                 : ""
                                         }`}
-                                        style={{
-                                            animationDelay: `${index * 50}ms`,
-                                        }}
                                     >
                                         <td className="p-3">
                                             <input
@@ -1029,531 +1003,255 @@ export function AdminRequestList({ requests, flash = {} }) {
                 </CardContent>
             </Card>
 
-            {/* Request Details Modal - Enhanced Landscape Layout */}
+            {/* Request Details Modal - Complete View */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-[90vw] w-full max-h-[85vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
-                    {/* Modal Header with Gradient Background */}
-                    <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
-                        <DialogHeader>
-                            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                                    <FileText className="h-6 w-6" />
-                                </div>
-                                Request Details #{selectedRequest?.id}
-                            </DialogTitle>
-                            <DialogDescription className="text-blue-100 text-lg">
-                                Submitted on{" "}
-                                {formatDate(selectedRequest?.created_at)} •
-                                Status:{" "}
-                                {(selectedRequest?.status || "pending")
-                                    .charAt(0)
-                                    .toUpperCase() +
-                                    (
-                                        selectedRequest?.status || "pending"
-                                    ).slice(1)}
-                            </DialogDescription>
-                        </DialogHeader>
-                    </div>
+                <DialogContent className="max-w-[95vw] w-full max-h-[95vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
+                    <DialogHeader className="pb-3 bg-blue-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
+                        <DialogTitle className="text-lg font-bold text-white">
+                            Request Details #{selectedRequest?.id}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-white">
+                            Submitted on {formatDate(selectedRequest?.created_at)} • Status: {(selectedRequest?.status || "pending").charAt(0).toUpperCase() + (selectedRequest?.status || "pending").slice(1)}
+                        </DialogDescription>
+                    </DialogHeader>
 
-                    {/* Scrollable Content Area */}
-                    <div className="overflow-y-auto max-h-[calc(85vh-200px)] pr-2">
+                    {/* Content Grid - 2 Column Layout */}
+                    <div className="grid grid-cols-2 gap-6 overflow-y-auto max-h-[calc(90vh-120px)] px-1">
+                        {/* Left Column */}
                         {selectedRequest && (
-                            <div className="space-y-8">
-                                {/* Top Row - User & Applicant Info */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    {/* User Information Card */}
-                                    <div className="group hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 bg-gradient-to-br from-white via-blue-50 to-blue-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-blue-200/50">
-                                        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4">
-                                            <h3 className="font-bold text-lg flex items-center gap-2">
-                                                <User className="h-5 w-5" />
-                                                User Information
-                                            </h3>
+                            <div className="space-y-4">
+                                {/* Applicant Information */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <User className="h-4 w-4" />
+                                        Applicant Information
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500">Name of Applicant</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.applicant_name || "N/A"}</p>
                                         </div>
-                                        <div className="p-6 space-y-4">
-                                            <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl border border-blue-200">
+                                        <div>
+                                            <p className="text-xs text-gray-500">Address of Applicant</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.applicant_address || "N/A"}</p>
+                                        </div>
+                                        {selectedRequest.corporation_name && (
+                                            <>
                                                 <div>
-                                                    <p className="text-sm text-gray-600 font-medium">
-                                                        Full Name
-                                                    </p>
-                                                    <p className="text-lg font-bold text-blue-900">
-                                                        {
-                                                            selectedRequest.user_name
-                                                        }
-                                                    </p>
+                                                    <p className="text-xs text-gray-500">Name of Corporation</p>
+                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.corporation_name}</p>
                                                 </div>
-                                                <div className="p-2 bg-blue-100 rounded-lg">
-                                                    <User className="h-5 w-5 text-blue-600" />
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center justify-between p-3 bg-white/70 rounded-xl border border-blue-200">
                                                 <div>
-                                                    <p className="text-sm text-gray-600 font-medium">
-                                                        Email Address
-                                                    </p>
-                                                    <p className="text-lg font-bold text-blue-900 flex items-center gap-2">
-                                                        <Mail className="h-4 w-4" />
-                                                        {
-                                                            selectedRequest.user_email
-                                                        }
-                                                    </p>
+                                                    <p className="text-xs text-gray-500">Address of Corporation</p>
+                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.corporation_address}</p>
                                                 </div>
-                                                <div className="p-2 bg-blue-100 rounded-lg">
-                                                    <Mail className="h-5 w-5 text-blue-600" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Applicant Information Card */}
-                                    <div className="group hover:shadow-2xl hover:shadow-emerald-500/25 transition-all duration-500 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-emerald-200/50">
-                                        <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-4">
-                                            <h3 className="font-bold text-lg flex items-center gap-2">
-                                                <Building2 className="h-5 w-5" />
-                                                Applicant Information
-                                            </h3>
-                                        </div>
-                                        <div className="p-6 space-y-4">
-                                            <div className="grid grid-cols-1 gap-4">
-                                                <div className="p-3 bg-white/70 rounded-xl border border-emerald-200">
-                                                    <p className="text-sm text-gray-600 font-medium">
-                                                        Applicant Name
-                                                    </p>
-                                                    <p className="text-lg font-bold text-emerald-900">
-                                                        {
-                                                            selectedRequest.applicant_name
-                                                        }
-                                                    </p>
-                                                </div>
-                                                <div className="p-3 bg-white/70 rounded-xl border border-emerald-200">
-                                                    <p className="text-sm text-gray-600 font-medium">
-                                                        Corporation
-                                                    </p>
-                                                    <p className="text-lg font-bold text-emerald-900">
-                                                        {selectedRequest.corporation_name ||
-                                                            "Individual Applicant"}
-                                                    </p>
-                                                </div>
-                                                <div className="p-3 bg-white/70 rounded-xl border border-emerald-200">
-                                                    <p className="text-sm text-gray-600 font-medium">
-                                                        Address
-                                                    </p>
-                                                    <p className="text-base font-semibold text-emerald-900">
-                                                        {
-                                                            selectedRequest.applicant_address
-                                                        }
-                                                    </p>
-                                                </div>
-                                                {selectedRequest.corporation_address && (
-                                                    <div className="p-3 bg-white/70 rounded-xl border border-emerald-200">
-                                                        <p className="text-sm text-gray-600 font-medium">
-                                                            Corporation Address
-                                                        </p>
-                                                        <p className="text-base font-semibold text-emerald-900">
-                                                            {
-                                                                selectedRequest.corporation_address
-                                                            }
-                                                        </p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
 
-                                {/* Status & Timeline Row */}
-                                <div className="bg-gradient-to-r from-white via-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-lg">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg">
-                                                {getStatusIcon(
-                                                    selectedRequest.status
-                                                )}
+                                {/* Authorized Representative */}
+                                {selectedRequest.authorized_representative_name && (
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                            <User className="h-4 w-4" />
+                                            Authorized Representative
+                                        </h3>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <p className="text-xs text-gray-500">Name of Authorized Representative</p>
+                                                <p className="text-sm font-semibold text-gray-900">{selectedRequest.authorized_representative_name}</p>
                                             </div>
                                             <div>
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Current Status
-                                                </p>
-                                                <Badge
-                                                    className={`${getStatusColor(
-                                                        selectedRequest.status
-                                                    )} text-lg px-4 py-2 mt-1`}
-                                                >
-                                                    <span className="flex items-center gap-2">
-                                                        {getStatusIcon(
-                                                            selectedRequest.status
-                                                        )}
-                                                        {(
-                                                            selectedRequest.status ||
-                                                            "pending"
-                                                        )
-                                                            .charAt(0)
-                                                            .toUpperCase() +
-                                                            (
-                                                                selectedRequest.status ||
-                                                                "pending"
-                                                            ).slice(1)}
-                                                    </span>
-                                                </Badge>
+                                                <p className="text-xs text-gray-500">Address of Authorized Representative</p>
+                                                <p className="text-sm font-semibold text-gray-900">{selectedRequest.authorized_representative_address || "N/A"}</p>
                                             </div>
+                                            {selectedRequest.authorization_letter_path && (
+                                                <div>
+                                                    <p className="text-xs text-gray-500 mb-2">Authorization Letter</p>
+                                                    <a
+                                                        href={`/storage/${selectedRequest.authorization_letter_path}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
+                                                    >
+                                                        <FileText className="h-3 w-3" />
+                                                        View Document
+                                                    </a>
+                                                </div>
+                                            )}
                                         </div>
-                                        <div className="text-right">
-                                            <p className="text-sm text-gray-600 font-medium">
-                                                Submission Date
-                                            </p>
-                                            <p className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                                <CalendarDays className="h-5 w-5" />
-                                                {formatDate(
-                                                    selectedRequest.created_at
-                                                )}
-                                            </p>
+                                    </div>
+                                )}
+
+                                {/* Project Details */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <Building2 className="h-4 w-4" />
+                                        Project Details
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500">Project Type</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_type || "N/A"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Project Nature</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_nature || "N/A"}</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Project Details - Full Width */}
-                                <div className="group hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 bg-gradient-to-br from-white via-purple-50 to-purple-100 backdrop-blur-sm transform hover:scale-[1.01] rounded-2xl overflow-hidden border border-purple-200/50">
-                                    <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4">
-                                        <h3 className="font-bold text-xl flex items-center gap-3">
-                                            <Building2 className="h-6 w-6" />
-                                            Project Details & Specifications
-                                        </h3>
+                                {/* Project Location */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <MapPin className="h-4 w-4" />
+                                        Project Location
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500">House/Building Number</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_location_number || "N/A"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Street</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_location_street || "N/A"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Barangay</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_location_barangay || "N/A"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Municipality</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_location_municipality || "N/A"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Province</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_location_province || "N/A"}</p>
+                                        </div>
                                     </div>
-                                    <div className="p-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Project Type
-                                                </p>
-                                                <p className="text-lg font-bold text-purple-900">
-                                                    {selectedRequest.project_type ||
-                                                        "N/A"}
-                                                </p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Project Nature
-                                                </p>
-                                                <p className="text-lg font-bold text-purple-900">
-                                                    {selectedRequest.project_nature ||
-                                                        "N/A"}
-                                                </p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300 md:col-span-2">
-                                                <p className="text-sm text-gray-600 font-medium flex items-center gap-1">
-                                                    <MapPin className="h-4 w-4" />
-                                                    Project Location
-                                                </p>
-                                                <p className="text-base font-bold text-purple-900">
-                                                    {formatLocation(
-                                                        selectedRequest
-                                                    )}
-                                                </p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Project Area
-                                                </p>
-                                                <p className="text-lg font-bold text-purple-900">
-                                                    {selectedRequest.project_area_sqm
-                                                        ? `${parseFloat(
-                                                              selectedRequest.project_area_sqm
-                                                          ).toLocaleString()} sqm`
-                                                        : "N/A"}
-                                                </p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Lot Area
-                                                </p>
-                                                <p className="text-lg font-bold text-purple-900">
-                                                    {selectedRequest.lot_area_sqm
-                                                        ? `${parseFloat(
-                                                              selectedRequest.lot_area_sqm
-                                                          ).toLocaleString()} sqm`
-                                                        : "N/A"}
-                                                </p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Building Area
-                                                </p>
-                                                <p className="text-lg font-bold text-purple-900">
-                                                    {selectedRequest.bldg_improvement_sqm
-                                                        ? `${parseFloat(
-                                                              selectedRequest.bldg_improvement_sqm
-                                                          ).toLocaleString()} sqm`
-                                                        : "N/A"}
-                                                </p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Project Cost
-                                                </p>
-                                                <p className="text-lg font-bold text-purple-900 flex items-center gap-1">
-                                                    <DollarSign className="h-4 w-4" />
-                                                    {selectedRequest.project_cost
-                                                        ? `₱${parseFloat(
-                                                              selectedRequest.project_cost
-                                                          ).toLocaleString()}`
-                                                        : "N/A"}
-                                                </p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Right Over Land
-                                                </p>
-                                                <p className="text-lg font-bold text-purple-900">
-                                                    {selectedRequest.right_over_land ||
-                                                        "N/A"}
-                                                </p>
-                                            </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Project Duration
-                                                </p>
-                                                <p className="text-lg font-bold text-purple-900">
-                                                    {selectedRequest.project_nature_duration ||
-                                                        "N/A"}
-                                                    {selectedRequest.project_nature_years &&
-                                                        ` (${selectedRequest.project_nature_years} years)`}
-                                                </p>
-                                            </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Right Column */}
+                        {selectedRequest && (
+                            <div className="space-y-4">
+                                {/* Project Area Details */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <Building2 className="h-4 w-4" />
+                                        Project Area
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500">Project Area (sqm)</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_area_sqm ? parseFloat(selectedRequest.project_area_sqm).toLocaleString() : "N/A"} sqm</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Lot (sqm)</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.lot_area_sqm ? parseFloat(selectedRequest.lot_area_sqm).toLocaleString() : "N/A"} sqm</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Bldg. Improvement (sqm)</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.bldg_improvement_sqm ? parseFloat(selectedRequest.bldg_improvement_sqm).toLocaleString() : "N/A"} sqm</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Right Over Land</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.right_over_land || "N/A"}</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Bottom Row - Land Use & Authorization */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    {/* Land Use Information */}
-                                    <div className="group hover:shadow-2xl hover:shadow-indigo-500/25 transition-all duration-500 bg-gradient-to-br from-white via-indigo-50 to-indigo-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-indigo-200/50">
-                                        <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-4">
-                                            <h3 className="font-bold text-lg">
-                                                Land Use & Compliance
-                                            </h3>
+                                {/* Project Nature & Cost */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <DollarSign className="h-4 w-4" />
+                                        Project Nature & Cost
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500">Project Nature</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_nature_duration || "N/A"}</p>
                                         </div>
-                                        <div className="p-6 space-y-4">
-                                            <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Existing Land Use
-                                                </p>
-                                                <p className="text-lg font-bold text-indigo-900">
-                                                    {selectedRequest.existing_land_use ||
-                                                        "N/A"}
-                                                </p>
+                                        {selectedRequest.project_nature_duration === "Temporary" && selectedRequest.project_nature_years && (
+                                            <div>
+                                                <p className="text-xs text-gray-500">Specify Years</p>
+                                                <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_nature_years} years</p>
                                             </div>
-                                            <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Written Notice to Tenants
-                                                </p>
-                                                <p className="text-lg font-bold text-indigo-900">
-                                                    {selectedRequest.has_written_notice
-                                                        ? selectedRequest.has_written_notice.toUpperCase()
-                                                        : "N/A"}
-                                                </p>
-                                            </div>
-                                            {selectedRequest.has_written_notice ===
-                                                "yes" && (
-                                                <>
-                                                    <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                        <p className="text-sm text-gray-600 font-medium">
-                                                            Notice Officer
-                                                        </p>
-                                                        <p className="text-base font-semibold text-indigo-900">
-                                                            {selectedRequest.notice_officer_name ||
-                                                                "N/A"}
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                        <p className="text-sm text-gray-600 font-medium">
-                                                            Notice Dates
-                                                        </p>
-                                                        <p className="text-base font-semibold text-indigo-900">
-                                                            {selectedRequest.notice_dates ||
-                                                                "N/A"}
-                                                        </p>
-                                                    </div>
-                                                </>
-                                            )}
-                                            <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Similar Application Filed
-                                                </p>
-                                                <p className="text-lg font-bold text-indigo-900">
-                                                    {selectedRequest.has_similar_application
-                                                        ? selectedRequest.has_similar_application.toUpperCase()
-                                                        : "N/A"}
-                                                </p>
-                                            </div>
-                                            {selectedRequest.has_similar_application ===
-                                                "yes" && (
-                                                <>
-                                                    <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                        <p className="text-sm text-gray-600 font-medium">
-                                                            Application Offices
-                                                        </p>
-                                                        <p className="text-base font-semibold text-indigo-900">
-                                                            {selectedRequest.similar_application_offices ||
-                                                                "N/A"}
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-3 bg-white/70 rounded-xl border border-indigo-200">
-                                                        <p className="text-sm text-gray-600 font-medium">
-                                                            Application Dates
-                                                        </p>
-                                                        <p className="text-base font-semibold text-indigo-900">
-                                                            {selectedRequest.similar_application_dates ||
-                                                                "N/A"}
-                                                        </p>
-                                                    </div>
-                                                </>
-                                            )}
-
-                                            {/* Release Preference */}
-                                            <div className="mt-6 p-4 bg-gradient-to-r from-teal-50 to-teal-100 rounded-xl border border-teal-200">
-                                                <h4 className="font-bold text-teal-900 mb-3">
-                                                    Release Preference
-                                                </h4>
-                                                <div className="space-y-2">
-                                                    <div>
-                                                        <p className="text-sm text-gray-600 font-medium">
-                                                            Preferred Mode
-                                                        </p>
-                                                        <p className="text-base font-bold text-teal-900 capitalize">
-                                                            {selectedRequest.preferred_release_mode?.replace(
-                                                                "_",
-                                                                " "
-                                                            ) || "N/A"}
-                                                        </p>
-                                                    </div>
-                                                    {selectedRequest.release_address && (
-                                                        <div>
-                                                            <p className="text-sm text-gray-600 font-medium">
-                                                                Release Address
-                                                            </p>
-                                                            <p className="text-base font-semibold text-teal-900">
-                                                                {
-                                                                    selectedRequest.release_address
-                                                                }
-                                                            </p>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
+                                        )}
+                                        <div>
+                                            <p className="text-xs text-gray-500">Project Cost/Capitalization (in Pesos)</p>
+                                            <p className="text-sm font-semibold text-gray-900">₱{selectedRequest.project_cost ? parseFloat(selectedRequest.project_cost).toLocaleString() : "N/A"}</p>
                                         </div>
                                     </div>
+                                </div>
 
-                                    {/* Authorization & Documents */}
-                                    <div className="group hover:shadow-2xl hover:shadow-amber-500/25 transition-all duration-500 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-amber-200/50">
-                                        <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4">
-                                            <h3 className="font-bold text-lg">
-                                                Authorization & Documents
-                                            </h3>
+                                {/* Land Use Information */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <Home className="h-4 w-4" />
+                                        Land Use Information
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500">Existing Land Uses of Project Use</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.existing_land_use || "N/A"}</p>
                                         </div>
-                                        <div className="p-6">
-                                            {selectedRequest.authorized_representative_name ? (
-                                                <div className="space-y-4">
-                                                    <div className="p-4 bg-white/70 rounded-xl border border-amber-200">
-                                                        <p className="text-sm text-gray-600 font-medium">
-                                                            Representative Name
-                                                        </p>
-                                                        <p className="text-lg font-bold text-amber-900">
-                                                            {
-                                                                selectedRequest.authorized_representative_name
-                                                            }
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-4 bg-white/70 rounded-xl border border-amber-200">
-                                                        <p className="text-sm text-gray-600 font-medium">
-                                                            Representative
-                                                            Address
-                                                        </p>
-                                                        <p className="text-base font-semibold text-amber-900">
-                                                            {selectedRequest.authorized_representative_address ||
-                                                                "N/A"}
-                                                        </p>
-                                                    </div>
-                                                    {selectedRequest.authorization_letter_path && (
-                                                        <div className="space-y-4">
-                                                            <p className="text-sm text-gray-600 font-medium">
-                                                                Authorization
-                                                                Letter
-                                                            </p>
-
-                                                            {/* Enhanced Image Preview - Landscape Optimized */}
-                                                            {(selectedRequest.authorization_letter_path
-                                                                .toLowerCase()
-                                                                .endsWith(
-                                                                    ".png"
-                                                                ) ||
-                                                                selectedRequest.authorization_letter_path
-                                                                    .toLowerCase()
-                                                                    .endsWith(
-                                                                        ".jpg"
-                                                                    ) ||
-                                                                selectedRequest.authorization_letter_path
-                                                                    .toLowerCase()
-                                                                    .endsWith(
-                                                                        ".jpeg"
-                                                                    )) && (
-                                                                <div className="border-2 border-amber-300 rounded-xl overflow-hidden bg-white shadow-lg hover:shadow-xl transition-all duration-300">
-                                                                    <img
-                                                                        src={`/storage/${selectedRequest.authorization_letter_path}`}
-                                                                        alt="Authorization Letter"
-                                                                        className="w-full h-auto object-contain"
-                                                                        style={{
-                                                                            maxHeight:
-                                                                                "70vh",
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            )}
-
-                                                            {/* Enhanced View/Download Button */}
-                                                            <a
-                                                                href={`/storage/${selectedRequest.authorization_letter_path}`}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl transform hover:scale-105"
-                                                            >
-                                                                <FileText className="h-5 w-5" />
-                                                                {selectedRequest.authorization_letter_path
-                                                                    .toLowerCase()
-                                                                    .endsWith(
-                                                                        ".png"
-                                                                    ) ||
-                                                                selectedRequest.authorization_letter_path
-                                                                    .toLowerCase()
-                                                                    .endsWith(
-                                                                        ".jpg"
-                                                                    ) ||
-                                                                selectedRequest.authorization_letter_path
-                                                                    .toLowerCase()
-                                                                    .endsWith(
-                                                                        ".jpeg"
-                                                                    )
-                                                                    ? "View Full Size Document"
-                                                                    : "View Authorization Letter"}
-                                                            </a>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <div className="text-center py-12">
-                                                    <div className="p-4 bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                                                        <User className="h-8 w-8 text-gray-400" />
-                                                    </div>
-                                                    <h4 className="font-bold text-gray-700 mb-2">
-                                                        No Authorized
-                                                        Representative
-                                                    </h4>
-                                                    <p className="text-sm text-gray-500">
-                                                        This application was
-                                                        submitted directly by
-                                                        the applicant
-                                                    </p>
-                                                </div>
-                                            )}
+                                        <div>
+                                            <p className="text-xs text-gray-500">Written Notice from Office/Zoning Administrator</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.has_written_notice ? selectedRequest.has_written_notice.toUpperCase() : "N/A"}</p>
                                         </div>
+                                        {selectedRequest.has_written_notice === "yes" && (
+                                            <>
+                                                <div>
+                                                    <p className="text-xs text-gray-500">Name of HSRC Officer/Zoning Administrator</p>
+                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.notice_officer_name || "N/A"}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500">Date(s) of Notice(s)</p>
+                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.notice_dates || "N/A"}</p>
+                                                </div>
+                                            </>
+                                        )}
+                                        <div>
+                                            <p className="text-xs text-gray-500">Similar Application with Other Offices</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.has_similar_application ? selectedRequest.has_similar_application.toUpperCase() : "N/A"}</p>
+                                        </div>
+                                        {selectedRequest.has_similar_application === "yes" && (
+                                            <>
+                                                <div>
+                                                    <p className="text-xs text-gray-500">Other HSRC Office(s) Where Filed</p>
+                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.similar_application_offices || "N/A"}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500">Date(s) Filed</p>
+                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.similar_application_dates || "N/A"}</p>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Release Preference */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <FileText className="h-4 w-4" />
+                                        Release Preference
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500">Preferred Mode of Release of Decision</p>
+                                            <p className="text-sm font-semibold text-gray-900 capitalize">
+                                                {selectedRequest.preferred_release_mode ? selectedRequest.preferred_release_mode.replace(/_/g, " ") : "N/A"}
+                                            </p>
+                                        </div>
+                                        {selectedRequest.release_address && (
+                                            <div>
+                                                <p className="text-xs text-gray-500">Release Address</p>
+                                                <p className="text-sm font-semibold text-gray-900">{selectedRequest.release_address}</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -1562,11 +1260,11 @@ export function AdminRequestList({ requests, flash = {} }) {
                 </DialogContent>
             </Dialog>
 
-            {/* Edit Modal - Enhanced Beautiful Design */}
+            {/* Edit Modal - Minimal Design */}
             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
+                <DialogContent className="max-w-2xl bg-white border border-gray-200 rounded-lg">
                     {/* Modal Header with Gradient Background */}
-                    <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
+                    <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
                         <DialogHeader>
                             <DialogTitle className="text-2xl font-bold flex items-center gap-3">
                                 <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
@@ -1574,26 +1272,21 @@ export function AdminRequestList({ requests, flash = {} }) {
                                 </div>
                                 Edit Request #{selectedRequest?.id}
                             </DialogTitle>
-                            <DialogDescription className="text-indigo-100 text-lg">
-                                Update the evaluation status and report details
-                                for this request
+                            <DialogDescription className="text-blue-100 text-lg">
+                                Update the evaluation status and report details for this request
                             </DialogDescription>
                         </DialogHeader>
                     </div>
 
                     {/* Scrollable Form Content */}
-                    <div className="overflow-y-auto max-h-[calc(90vh-200px)] pr-2">
+                    <div className="overflow-y-auto max-h-[calc(85vh-200px)] pr-2">
                         <form onSubmit={handleEditSubmit} className="space-y-6">
-                            {/* Evaluation Status Card */}
-                            <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-purple-50 to-purple-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-purple-200/50 p-6">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg">
-                                        <CheckCircle2 className="h-5 w-5 text-white" />
-                                    </div>
-                                    <label className="text-base font-bold text-purple-900">
-                                        Evaluation Status
-                                    </label>
-                                </div>
+                            {/* Evaluation Status */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                                    Evaluation Status
+                                </label>
                                 <select
                                     value={editData.evaluation}
                                     onChange={(e) =>
@@ -1602,30 +1295,20 @@ export function AdminRequestList({ requests, flash = {} }) {
                                             e.target.value
                                         )
                                     }
-                                    className="w-full p-4 border-2 border-purple-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 font-semibold text-purple-900 text-lg"
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                                 >
-                                    <option value="pending">
-                                        ⏳ Pending Review
-                                    </option>
-                                    <option value="approved">
-                                        ✅ Approved
-                                    </option>
-                                    <option value="rejected">
-                                        ❌ Rejected
-                                    </option>
+                                    <option value="pending">Pending Review</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
                                 </select>
                             </div>
 
-                            {/* Description Card */}
-                            <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-blue-50 to-blue-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-blue-200/50 p-6">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
-                                        <FileText className="h-5 w-5 text-white" />
-                                    </div>
-                                    <label className="text-base font-bold text-blue-900">
-                                        Description / Notes
-                                    </label>
-                                </div>
+                            {/* Description */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <FileText className="h-4 w-4 text-blue-600" />
+                                    Description / Notes
+                                </label>
                                 <textarea
                                     value={editData.description}
                                     onChange={(e) =>
@@ -1634,26 +1317,22 @@ export function AdminRequestList({ requests, flash = {} }) {
                                             e.target.value
                                         )
                                     }
-                                    className="w-full p-4 border-2 border-blue-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 font-medium text-blue-900 resize-none"
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none"
                                     rows="4"
                                     placeholder="Enter detailed description or notes about this request..."
                                 />
                             </div>
 
                             {/* Amount and Date Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Amount Card */}
-                                <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-emerald-200/50 p-6">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg">
-                                            <DollarSign className="h-5 w-5 text-white" />
-                                        </div>
-                                        <label className="text-base font-bold text-emerald-900">
-                                            Amount (₱)
-                                        </label>
-                                    </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Amount */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                        <DollarSign className="h-4 w-4 text-blue-600" />
+                                        Amount (₱)
+                                    </label>
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-700 font-bold text-lg">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
                                             ₱
                                         </span>
                                         <input
@@ -1666,22 +1345,18 @@ export function AdminRequestList({ requests, flash = {} }) {
                                                     e.target.value
                                                 )
                                             }
-                                            className="w-full pl-10 pr-4 py-4 border-2 border-emerald-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200 transition-all duration-300 font-bold text-emerald-900 text-lg"
+                                            className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                                             placeholder="0.00"
                                         />
                                     </div>
                                 </div>
 
-                                {/* Date Certified Card */}
-                                <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-amber-200/50 p-6">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg">
-                                            <CalendarDays className="h-5 w-5 text-white" />
-                                        </div>
-                                        <label className="text-base font-bold text-amber-900">
-                                            Date Certified
-                                        </label>
-                                    </div>
+                                {/* Date Certified */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                        <CalendarDays className="h-4 w-4 text-blue-600" />
+                                        Date Certified
+                                    </label>
                                     <input
                                         type="date"
                                         value={editData.date_certified}
@@ -1691,65 +1366,59 @@ export function AdminRequestList({ requests, flash = {} }) {
                                                 e.target.value
                                             )
                                         }
-                                        className="w-full p-4 border-2 border-amber-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-amber-500 focus:ring-4 focus:ring-amber-200 transition-all duration-300 font-semibold text-amber-900"
+                                        className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                                     />
                                 </div>
                             </div>
 
-                            {/* Issued By Card */}
-                            <div className="group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-teal-50 to-teal-100 backdrop-blur-sm rounded-2xl overflow-hidden border border-teal-200/50 p-6">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="p-2 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg">
-                                        <User className="h-5 w-5 text-white" />
-                                    </div>
-                                    <label className="text-base font-bold text-teal-900">
-                                        Issued By (Official Name)
-                                    </label>
-                                </div>
+                            {/* Issued By */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <User className="h-4 w-4 text-blue-600" />
+                                    Issued By (Official Name)
+                                </label>
                                 <input
                                     type="text"
                                     value={editData.issued_by}
                                     onChange={(e) =>
                                         setEditData("issued_by", e.target.value)
                                     }
-                                    className="w-full p-4 border-2 border-teal-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-teal-500 focus:ring-4 focus:ring-teal-200 transition-all duration-300 font-semibold text-teal-900"
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                                     placeholder="Enter the name of the issuing official"
                                 />
                             </div>
                         </form>
                     </div>
 
-                    {/* Enhanced Footer with Action Buttons */}
-                    <div className="border-t bg-white/50 backdrop-blur-sm p-6 -m-6 mt-6 rounded-b-3xl">
-                        <div className="flex justify-end gap-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setIsEditModalOpen(false)}
-                                className="px-8 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold text-gray-700 rounded-xl"
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={editProcessing}
-                                onClick={handleEditSubmit}
-                                className="px-8 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                            >
-                                {editProcessing ? (
-                                    <span className="flex items-center gap-2">
-                                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                                        Updating...
-                                    </span>
-                                ) : (
-                                    <span className="flex items-center gap-2">
-                                        <CheckCircle2 className="h-5 w-5" />
-                                        Update Request
-                                    </span>
-                                )}
-                            </Button>
-                        </div>
-                    </div>
+                    {/* Footer with Action Buttons */}
+                    <DialogFooter className="border-t pt-4 mt-6">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setIsEditModalOpen(false)}
+                            className="px-6"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={editProcessing}
+                            onClick={handleEditSubmit}
+                            className="px-6 bg-blue-600 hover:bg-blue-700"
+                        >
+                            {editProcessing ? (
+                                <span className="flex items-center gap-2">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                    Updating...
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-2">
+                                    <CheckCircle2 className="h-4 w-4" />
+                                    Update Request
+                                </span>
+                            )}
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 

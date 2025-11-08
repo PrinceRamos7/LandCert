@@ -23,6 +23,7 @@ function BulkActions({
   isLoading = false,
   className = '' 
 }) {
+  const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
@@ -39,15 +40,16 @@ function BulkActions({
       await onBulkApprove(selectedItems);
       setNotification({
         type: 'success',
-        title: 'Applications Approved',
-        message: `Successfully approved ${selectedCount} application(s).`
+        title: 'Requests Approved',
+        message: `Successfully approved ${selectedCount} request(s).`
       });
+      setShowApproveModal(false);
       onClearSelection();
     } catch (error) {
       setNotification({
         type: 'error',
         title: 'Approval Failed',
-        message: 'Failed to approve some applications. Please try again.'
+        message: 'Failed to approve some requests. Please try again.'
       });
     }
   };
@@ -66,8 +68,8 @@ function BulkActions({
       await onBulkReject(selectedItems, rejectionReason);
       setNotification({
         type: 'success',
-        title: 'Applications Rejected',
-        message: `Successfully rejected ${selectedCount} application(s).`
+        title: 'Requests Rejected',
+        message: `Successfully rejected ${selectedCount} request(s).`
       });
       setShowRejectModal(false);
       setRejectionReason('');
@@ -86,8 +88,8 @@ function BulkActions({
       await onBulkDelete(selectedItems);
       setNotification({
         type: 'success',
-        title: 'Applications Deleted',
-        message: `Successfully deleted ${selectedCount} application(s).`
+        title: 'Requests Deleted',
+        message: `Successfully deleted ${selectedCount} request(s).`
       });
       setShowDeleteModal(false);
       onClearSelection();
@@ -129,7 +131,7 @@ function BulkActions({
               {/* Approve Button */}
               <Button
                 size="sm"
-                onClick={handleBulkApprove}
+                onClick={() => setShowApproveModal(true)}
                 disabled={isLoading}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
@@ -199,6 +201,49 @@ function BulkActions({
         </CardContent>
       </Card>
 
+      {/* Approval Confirmation Modal */}
+      {showApproveModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md mx-4">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Approve Requests</h3>
+                  <p className="text-sm text-gray-600">
+                    Are you sure you want to approve {selectedCount} request(s)? The applicants will be notified via email.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowApproveModal(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleBulkApprove}
+                  disabled={isLoading}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                  )}
+                  Approve Requests
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Rejection Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -209,9 +254,9 @@ function BulkActions({
                   <XCircle className="w-5 h-5 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Reject Applications</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Reject Requests</h3>
                   <p className="text-sm text-gray-600">
-                    You are about to reject {selectedCount} application(s)
+                    You are about to reject {selectedCount} request(s)
                   </p>
                 </div>
               </div>
@@ -251,7 +296,7 @@ function BulkActions({
                   ) : (
                     <XCircle className="w-4 h-4 mr-2" />
                   )}
-                  Reject Applications
+                  Reject Requests
                 </Button>
               </div>
             </CardContent>
@@ -269,9 +314,9 @@ function BulkActions({
                   <AlertTriangle className="w-5 h-5 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Delete Applications</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Delete Requests</h3>
                   <p className="text-sm text-gray-600">
-                    This action cannot be undone. You are about to permanently delete {selectedCount} application(s).
+                    This action cannot be undone. You are about to permanently delete {selectedCount} request(s).
                   </p>
                 </div>
               </div>
@@ -294,7 +339,7 @@ function BulkActions({
                   ) : (
                     <Trash2 className="w-4 h-4 mr-2" />
                   )}
-                  Delete Applications
+                  Delete Requests
                 </Button>
               </div>
             </CardContent>

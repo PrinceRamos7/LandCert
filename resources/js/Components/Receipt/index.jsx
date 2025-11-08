@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import React, { useState } from "react";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
     Dialog,
     DialogContent,
@@ -12,18 +18,27 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog';
-import { NotificationModal } from '@/Components/ui/notification-modal';
+} from "@/components/ui/dialog";
+import { NotificationModal } from "@/Components/ui/notification-modal";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/components/ui/select';
-import { Upload, FileText, CheckCircle2, XCircle, Clock, DollarSign, Calendar, Loader2 } from 'lucide-react';
-import { router } from '@inertiajs/react';
-import { useToast } from '@/Components/ui/use-toast';
+} from "@/components/ui/select";
+import {
+    Upload,
+    FileText,
+    CheckCircle2,
+    XCircle,
+    Clock,
+    DollarSign,
+    Calendar,
+    Loader2,
+} from "lucide-react";
+import { router } from "@inertiajs/react";
+import { useToast } from "@/Components/ui/use-toast";
 
 export function ReceiptList({ requests = [] }) {
     const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -31,39 +46,39 @@ export function ReceiptList({ requests = [] }) {
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
-        amount: '',
-        payment_method: 'cash',
-        receipt_number: '',
-        payment_date: new Date().toISOString().split('T')[0],
-        notes: '',
+        amount: "",
+        payment_method: "cash",
+        receipt_number: "",
+        payment_date: new Date().toISOString().split("T")[0],
+        notes: "",
         receipt_file: null,
-        other_method: '',
+        other_method: "",
     });
     const [notificationModal, setNotificationModal] = useState({
         isOpen: false,
         type: "success",
         title: "",
         message: "",
-        buttonText: "Continue"
+        buttonText: "Continue",
     });
     const { toast } = useToast();
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'verified':
-                return 'bg-emerald-100 text-emerald-800 border-emerald-300';
-            case 'rejected':
-                return 'bg-rose-100 text-rose-800 border-rose-300';
+            case "verified":
+                return "bg-emerald-100 text-emerald-800 border-emerald-300";
+            case "rejected":
+                return "bg-rose-100 text-rose-800 border-rose-300";
             default:
-                return 'bg-blue-100 text-blue-800 border-blue-300';
+                return "bg-blue-100 text-blue-800 border-blue-300";
         }
     };
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'verified':
+            case "verified":
                 return <CheckCircle2 className="h-4 w-4" />;
-            case 'rejected':
+            case "rejected":
                 return <XCircle className="h-4 w-4" />;
             default:
                 return <Clock className="h-4 w-4" />;
@@ -90,8 +105,9 @@ export function ReceiptList({ requests = [] }) {
                 isOpen: true,
                 type: "warning",
                 title: "Receipt File Required",
-                message: "Please upload a receipt file to proceed with your payment submission.",
-                buttonText: "OK"
+                message:
+                    "Please upload a receipt file to proceed with your payment submission.",
+                buttonText: "OK",
             });
             return;
         }
@@ -101,32 +117,38 @@ export function ReceiptList({ requests = [] }) {
                 isOpen: true,
                 type: "warning",
                 title: "Invalid Amount",
-                message: "Please enter a valid payment amount greater than zero.",
-                buttonText: "OK"
+                message:
+                    "Please enter a valid payment amount greater than zero.",
+                buttonText: "OK",
             });
             return;
         }
 
         // Validate receipt number for non-cash payments
-        if (formData.payment_method !== 'cash' && !formData.receipt_number) {
+        if (formData.payment_method !== "cash" && !formData.receipt_number) {
             setNotificationModal({
                 isOpen: true,
                 type: "warning",
                 title: "Receipt Number Required",
-                message: "Receipt or reference number is required for non-cash payments. Please provide the transaction reference.",
-                buttonText: "OK"
+                message:
+                    "Receipt or reference number is required for non-cash payments. Please provide the transaction reference.",
+                buttonText: "OK",
             });
             return;
         }
 
         // Validate other payment method specification
-        if (formData.payment_method === 'other' && !formData.other_method.trim()) {
+        if (
+            formData.payment_method === "other" &&
+            !formData.other_method.trim()
+        ) {
             setNotificationModal({
                 isOpen: true,
                 type: "warning",
                 title: "Payment Method Required",
-                message: "Please specify the payment method you used for this transaction.",
-                buttonText: "OK"
+                message:
+                    "Please specify the payment method you used for this transaction.",
+                buttonText: "OK",
             });
             return;
         }
@@ -141,25 +163,25 @@ export function ReceiptList({ requests = [] }) {
         setIsSubmitting(true);
 
         const data = new FormData();
-        data.append('request_id', selectedRequest.id);
-        data.append('amount', formData.amount);
-        data.append('payment_method', formData.payment_method);
-        data.append('receipt_number', formData.receipt_number);
-        data.append('payment_date', formData.payment_date);
-        data.append('notes', formData.notes);
-        data.append('receipt_file', formData.receipt_file);
+        data.append("request_id", selectedRequest.id);
+        data.append("amount", formData.amount);
+        data.append("payment_method", formData.payment_method);
+        data.append("receipt_number", formData.receipt_number);
+        data.append("payment_date", formData.payment_date);
+        data.append("notes", formData.notes);
+        data.append("receipt_file", formData.receipt_file);
 
-        router.post(route('receipt.store'), data, {
+        router.post(route("receipt.store"), data, {
             onSuccess: () => {
                 setIsUploadDialogOpen(false);
                 setIsConfirmDialogOpen(false);
                 setIsSubmitting(false);
                 setFormData({
-                    amount: '',
-                    payment_method: 'cash',
-                    receipt_number: '',
-                    payment_date: new Date().toISOString().split('T')[0],
-                    notes: '',
+                    amount: "",
+                    payment_method: "cash",
+                    receipt_number: "",
+                    payment_date: new Date().toISOString().split("T")[0],
+                    notes: "",
                     receipt_file: null,
                 });
                 setNotificationModal({
@@ -167,7 +189,7 @@ export function ReceiptList({ requests = [] }) {
                     type: "success",
                     title: "Receipt Submitted!",
                     message: `Your payment receipt for Request #${selectedRequest.id} has been submitted successfully! Please wait for admin verification. You will receive an email notification once your payment is verified.`,
-                    buttonText: "Continue"
+                    buttonText: "Continue",
                 });
             },
             onError: (errors) => {
@@ -177,19 +199,20 @@ export function ReceiptList({ requests = [] }) {
                     isOpen: true,
                     type: "error",
                     title: "Submission Failed!",
-                    message: "Failed to submit your payment receipt. Please check your information and try again. If the problem persists, contact support.",
-                    buttonText: "Try Again"
+                    message:
+                        "Failed to submit your payment receipt. Please check your information and try again. If the problem persists, contact support.",
+                    buttonText: "Try Again",
                 });
-            }
+            },
         });
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
+        if (!dateString) return "N/A";
+        return new Date(dateString).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
         });
     };
 
@@ -206,15 +229,23 @@ export function ReceiptList({ requests = [] }) {
                     {requests.length === 0 ? (
                         <div className="text-center py-12">
                             <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                            <p className="text-gray-500">No approved applications found</p>
+                            <p className="text-gray-500">
+                                No approved applications found
+                            </p>
                             <p className="text-sm text-gray-400 mt-2">
-                                Applications must be approved before you can submit payment
+                                Applications must be approved before you can
+                                submit payment
                             </p>
                         </div>
                     ) : (
                         <div className="space-y-4">
                             {requests.map((request, index) => (
-                                <Card key={`request-${request.id}-${request.payment_id || index}`} className="border-l-4 border-l-purple-500">
+                                <Card
+                                    key={`request-${request.id}-${
+                                        request.payment_id || index
+                                    }`}
+                                    className="border-l-4 border-l-purple-500"
+                                >
                                     <CardContent className="pt-6">
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
@@ -222,7 +253,8 @@ export function ReceiptList({ requests = [] }) {
                                                     <h3 className="font-semibold text-lg">
                                                         Request #{request.id}
                                                     </h3>
-                                                    {request.payment_status === 'verified' && (
+                                                    {request.payment_status ===
+                                                        "verified" && (
                                                         <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300">
                                                             <span className="flex items-center gap-1">
                                                                 <CheckCircle2 className="h-4 w-4" />
@@ -230,100 +262,206 @@ export function ReceiptList({ requests = [] }) {
                                                             </span>
                                                         </Badge>
                                                     )}
-                                                    {request.payment_status && request.payment_status !== 'verified' && (
-                                                        <Badge className={getStatusColor(request.payment_status)}>
-                                                            <span className="flex items-center gap-1">
-                                                                {getStatusIcon(request.payment_status)}
-                                                                {request.payment_status.charAt(0).toUpperCase() + request.payment_status.slice(1)}
-                                                            </span>
-                                                        </Badge>
-                                                    )}
+                                                    {request.payment_status &&
+                                                        request.payment_status !==
+                                                            "verified" && (
+                                                            <Badge
+                                                                className={getStatusColor(
+                                                                    request.payment_status
+                                                                )}
+                                                            >
+                                                                <span className="flex items-center gap-1">
+                                                                    {getStatusIcon(
+                                                                        request.payment_status
+                                                                    )}
+                                                                    {request.payment_status
+                                                                        .charAt(
+                                                                            0
+                                                                        )
+                                                                        .toUpperCase() +
+                                                                        request.payment_status.slice(
+                                                                            1
+                                                                        )}
+                                                                </span>
+                                                            </Badge>
+                                                        )}
                                                 </div>
                                                 <p className="text-sm text-gray-600 mb-1">
-                                                    <strong>Applicant:</strong> {request.applicant_name}
+                                                    <strong>Applicant:</strong>{" "}
+                                                    {request.applicant_name}
                                                 </p>
                                                 <p className="text-sm text-gray-600 mb-1">
-                                                    <strong>Project:</strong> {request.project_type || 'N/A'}
+                                                    <strong>Project:</strong>{" "}
+                                                    {request.project_type ||
+                                                        "N/A"}
                                                 </p>
                                                 {request.payment_amount && (
                                                     <p className="text-sm text-gray-600 mb-1 flex items-center gap-1">
                                                         <DollarSign className="h-4 w-4" />
-                                                        <strong>Amount Paid:</strong> ₱{parseFloat(request.payment_amount).toLocaleString()}
+                                                        <strong>
+                                                            Amount Paid:
+                                                        </strong>{" "}
+                                                        ₱
+                                                        {parseFloat(
+                                                            request.payment_amount
+                                                        ).toLocaleString()}
                                                     </p>
                                                 )}
                                                 {request.payment_date && (
                                                     <p className="text-sm text-gray-600 mb-1 flex items-center gap-1">
                                                         <Calendar className="h-4 w-4" />
-                                                        <strong>Payment Date:</strong> {formatDate(request.payment_date)}
+                                                        <strong>
+                                                            Payment Date:
+                                                        </strong>{" "}
+                                                        {formatDate(
+                                                            request.payment_date
+                                                        )}
                                                     </p>
                                                 )}
-                                                {request.payment_status === 'verified' && request.certificate_number && (
-                                                    <div className="mt-3 p-4 bg-emerald-50 border-2 border-emerald-200 rounded-lg">
-                                                        <div className="flex items-center gap-2 mb-2">
-                                                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                                                            <span className="font-semibold text-emerald-800">Certificate Information</span>
+                                                {request.payment_status ===
+                                                    "verified" &&
+                                                    request.certificate_number && (
+                                                        <div className="mt-3 p-4 bg-emerald-50 border-2 border-emerald-200 rounded-lg">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                                                                <span className="font-semibold text-emerald-800">
+                                                                    Certificate
+                                                                    Information
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-sm text-emerald-800 mb-1">
+                                                                <strong>
+                                                                    Certificate
+                                                                    Number:
+                                                                </strong>{" "}
+                                                                {
+                                                                    request.certificate_number
+                                                                }
+                                                            </p>
+                                                            <p className="text-sm text-emerald-800">
+                                                                <strong>
+                                                                    Issued:
+                                                                </strong>{" "}
+                                                                {formatDate(
+                                                                    request.issued_at
+                                                                )}
+                                                            </p>
                                                         </div>
-                                                        <p className="text-sm text-emerald-800 mb-1">
-                                                            <strong>Certificate Number:</strong> {request.certificate_number}
-                                                        </p>
-                                                        <p className="text-sm text-emerald-800">
-                                                            <strong>Issued:</strong> {formatDate(request.issued_at)}
-                                                        </p>
-                                                    </div>
-                                                )}
+                                                    )}
                                                 {request.rejection_reason && (
                                                     <div className="mt-3 p-3 bg-rose-50 border border-rose-200 rounded-md">
                                                         <p className="text-sm text-rose-800">
-                                                            <strong>Rejection Reason:</strong> {request.rejection_reason}
+                                                            <strong>
+                                                                Rejection
+                                                                Reason:
+                                                            </strong>{" "}
+                                                            {
+                                                                request.rejection_reason
+                                                            }
                                                         </p>
                                                     </div>
                                                 )}
                                             </div>
                                             <div className="flex flex-col gap-2">
-                                                {request.payment_status === 'verified' && request.certificate_id ? (
+                                                {request.payment_status ===
+                                                    "verified" &&
+                                                request.certificate_id ? (
                                                     <>
-                                                        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6 py-2" asChild>
-                                                            <a href={route('certificate.download', request.certificate_id)}>
+                                                        <Button
+                                                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6 py-2"
+                                                            asChild
+                                                        >
+                                                            <a
+                                                                href={route(
+                                                                    "certificate.download",
+                                                                    request.certificate_id
+                                                                )}
+                                                            >
                                                                 <FileText className="h-4 w-4 mr-2" />
-                                                                Download Certificate
+                                                                Download
+                                                                Certificate
                                                             </a>
                                                         </Button>
                                                         {request.receipt_file_path && (
-                                                            <Button variant="outline" size="sm" asChild>
-                                                                <a href={`/storage/${request.receipt_file_path}`} target="_blank" rel="noopener noreferrer">
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                asChild
+                                                            >
+                                                                <a
+                                                                    href={`/storage/${request.receipt_file_path}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                >
                                                                     <FileText className="h-4 w-4 mr-2" />
                                                                     View Receipt
                                                                 </a>
                                                             </Button>
                                                         )}
                                                     </>
-                                                ) : !request.payment_id || request.payment_status === 'rejected' ? (
-                                                    <Button onClick={() => handleUploadClick(request)}>
+                                                ) : !request.payment_id ||
+                                                  request.payment_status ===
+                                                      "rejected" ? (
+                                                    <Button
+                                                        onClick={() =>
+                                                            handleUploadClick(
+                                                                request
+                                                            )
+                                                        }
+                                                    >
                                                         <Upload className="h-4 w-4 mr-2" />
-                                                        {request.payment_status === 'rejected' ? 'Resubmit' : 'Upload Receipt'}
+                                                        {request.payment_status ===
+                                                        "rejected"
+                                                            ? "Resubmit"
+                                                            : "Upload Receipt"}
                                                     </Button>
-                                                ) : request.payment_status === 'pending' ? (
+                                                ) : request.payment_status ===
+                                                  "pending" ? (
                                                     <>
-                                                        <Badge variant="outline" className="text-blue-600">
-                                                            Awaiting Verification
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-blue-600"
+                                                        >
+                                                            Awaiting
+                                                            Verification
                                                         </Badge>
                                                         {request.receipt_file_path && (
-                                                            <Button variant="outline" size="sm" asChild>
-                                                                <a href={`/storage/${request.receipt_file_path}`} target="_blank" rel="noopener noreferrer">
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                asChild
+                                                            >
+                                                                <a
+                                                                    href={`/storage/${request.receipt_file_path}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                >
                                                                     <FileText className="h-4 w-4 mr-2" />
                                                                     View Receipt
                                                                 </a>
                                                             </Button>
                                                         )}
                                                     </>
-                                                ) : request.payment_status === 'verified' ? (
+                                                ) : request.payment_status ===
+                                                  "verified" ? (
                                                     <>
-                                                        <Badge variant="outline" className="text-emerald-600">
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-emerald-600"
+                                                        >
                                                             Payment Verified ✓
                                                         </Badge>
                                                         {request.receipt_file_path && (
-                                                            <Button variant="outline" size="sm" asChild>
-                                                                <a href={`/storage/${request.receipt_file_path}`} target="_blank" rel="noopener noreferrer">
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                asChild
+                                                            >
+                                                                <a
+                                                                    href={`/storage/${request.receipt_file_path}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                >
                                                                     <FileText className="h-4 w-4 mr-2" />
                                                                     View Receipt
                                                                 </a>
@@ -331,8 +469,16 @@ export function ReceiptList({ requests = [] }) {
                                                         )}
                                                     </>
                                                 ) : request.receipt_file_path ? (
-                                                    <Button variant="outline" size="sm" asChild>
-                                                        <a href={`/storage/${request.receipt_file_path}`} target="_blank" rel="noopener noreferrer">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        asChild
+                                                    >
+                                                        <a
+                                                            href={`/storage/${request.receipt_file_path}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
                                                             <FileText className="h-4 w-4 mr-2" />
                                                             View Receipt
                                                         </a>
@@ -348,289 +494,385 @@ export function ReceiptList({ requests = [] }) {
                 </CardContent>
             </Card>
 
-            {/* Upload Dialog - Enhanced Beautiful Design */}
-            <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-                <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 border-0 shadow-2xl rounded-3xl">
-                    {/* Modal Header with Gradient Background */}
-                    <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
+            {/* Upload Dialog - Minimal Design */}
+            <Dialog
+                open={isUploadDialogOpen}
+                onOpenChange={setIsUploadDialogOpen}
+            >
+                <DialogContent className="max-w-4xl bg-white border border-gray-200 rounded-lg">
+                    {/* Modal Header with Blue Background */}
+                    <div className="bg-blue-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
                         <DialogHeader>
-                            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                                    <Upload className="h-6 w-6" />
-                                </div>
+                            <DialogTitle className="text-lg font-bold flex items-center gap-2">
+                                <Upload className="h-5 w-5" />
                                 Upload Payment Receipt
                             </DialogTitle>
-                            <DialogDescription className="text-emerald-100 text-lg">
-                                Request #{selectedRequest?.id} - {selectedRequest?.applicant_name}
+                            <DialogDescription className="text-white text-sm">
+                                Request #{selectedRequest?.id} -{" "}
+                                {selectedRequest?.applicant_name}
                             </DialogDescription>
                         </DialogHeader>
                     </div>
 
                     {/* Scrollable Form Content */}
-                    <div className="overflow-y-auto max-h-[calc(90vh-220px)] pr-2">
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Amount & Payment Method Card */}
-                            <div className="bg-gradient-to-br from-white via-emerald-50 to-emerald-100 border-2 border-emerald-200 rounded-2xl p-6 shadow-lg">
-                                <h3 className="font-bold text-emerald-900 mb-4 flex items-center gap-2 text-lg">
-                                    <div className="p-2 bg-emerald-200 rounded-lg">
-                                        <DollarSign className="h-5 w-5 text-emerald-700" />
+                    <div className="overflow-y-auto max-h-[calc(85vh-200px)] pr-2">
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            {/* Amount & Payment Method */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="amount"
+                                        className="text-sm font-semibold text-gray-700"
+                                    >
+                                        Amount Paid *
+                                    </Label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                                            ₱
+                                        </span>
+                                        <Input
+                                            id="amount"
+                                            type="number"
+                                            step="0.01"
+                                            required
+                                            value={formData.amount}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    amount: e.target.value,
+                                                })
+                                            }
+                                            placeholder="0.00"
+                                            className="pl-8 pr-3 py-2 border border-gray-300 rounded bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                        />
                                     </div>
-                                    Payment Information
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="amount" className="text-base font-semibold text-emerald-900">Amount Paid *</Label>
-                                        <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-700 font-bold text-lg">₱</span>
-                                            <Input
-                                                id="amount"
-                                                type="number"
-                                                step="0.01"
-                                                required
-                                                value={formData.amount}
-                                                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                                                placeholder="0.00"
-                                                className="pl-10 p-4 border-2 border-emerald-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200 transition-all duration-300 font-bold text-emerald-900 text-lg"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="payment_method" className="text-base font-semibold text-emerald-900">Payment Method *</Label>
-                                        <Select
-                                            value={formData.payment_method}
-                                            onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
-                                        >
-                                            <SelectTrigger className="p-4 border-2 border-emerald-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200 transition-all duration-300 font-semibold text-emerald-900">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="cash">💵 Cash</SelectItem>
-                                                <SelectItem value="bank_transfer">🏦 Bank Transfer</SelectItem>
-                                                <SelectItem value="gcash">📱 GCash</SelectItem>
-                                                <SelectItem value="paymaya">💳 PayMaya</SelectItem>
-                                                <SelectItem value="check">📝 Check</SelectItem>
-                                                <SelectItem value="other">➕ Other</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="payment_method"
+                                        className="text-sm font-semibold text-gray-700"
+                                    >
+                                        Payment Method *
+                                    </Label>
+                                    <Select
+                                        value={formData.payment_method}
+                                        onValueChange={(value) =>
+                                            setFormData({
+                                                ...formData,
+                                                payment_method: value,
+                                            })
+                                        }
+                                    >
+                                        <SelectTrigger className="p-2 border border-gray-300 rounded bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="cash">
+                                                💵 Cash
+                                            </SelectItem>
+                                            <SelectItem value="bank_transfer">
+                                                🏦 Bank Transfer
+                                            </SelectItem>
+                                            <SelectItem value="gcash">
+                                                📱 GCash
+                                            </SelectItem>
+                                            <SelectItem value="paymaya">
+                                                💳 PayMaya
+                                            </SelectItem>
+                                            <SelectItem value="check">
+                                                📝 Check
+                                            </SelectItem>
+                                            <SelectItem value="other">
+                                                ➕ Other
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
 
-                            {/* Receipt Details Card */}
-                            <div className="bg-gradient-to-br from-white via-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-6 shadow-lg">
-                                <h3 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg">
-                                    <div className="p-2 bg-blue-200 rounded-lg">
-                                        <FileText className="h-5 w-5 text-blue-700" />
-                                    </div>
-                                    Receipt Details
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="receipt_number" className="text-base font-semibold text-blue-900">
-                                            Receipt/Reference Number {formData.payment_method !== 'cash' && <span className="text-red-500">*</span>}
-                                        </Label>
-                                        <Input
-                                            id="receipt_number"
-                                            value={formData.receipt_number}
-                                            onChange={(e) => setFormData({ ...formData, receipt_number: e.target.value })}
-                                            placeholder={formData.payment_method === 'cash' ? 'Optional' : 'Required'}
-                                            required={formData.payment_method !== 'cash'}
-                                            className="p-4 border-2 border-blue-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 font-semibold text-blue-900"
-                                        />
-                                        {formData.payment_method === 'cash' && (
-                                            <p className="text-xs text-blue-600 font-medium">Optional for cash payments</p>
+                            {/* Receipt Details */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="receipt_number"
+                                        className="text-sm font-semibold text-gray-700"
+                                    >
+                                        Receipt/Reference Number{" "}
+                                        {formData.payment_method !== "cash" && (
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="payment_date" className="text-base font-semibold text-blue-900">Payment Date *</Label>
-                                        <Input
-                                            id="payment_date"
-                                            type="date"
-                                            required
-                                            value={formData.payment_date}
-                                            onChange={(e) => setFormData({ ...formData, payment_date: e.target.value })}
-                                            className="p-4 border-2 border-blue-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 font-semibold text-blue-900"
-                                        />
-                                    </div>
+                                    </Label>
+                                    <Input
+                                        id="receipt_number"
+                                        value={formData.receipt_number}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                receipt_number: e.target.value,
+                                            })
+                                        }
+                                        placeholder={
+                                            formData.payment_method === "cash"
+                                                ? "Optional"
+                                                : "Required"
+                                        }
+                                        required={
+                                            formData.payment_method !== "cash"
+                                        }
+                                        className="p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                    />
+                                    {formData.payment_method === "cash" && (
+                                        <p className="text-xs text-gray-600">
+                                            Optional for cash payments
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="payment_date"
+                                        className="text-sm font-semibold text-gray-700"
+                                    >
+                                        Payment Date *
+                                    </Label>
+                                    <Input
+                                        id="payment_date"
+                                        type="date"
+                                        required
+                                        value={formData.payment_date}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                payment_date: e.target.value,
+                                            })
+                                        }
+                                        className="p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                    />
                                 </div>
                             </div>
 
                             {/* Other Payment Method Specification */}
-                            {formData.payment_method === 'other' && (
-                                <div className="bg-gradient-to-br from-white via-purple-50 to-purple-100 border-2 border-purple-200 rounded-2xl p-6 shadow-lg">
-                                    <h3 className="font-bold text-purple-900 mb-4 flex items-center gap-2 text-lg">
-                                        <div className="p-2 bg-purple-200 rounded-lg">
-                                            <FileText className="h-5 w-5 text-purple-700" />
-                                        </div>
-                                        Specify Payment Method
-                                    </h3>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="other_method" className="text-base font-semibold text-purple-900">Please Specify Payment Method *</Label>
-                                        <Input
-                                            id="other_method"
-                                            value={formData.other_method}
-                                            onChange={(e) => setFormData({ ...formData, other_method: e.target.value })}
-                                            placeholder="e.g., Credit Card, Debit Card, etc."
-                                            required
-                                            className="p-4 border-2 border-purple-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 font-semibold text-purple-900"
-                                        />
-                                    </div>
+                            {formData.payment_method === "other" && (
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor="other_method"
+                                        className="text-sm font-semibold text-gray-700"
+                                    >
+                                        Please Specify Payment Method *
+                                    </Label>
+                                    <Input
+                                        id="other_method"
+                                        value={formData.other_method}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                other_method: e.target.value,
+                                            })
+                                        }
+                                        placeholder="e.g., Credit Card, Debit Card, etc."
+                                        required
+                                        className="p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                    />
                                 </div>
                             )}
 
-                            {/* File Upload Card */}
-                            <div className="bg-gradient-to-br from-white via-amber-50 to-amber-100 border-2 border-amber-200 rounded-2xl p-6 shadow-lg">
-                                <h3 className="font-bold text-amber-900 mb-4 flex items-center gap-2 text-lg">
-                                    <div className="p-2 bg-amber-200 rounded-lg">
-                                        <Upload className="h-5 w-5 text-amber-700" />
-                                    </div>
-                                    Upload Receipt File
-                                </h3>
-                                <div className="space-y-3">
-                                    <Label htmlFor="receipt_file" className="text-base font-semibold text-amber-900">Receipt Document (PDF, JPG, PNG) *</Label>
+                            {/* File Upload */}
+                            <div className="space-y-3">
+                                <Label
+                                    htmlFor="receipt_file"
+                                    className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+                                >
+                                    <Upload className="h-4 w-4 text-blue-600" />
+                                    Receipt Document (PDF, JPG, PNG) *
+                                </Label>
 
-                                    {/* Custom File Upload Button */}
-                                    <div className="relative">
-                                        <input
-                                            id="receipt_file"
-                                            type="file"
-                                            accept=".pdf,.jpg,.jpeg,.png"
-                                            required
-                                            onChange={handleFileChange}
-                                            className="hidden"
-                                        />
-                                        <label
-                                            htmlFor="receipt_file"
-                                            className="flex items-center justify-center gap-3 w-full p-6 border-2 border-dashed border-amber-300 rounded-xl bg-white hover:bg-amber-50 cursor-pointer transition-all duration-300 hover:border-amber-500 group"
-                                        >
-                                            <div className="p-3 bg-amber-200 rounded-lg group-hover:bg-amber-300 transition-colors">
-                                                <Upload className="h-6 w-6 text-amber-700" />
-                                            </div>
-                                            <div className="text-center">
-                                                <p className="text-base font-bold text-amber-900 mb-1">
-                                                    {formData.receipt_file ? 'Change File' : 'Choose File'}
-                                                </p>
-                                                <p className="text-sm text-amber-700">
-                                                    Click to browse or drag and drop
-                                                </p>
-                                            </div>
-                                        </label>
-                                    </div>
-
-                                    {/* Selected File Display */}
-                                    {formData.receipt_file && (
-                                        <div className="p-4 bg-white rounded-xl border-2 border-amber-300 shadow-sm">
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="p-2 bg-amber-100 rounded-lg">
-                                                        <FileText className="h-5 w-5 text-amber-700" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-amber-900">{formData.receipt_file.name}</p>
-                                                        <p className="text-xs text-amber-600">
-                                                            {(formData.receipt_file.size / 1024 / 1024).toFixed(2)} MB
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                                            </div>
+                                {/* Custom File Upload Button */}
+                                <div className="relative">
+                                    <input
+                                        id="receipt_file"
+                                        type="file"
+                                        accept=".pdf,.jpg,.jpeg,.png"
+                                        required
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                    />
+                                    <label
+                                        htmlFor="receipt_file"
+                                        className="flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer transition-all hover:border-blue-500 group"
+                                    >
+                                        <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-blue-100 transition-colors">
+                                            <Upload className="h-5 w-5 text-gray-600 group-hover:text-blue-600" />
                                         </div>
-                                    )}
-
-                                    <p className="text-xs text-amber-700 font-medium flex items-center gap-1">
-                                        <span>ℹ️</span> Maximum file size: 5MB • Accepted formats: PDF, JPG, PNG
-                                    </p>
+                                        <div className="text-center">
+                                            <p className="text-sm font-semibold text-gray-700 mb-1">
+                                                {formData.receipt_file
+                                                    ? "Change File"
+                                                    : "Choose File"}
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                Click to browse or drag and drop
+                                            </p>
+                                        </div>
+                                    </label>
                                 </div>
+
+                                {/* Selected File Display */}
+                                {formData.receipt_file && (
+                                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <FileText className="h-4 w-4 text-blue-600" />
+                                                <div>
+                                                    <p className="text-sm font-semibold text-gray-900">
+                                                        {
+                                                            formData
+                                                                .receipt_file
+                                                                .name
+                                                        }
+                                                    </p>
+                                                    <p className="text-xs text-gray-600">
+                                                        {(
+                                                            formData
+                                                                .receipt_file
+                                                                .size /
+                                                            1024 /
+                                                            1024
+                                                        ).toFixed(2)}{" "}
+                                                        MB
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                                        </div>
+                                    </div>
+                                )}
+
+                                <p className="text-xs text-gray-600">
+                                    Maximum file size: 5MB • Accepted formats:
+                                    PDF, JPG, PNG
+                                </p>
                             </div>
 
-                            {/* Notes Card */}
-                            <div className="bg-gradient-to-br from-white via-teal-50 to-teal-100 border-2 border-teal-200 rounded-2xl p-6 shadow-lg">
-                                <h3 className="font-bold text-teal-900 mb-4 flex items-center gap-2 text-lg">
-                                    <div className="p-2 bg-teal-200 rounded-lg">
-                                        <FileText className="h-5 w-5 text-teal-700" />
-                                    </div>
-                                    Additional Notes
-                                </h3>
-                                <div className="space-y-2">
-                                    <Label htmlFor="notes" className="text-base font-semibold text-teal-900">Notes (Optional)</Label>
-                                    <Textarea
-                                        id="notes"
-                                        value={formData.notes}
-                                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                        placeholder="Any additional information about your payment..."
-                                        rows={3}
-                                        className="p-4 border-2 border-teal-200 rounded-xl bg-white/70 backdrop-blur-sm focus:border-teal-500 focus:ring-4 focus:ring-teal-200 transition-all duration-300 font-medium text-teal-900 resize-none"
-                                    />
-                                </div>
+                            {/* Notes */}
+                            <div className="space-y-2">
+                                <Label
+                                    htmlFor="notes"
+                                    className="text-sm font-semibold text-gray-700"
+                                >
+                                    Notes (Optional)
+                                </Label>
+                                <Textarea
+                                    id="notes"
+                                    value={formData.notes}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            notes: e.target.value,
+                                        })
+                                    }
+                                    placeholder="Any additional information about your payment..."
+                                    rows={3}
+                                    className="p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none"
+                                />
                             </div>
                         </form>
                     </div>
 
-                    {/* Enhanced Footer with Action Buttons */}
-                    <div className="border-t bg-white/50 backdrop-blur-sm p-6 -m-6 mt-6 rounded-b-3xl">
-                        <DialogFooter>
-                            <div className="flex justify-end gap-4 w-full">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setIsUploadDialogOpen(false)}
-                                    className="px-8 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold text-gray-700 rounded-xl"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    onClick={handleSubmit}
-                                    className="px-8 py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                                >
-                                    {isSubmitting ? (
-                                        <span className="flex items-center gap-2">
-                                            <Loader2 className="h-5 w-5 animate-spin" />
-                                            Processing...
-                                        </span>
-                                    ) : (
-                                        <span className="flex items-center gap-2">
-                                            <Upload className="h-5 w-5" />
-                                            Submit Receipt
-                                        </span>
-                                    )}
-                                </Button>
-                            </div>
-                        </DialogFooter>
-                    </div>
+                    {/* Footer with Action Buttons */}
+                    <DialogFooter className="border-t pt-4 mt-6">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setIsUploadDialogOpen(false)}
+                            className="px-6"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                            onClick={handleSubmit}
+                            className="px-6 bg-blue-600 hover:bg-blue-700"
+                        >
+                            {isSubmitting ? (
+                                <span className="flex items-center gap-2">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Processing...
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-2">
+                                    <Upload className="h-4 w-4" />
+                                    Submit Receipt
+                                </span>
+                            )}
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 
             {/* Confirmation Dialog */}
-            <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+            <Dialog
+                open={isConfirmDialogOpen}
+                onOpenChange={setIsConfirmDialogOpen}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Confirm Payment Submission</DialogTitle>
                         <DialogDescription>
-                            Please review your payment details before submitting.
+                            Please review your payment details before
+                            submitting.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
-                        <p className="text-sm"><strong>Request ID:</strong> #{selectedRequest?.id}</p>
-                        <p className="text-sm"><strong>Applicant:</strong> {selectedRequest?.applicant_name}</p>
-                        <p className="text-sm"><strong>Amount:</strong> ₱{parseFloat(formData.amount || 0).toLocaleString()}</p>
-                        <p className="text-sm"><strong>Payment Method:</strong> {formData.payment_method === 'other' ? formData.other_method : formData.payment_method.replace('_', ' ')}</p>
-                        <p className="text-sm"><strong>Payment Date:</strong> {formData.payment_date}</p>
+                        <p className="text-sm">
+                            <strong>Request ID:</strong> #{selectedRequest?.id}
+                        </p>
+                        <p className="text-sm">
+                            <strong>Applicant:</strong>{" "}
+                            {selectedRequest?.applicant_name}
+                        </p>
+                        <p className="text-sm">
+                            <strong>Amount:</strong> ₱
+                            {parseFloat(formData.amount || 0).toLocaleString()}
+                        </p>
+                        <p className="text-sm">
+                            <strong>Payment Method:</strong>{" "}
+                            {formData.payment_method === "other"
+                                ? formData.other_method
+                                : formData.payment_method.replace("_", " ")}
+                        </p>
+                        <p className="text-sm">
+                            <strong>Payment Date:</strong>{" "}
+                            {formData.payment_date}
+                        </p>
                         {formData.receipt_number && (
-                            <p className="text-sm"><strong>Receipt Number:</strong> {formData.receipt_number}</p>
+                            <p className="text-sm">
+                                <strong>Receipt Number:</strong>{" "}
+                                {formData.receipt_number}
+                            </p>
                         )}
                         {formData.receipt_file && (
-                            <p className="text-sm"><strong>File:</strong> {formData.receipt_file.name}</p>
+                            <p className="text-sm">
+                                <strong>File:</strong>{" "}
+                                {formData.receipt_file.name}
+                            </p>
                         )}
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsConfirmDialogOpen(false)}
+                        >
                             Cancel
                         </Button>
                         <Button onClick={confirmSubmit} disabled={isSubmitting}>
-                            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                            {isSubmitting ? "Submitting..." : "Confirm & Submit"}
+                            {isSubmitting && (
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            )}
+                            {isSubmitting
+                                ? "Submitting..."
+                                : "Confirm & Submit"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -639,7 +881,9 @@ export function ReceiptList({ requests = [] }) {
             {/* Notification Modal */}
             <NotificationModal
                 isOpen={notificationModal.isOpen}
-                onClose={() => setNotificationModal(prev => ({ ...prev, isOpen: false }))}
+                onClose={() =>
+                    setNotificationModal((prev) => ({ ...prev, isOpen: false }))
+                }
                 type={notificationModal.type}
                 title={notificationModal.title}
                 message={notificationModal.message}

@@ -33,7 +33,7 @@ export default function Receipt({ requests }) {
                         </Breadcrumb>
                     </div>
                 </header>
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gradient-to-br from-purple-50 to-slate-50">
+                <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-white">
                     <ReceiptList requests={requests} />
                 </div>
             </SidebarInset>

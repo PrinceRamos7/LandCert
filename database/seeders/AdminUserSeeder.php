@@ -18,8 +18,8 @@ class AdminUserSeeder extends Seeder
         // Create admin role if it doesn't exist
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         
-        // Create admin user
-        $admin = User::firstOrCreate(
+        // Create or update admin user
+        $admin = User::updateOrCreate(
             ['email' => 'admin@cpdo.com'],
             [
                 'name' => 'Admin User',
@@ -30,14 +30,15 @@ class AdminUserSeeder extends Seeder
             ]
         );
 
-        // Assign admin role
+        // Ensure admin role is assigned
         if (!$admin->hasRole('admin')) {
             $admin->assignRole('admin');
         }
 
-        $this->command->info('Admin user created successfully!');
+        $this->command->info('Admin user created/updated successfully!');
         $this->command->info('Email: admin@cpdo.com');
         $this->command->info('Password: admin123');
+        $this->command->info('User Type: ' . $admin->user_type);
         $this->command->info('');
         $this->command->warn('⚠️  Please change the password after first login!');
     }

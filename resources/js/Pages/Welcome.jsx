@@ -32,11 +32,7 @@ export default function Welcome({ auth }) {
         },
     ];
 
-    const heroImages = [
-        "/images/Ilagan2.png",
-        "/images/Cdrrmo1.png",
-        "/images/Ilagan-2030.png",
-    ];
+    const heroImages = ["/images/Ilagan2.png", "/images/Ilagan-2030.png"];
 
     useEffect(() => {
         setIsVisible(true);
@@ -48,7 +44,7 @@ export default function Welcome({ auth }) {
 
     return (
         <>
-            <Head title="CDRRMO - City Disaster Risk Reduction and Management Office" />
+            <Head title="CPDO - City Planning And Development Office" />
 
             {/* Hero Section */}
             <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
@@ -84,14 +80,14 @@ export default function Welcome({ auth }) {
                     >
                         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg p-1">
                             <img
-                                src="/images/cdrrmo.png"
-                                alt="CDRRMO Logo"
+                                src="/images/ilagan.png"
+                                alt="Ilagan City Logo"
                                 className="w-full h-full object-contain rounded-full"
                             />
                         </div>
                         <div>
                             <h1 className="text-white font-bold text-lg">
-                                CDRRMO
+                                CPDO
                             </h1>
                             <p className="text-blue-200 text-sm">
                                 City of Ilagan
@@ -113,22 +109,7 @@ export default function Welcome({ auth }) {
                             >
                                 Dashboard
                             </Link>
-                        ) : (
-                            <div className="flex space-x-3">
-                                <Link
-                                    href={route("login")}
-                                    className="text-white border border-white px-6 py-2 rounded-full font-semibold hover:bg-white hover:text-blue-900 transition-all duration-300 transform hover:scale-105"
-                                >
-                                    Login
-                                </Link>
-                                <Link
-                                    href={route("register")}
-                                    className="bg-white text-blue-900 px-6 py-2 rounded-full font-semibold hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                                >
-                                    Register
-                                </Link>
-                            </div>
-                        )}
+                        ) : null}
                     </div>
                 </nav>
 
@@ -143,9 +124,9 @@ export default function Welcome({ auth }) {
                             }`}
                         >
                             <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-                                City Disaster Risk
+                                City Planning and
                                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
-                                    Reduction & Management Council
+                                    Development Office
                                 </span>
                             </h1>
                         </div>
@@ -377,24 +358,22 @@ export default function Welcome({ auth }) {
                             <div className="flex items-center space-x-3 mb-4">
                                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center p-1">
                                     <img
-                                        src="/images/cdrrmo.png"
-                                        alt="CDRRMO Logo"
+                                        src="/images/ilagan.png"
+                                        alt="Ilagan City Logo"
                                         className="w-full h-full object-contain rounded-full"
                                     />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg">
-                                        CDRRMO
-                                    </h3>
+                                    <h3 className="font-bold text-lg">CPDO</h3>
                                     <p className="text-gray-400 text-sm">
                                         City of Ilagan
                                     </p>
                                 </div>
                             </div>
                             <p className="text-gray-400 leading-relaxed">
-                                City Disaster Risk Reduction and Management
-                                Office - Serving the community with efficient
-                                and reliable land use certification services.
+                                City Planning and Development Office - Serving
+                                the community with efficient and reliable land
+                                use certification services.
                             </p>
                         </div>
 
@@ -404,10 +383,11 @@ export default function Welcome({ auth }) {
                             </h4>
                             <div className="space-y-2 text-gray-400">
                                 <p>
-                                    📍 CDRRMO Building, City of Ilagan, Isabela
+                                    📍 Ground Floor,City Hall Bldg, City of
+                                    Ilagan, Isabela
                                 </p>
-                                <p>📞 Contact: 624-0203/ 0915 234 1124</p>
-                                <p>✉️ Email: cdrrmo@ilagan.gov.ph</p>
+                                <p>📞 Contact: 624-0009</p>
+                                <p>✉️ Email: cpdo@cityofilagan.gov.ph</p>
                             </div>
                         </div>
 
@@ -427,8 +407,8 @@ export default function Welcome({ auth }) {
 
                     <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
                         <p>
-                            &copy; 2024 City Disaster Risk Reduction and
-                            Management Office. All rights reserved.
+                            &copy; 2024 City Planning And Development Office.
+                            All rights reserved.
                         </p>
                     </div>
                 </div>

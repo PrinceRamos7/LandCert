@@ -309,7 +309,7 @@ class AdminController extends Controller
      */
     public function requests(Request $request): Response
     {
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', 10);
         
         // Get all requests with their related data
         $requestsData = RequestModel::with('user')->orderBy('created_at', 'desc')->paginate($perPage);
@@ -450,7 +450,7 @@ class AdminController extends Controller
      */
     public function users(Request $request): Response
     {
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', 10);
         
         $users = \App\Models\User::where('user_type', 'applicant')
             ->orderBy('created_at', 'desc')
@@ -495,7 +495,7 @@ class AdminController extends Controller
      */
     public function payments(Request $request): Response
     {
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', 10);
         
         $payments = \App\Models\Payment::with(['request', 'application', 'verifier'])
             ->orderBy('created_at', 'desc')
@@ -624,6 +624,7 @@ class AdminController extends Controller
         ];
 
         $pdf = \PDF::loadView('exports.payments-pdf', $data);
+        $pdf->setPaper('a4', 'landscape');
         $filename = 'payments_export_' . now()->format('Y-m-d_His') . '.pdf';
         
         return $pdf->download($filename);
@@ -883,6 +884,7 @@ class AdminController extends Controller
         // Generate PDF
         try {
             $pdf = Pdf::loadView('certificates.professional-template', $data);
+            $pdf->setPaper('a4', 'landscape');
             \Log::info('PDF generated successfully');
         } catch (\Exception $e) {
             \Log::error('PDF generation failed: ' . $e->getMessage());
@@ -1012,7 +1014,7 @@ class AdminController extends Controller
     public function exportRequests(Request $request)
     {
         $status = $request->input('status', 'all');
-        $format = $request->input('format', 'csv');
+        $format = $request->input('format', 'pdf');
         
         $requestsData = RequestModel::with('user')->orderBy('created_at', 'desc')->get();
         $applicationsData = Application::with('report')->get()->keyBy(function($app) {
@@ -1027,21 +1029,39 @@ class AdminController extends Controller
             return (object)[
                 'id' => $request->id,
                 'applicant_name' => $request->applicant_name,
-                'corporation_name' => $request->corporation_name,
                 'applicant_address' => $request->applicant_address,
+                'corporation_name' => $request->corporation_name,
+                'corporation_address' => $request->corporation_address,
+                'authorized_representative_name' => $application?->authorized_representative_name,
+                'authorized_representative_address' => $application?->authorized_representative_address,
+                'authorization_letter_path' => $application?->authorization_letter_path,
                 'project_type' => $request->project_type,
                 'project_nature' => $request->project_nature,
+                'project_location_number' => $request->project_location_number,
                 'project_location_street' => $request->project_location_street,
                 'project_location_barangay' => $request->project_location_barangay,
-                'project_location_city' => $request->project_location_city,
                 'project_location_municipality' => $request->project_location_municipality,
+                'project_location_city' => $request->project_location_city,
                 'project_location_province' => $request->project_location_province,
+                'project_area_sqm' => $request->project_area_sqm,
                 'lot_area_sqm' => $request->lot_area_sqm,
+                'bldg_improvement_sqm' => $request->bldg_improvement_sqm,
+                'right_over_land' => $request->right_over_land,
+                'project_nature_duration' => $request->project_nature_duration,
+                'project_nature_years' => $request->project_nature_years,
                 'project_cost' => $request->project_cost,
+                'existing_land_use' => $request->existing_land_use,
+                'has_written_notice' => $request->has_written_notice,
+                'notice_officer_name' => $request->notice_officer_name,
+                'notice_dates' => $request->notice_dates,
+                'has_similar_application' => $request->has_similar_application,
+                'similar_application_offices' => $request->similar_application_offices,
+                'similar_application_dates' => $request->similar_application_dates,
+                'preferred_release_mode' => $request->preferred_release_mode,
+                'release_address' => $request->release_address,
                 'user_name' => $request->user?->name,
                 'user_email' => $request->user?->email,
                 'status' => $report?->evaluation ?? $request->status,
-                'authorization_letter_path' => $application?->authorization_letter_path,
                 'created_at' => $request->created_at,
             ];
         });

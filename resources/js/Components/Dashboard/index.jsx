@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
     Dialog,
     DialogContent,
@@ -15,6 +16,15 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 import { ProgressIndicator } from "@/Components/ui/progress-indicator";
 import {
     CalendarDays,
@@ -35,13 +45,18 @@ import {
     Award,
     TrendingUp,
     Activity,
+    Search,
+    Mail,
 } from "lucide-react";
 
 export function Dashboard({ requests }) {
     const [filterStatus, setFilterStatus] = useState("all");
+    const [searchTerm, setSearchTerm] = useState("");
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showStatistics, setShowStatistics] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 9;
 
     const requestsData = requests?.data || requests || [];
 
@@ -77,11 +92,38 @@ export function Dashboard({ requests }) {
         };
     }, [requestsData]);
 
-    // Filter requests based on selected status
+    // Filter requests based on selected status and search term
     const filteredRequests = useMemo(() => {
-        if (filterStatus === "all") return requestsData;
-        return requestsData.filter((r) => r.status === filterStatus);
-    }, [requestsData, filterStatus]);
+        let filtered = requestsData;
+        
+        // Filter by status
+        if (filterStatus !== "all") {
+            filtered = filtered.filter((r) => r.status === filterStatus);
+        }
+        
+        // Filter by search term
+        if (searchTerm) {
+            filtered = filtered.filter((r) =>
+                r.applicant_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                r.project_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                r.project_location_city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                r.id?.toString().includes(searchTerm)
+            );
+        }
+        
+        return filtered;
+    }, [requestsData, filterStatus, searchTerm]);
+
+    // Pagination calculations
+    const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
+
+    // Reset to page 1 when filters change
+    useMemo(() => {
+        setCurrentPage(1);
+    }, [filterStatus, searchTerm]);
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -279,7 +321,7 @@ export function Dashboard({ requests }) {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-x-hidden">
             {/* Header Section with Icon and Toggle Button */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -318,9 +360,9 @@ export function Dashboard({ requests }) {
                 </div>
             </div>
 
-            {/* Enhanced Statistics Cards or CDRRMO Logo */}
+            {/* Statistics Cards or CDRRMO Logo */}
             {showStatistics ? (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 w-full">
                     <Card
                         className="group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 border-0 bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200"
                         onClick={() => setFilterStatus("all")}
@@ -461,7 +503,7 @@ export function Dashboard({ requests }) {
                 </div>
             ) : (
                 <div className="mb-8">
-                    <Card className="bg-gradient-to-br from-white via-blue-50 to-indigo-100 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden animate-in fade-in zoom-in duration-700">
+                    <Card className="bg-gradient-to-br from-white via-blue-50 to-indigo-100 backdrop-blur-sm border-0 shadow-2xl rounded-3xl animate-in fade-in zoom-in duration-700">
                         <CardContent className="p-12">
                             <div className="flex flex-col items-center justify-center min-h-[450px] space-y-8">
                                 <div className="relative group">
@@ -475,8 +517,8 @@ export function Dashboard({ requests }) {
                                         <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-white/60 rounded-full shadow-2xl backdrop-blur-sm"></div>
                                         <div className="absolute inset-4 rounded-full overflow-hidden shadow-xl">
                                             <img
-                                                src="/images/cdrrmo.png"
-                                                alt="CDRRMO Logo"
+                                                src="/images/ilagan.png"
+                                                alt="Ilagan City Logo"
                                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                             />
                                         </div>
@@ -488,12 +530,31 @@ export function Dashboard({ requests }) {
                                         <div className="absolute bottom-1/3 -left-6 w-2 h-2 bg-pink-400 rounded-full animate-bounce delay-700"></div>
                                     </div>
                                 </div>
-
-                                {/* Animated gradient line */}
-                                <div className="w-32 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 rounded-full animate-pulse"></div>
                             </div>
                         </CardContent>
                     </Card>
+                </div>
+            )}
+
+            {/* Search Bar */}
+            {showStatistics && (
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                        type="text"
+                        placeholder="Search by applicant name, project type, location, or ID..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 pr-4 py-6 text-base border-2 border-gray-200 focus:border-blue-500 rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+                    />
+                    {searchTerm && (
+                        <button
+                            onClick={() => setSearchTerm("")}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <XCircle className="h-5 w-5" />
+                        </button>
+                    )}
                 </div>
             )}
 
@@ -522,7 +583,7 @@ export function Dashboard({ requests }) {
 
                     {/* Enhanced Requests Grid */}
                     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                        {filteredRequests.map((request) => {
+                        {paginatedRequests.map((request, index) => {
                             const hasVerifiedPayment =
                                 request?.payment_verified &&
                                 request?.certificate_number;
@@ -536,7 +597,7 @@ export function Dashboard({ requests }) {
 
                             return (
                                 <Card
-                                    key={request.id}
+                                    key={`request-${request.id}-${index}`}
                                     className={`group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer border-0 bg-white overflow-hidden ${
                                         hasVerifiedPayment
                                             ? "ring-2 ring-emerald-200"
@@ -816,539 +877,488 @@ export function Dashboard({ requests }) {
                         })}
                     </div>
 
+                    {/* Pagination */}
+                    {filteredRequests.length > itemsPerPage && (
+                        <div className="mt-8 flex justify-center">
+                            <Pagination>
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            onClick={() =>
+                                                setCurrentPage((prev) =>
+                                                    Math.max(prev - 1, 1)
+                                                )
+                                            }
+                                            disabled={currentPage === 1}
+                                            className={
+                                                currentPage === 1
+                                                    ? "pointer-events-none opacity-50"
+                                                    : "cursor-pointer"
+                                            }
+                                        />
+                                    </PaginationItem>
+
+                                    {/* Page numbers */}
+                                    {Array.from(
+                                        { length: totalPages },
+                                        (_, i) => i + 1
+                                    ).map((page) => {
+                                        // Show first page, last page, current page, and pages around current
+                                        if (
+                                            page === 1 ||
+                                            page === totalPages ||
+                                            (page >= currentPage - 1 &&
+                                                page <= currentPage + 1)
+                                        ) {
+                                            return (
+                                                <PaginationItem key={page}>
+                                                    <PaginationLink
+                                                        onClick={() =>
+                                                            setCurrentPage(page)
+                                                        }
+                                                        isActive={
+                                                            currentPage === page
+                                                        }
+                                                        className="cursor-pointer"
+                                                    >
+                                                        {page}
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                            );
+                                        } else if (
+                                            page === currentPage - 2 ||
+                                            page === currentPage + 2
+                                        ) {
+                                            return (
+                                                <PaginationItem key={page}>
+                                                    <PaginationEllipsis />
+                                                </PaginationItem>
+                                            );
+                                        }
+                                        return null;
+                                    })}
+
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            onClick={() =>
+                                                setCurrentPage((prev) =>
+                                                    Math.min(
+                                                        prev + 1,
+                                                        totalPages
+                                                    )
+                                                )
+                                            }
+                                            disabled={currentPage === totalPages}
+                                            className={
+                                                currentPage === totalPages
+                                                    ? "pointer-events-none opacity-50"
+                                                    : "cursor-pointer"
+                                            }
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        </div>
+                    )}
+
+                    {/* Pagination Info */}
+                    {filteredRequests.length > 0 && (
+                        <div className="text-center text-sm text-gray-600 mt-4">
+                            Showing {startIndex + 1} to{" "}
+                            {Math.min(endIndex, filteredRequests.length)} of{" "}
+                            {filteredRequests.length} requests
+                        </div>
+                    )}
+
                     {/* No results message */}
-                    {filteredRequests.length === 0 &&
-                        filterStatus !== "all" && (
-                            <div className="text-center py-12">
-                                <div className="rounded-full bg-muted p-6 mb-4 inline-block">
+                    {filteredRequests.length === 0 && (
+                        <div className="text-center py-12">
+                            <div className="rounded-full bg-muted p-6 mb-4 inline-block">
+                                {searchTerm ? (
+                                    <Search className="h-12 w-12 text-muted-foreground" />
+                                ) : (
                                     <Filter className="h-12 w-12 text-muted-foreground" />
-                                </div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                    No {filterStatus} requests found
-                                </h3>
-                                <p className="text-sm text-muted-foreground mb-4">
-                                    Try selecting a different filter or view all
-                                    requests.
-                                </p>
-                                <button
-                                    onClick={() => setFilterStatus("all")}
-                                    className="text-primary hover:underline"
-                                >
-                                    View all requests
-                                </button>
+                                )}
                             </div>
-                        )}
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                {searchTerm
+                                    ? `No results found for "${searchTerm}"`
+                                    : `No ${filterStatus} requests found`}
+                            </h3>
+                            <p className="text-sm text-muted-foreground mb-4">
+                                {searchTerm
+                                    ? "Try adjusting your search terms or clear the search to view all requests."
+                                    : "Try selecting a different filter or view all requests."}
+                            </p>
+                            <div className="flex gap-2 justify-center">
+                                {searchTerm && (
+                                    <button
+                                        onClick={() => setSearchTerm("")}
+                                        className="text-primary hover:underline"
+                                    >
+                                        Clear search
+                                    </button>
+                                )}
+                                {filterStatus !== "all" && (
+                                    <button
+                                        onClick={() => setFilterStatus("all")}
+                                        className="text-primary hover:underline"
+                                    >
+                                        View all requests
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </>
             )}
 
-            {/* Request Details Modal - Enhanced Landscape Layout */}
+            {/* Request Details Modal - Compact Layout */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-[90vw] w-full max-h-[90vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 border-0 shadow-2xl rounded-3xl">
-                    {/* Modal Header with Gradient Background */}
-                    <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
-                        <DialogHeader>
-                            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                                    <FileText className="h-6 w-6" />
-                                </div>
-                                Request Details #{selectedRequest?.id}
-                            </DialogTitle>
-                            <DialogDescription className="text-blue-100 text-lg">
-                                Submitted on{" "}
-                                {formatDate(selectedRequest?.created_at)} •
-                                Status:{" "}
-                                {(selectedRequest?.status || "pending")
-                                    .charAt(0)
-                                    .toUpperCase() +
-                                    (
-                                        selectedRequest?.status || "pending"
-                                    ).slice(1)}
-                            </DialogDescription>
-                        </DialogHeader>
+                <DialogContent className="max-w-[95vw] w-full max-h-[100vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
+                    <DialogHeader className="pb-3 bg-blue-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
+                        <DialogTitle className="text-lg font-bold text-white">
+                            Request Details #{selectedRequest?.id}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-white">
+                            Submitted on {formatDate(selectedRequest?.created_at)} • Status: {(selectedRequest?.status || "pending").charAt(0).toUpperCase() + (selectedRequest?.status || "pending").slice(1)}
+                        </DialogDescription>
+                    </DialogHeader>
 
-                        {/* Rejection Reason Alert - Only show for rejected requests */}
-                        {selectedRequest?.status === "rejected" &&
-                            selectedRequest?.report_description && (
-                                <div className="mx-6 mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
-                                    <div className="flex items-start">
-                                        <div className="flex-shrink-0">
-                                            <svg
-                                                className="h-5 w-5 text-red-400"
-                                                viewBox="0 0 20 20"
-                                                fill="currentColor"
-                                            >
-                                                <path
-                                                    fillRule="evenodd"
-                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                                    clipRule="evenodd"
-                                                />
-                                            </svg>
-                                        </div>
-                                        <div className="ml-3 flex-1">
-                                            <h3 className="text-sm font-semibold text-red-800">
-                                                Application Rejected
-                                            </h3>
-                                            <div className="mt-2 text-sm text-red-700">
-                                                <p className="font-medium mb-1">
-                                                    Reason for rejection:
-                                                </p>
-                                                <div className="bg-white p-3 rounded border border-red-200">
-                                                    <p className="text-gray-800 leading-relaxed">
-                                                        {
-                                                            selectedRequest.report_description
-                                                        }
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="mt-3 text-xs text-red-600">
-                                                <p>
-                                                    💡 Please review the
-                                                    feedback above and submit a
-                                                    new application with the
-                                                    necessary corrections.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                    </div>
-
-                    {/* Scrollable Content Area */}
-                    <div className="overflow-y-auto max-h-[calc(80vh-200px)] pr-2">
-                        {selectedRequest && (
-                            <div className="space-y-6 mt-6">
-                                {/* Applicant Information */}
-                                <div className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-lg p-5 border border-blue-100">
-                                    <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2 mb-4">
-                                        <div className="p-2 bg-blue-100 rounded-lg">
-                                            <User className="h-5 w-5 text-blue-600" />
-                                        </div>
-                                        Applicant Information
+                    {/* Rejection Reason Alert - Only show for rejected requests */}
+                    {selectedRequest?.status === "rejected" && selectedRequest?.report_description && (
+                        <div className="mx-4 mb-4 p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                            <div className="flex items-start gap-2">
+                                <XCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                                <div className="flex-1">
+                                    <h3 className="text-sm font-semibold text-red-800 mb-1">
+                                        Application Rejected
                                     </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="bg-white p-3 rounded-md border border-blue-100">
-                                            <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                                Applicant Name
-                                            </p>
-                                            <p className="font-semibold text-gray-900">
-                                                {selectedRequest.applicant_name ||
-                                                    "N/A"}
-                                            </p>
-                                        </div>
-                                        <div className="bg-white p-3 rounded-md border border-blue-100">
-                                            <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                                Applicant Address
-                                            </p>
-                                            <p className="font-medium text-gray-700">
-                                                {selectedRequest.applicant_address ||
-                                                    "N/A"}
-                                            </p>
-                                        </div>
-                                        {selectedRequest.corporation_name && (
-                                            <>
-                                                <div className="bg-white p-3 rounded-md border border-blue-100">
-                                                    <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                                        Corporation Name
-                                                    </p>
-                                                    <p className="font-semibold text-gray-900">
-                                                        {
-                                                            selectedRequest.corporation_name
-                                                        }
-                                                    </p>
-                                                </div>
-                                                <div className="bg-white p-3 rounded-md border border-blue-100">
-                                                    <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                                        Corporation Address
-                                                    </p>
-                                                    <p className="font-medium text-gray-700">
-                                                        {selectedRequest.corporation_address ||
-                                                            "N/A"}
-                                                    </p>
-                                                </div>
-                                            </>
-                                        )}
-                                        {selectedRequest.authorized_representative_name && (
-                                            <>
-                                                <div className="bg-white p-3 rounded-md border border-blue-100">
-                                                    <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                                        Authorized
-                                                        Representative
-                                                    </p>
-                                                    <p className="font-semibold text-gray-900">
-                                                        {
-                                                            selectedRequest.authorized_representative_name
-                                                        }
-                                                    </p>
-                                                </div>
-                                                <div className="bg-white p-3 rounded-md border border-blue-100">
-                                                    <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                                        Representative Address
-                                                    </p>
-                                                    <p className="font-medium text-gray-700">
-                                                        {selectedRequest.authorized_representative_address ||
-                                                            "N/A"}
-                                                    </p>
-                                                </div>
-                                            </>
-                                        )}
+                                    <p className="text-xs text-red-700 mb-2">Reason for rejection:</p>
+                                    <div className="bg-white p-2 rounded border border-red-200">
+                                        <p className="text-xs text-gray-800 leading-relaxed">
+                                            {selectedRequest.report_description}
+                                        </p>
                                     </div>
+                                    <p className="text-xs text-red-600 mt-2">
+                                        💡 Please review the feedback and submit a new application with corrections.
+                                    </p>
                                 </div>
+                            </div>
+                        </div>
+                    )}
 
-                                {/* Project Details */}
-                                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg p-5 border border-emerald-100">
-                                    <h3 className="text-lg font-bold text-emerald-900 flex items-center gap-2 mb-4">
-                                        <div className="p-2 bg-emerald-100 rounded-lg">
-                                            <Building2 className="h-5 w-5 text-emerald-600" />
+                    {/* Content Grid - Compact 2 Column Layout */}
+                    <div className="grid grid-cols-2 gap-4 py-2 overflow-y-auto max-h-[calc(90vh-160px)]">
+                        {/* Left Column */}
+                        <div className="space-y-3">
+                            {/* Applicant Information */}
+                            <div className="border border-gray-200 rounded-md p-3 bg-gray-50">
+                                <h3 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+                                    <User className="h-3.5 w-3.5 text-blue-600" />
+                                    Applicant Information
+                                </h3>
+                                <div className="space-y-2 text-xs">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <p className="text-[10px] font-medium text-gray-500">Applicant Name</p>
+                                            <p className="font-semibold text-gray-900">{selectedRequest?.applicant_name || "N/A"}</p>
                                         </div>
-                                        Project Details
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {selectedRequest.project_type && (
-                                            <div className="bg-white p-3 rounded-md border border-emerald-100">
-                                                <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                                    Project Type
-                                                </p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {
-                                                        selectedRequest.project_type
-                                                    }
-                                                </p>
-                                            </div>
-                                        )}
-                                        {selectedRequest.project_nature && (
-                                            <div className="bg-white p-3 rounded-md border border-emerald-100">
-                                                <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                                    Project Nature
-                                                </p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {
-                                                        selectedRequest.project_nature
-                                                    }
-                                                </p>
-                                            </div>
-                                        )}
-                                        <div className="md:col-span-2 bg-white p-3 rounded-md border border-emerald-100">
-                                            <p className="text-xs font-semibold text-emerald-600 uppercase mb-1 flex items-center gap-1">
-                                                <MapPin className="h-3 w-3" />
-                                                Project Location
-                                            </p>
-                                            <p className="font-medium text-gray-700">
-                                                {formatLocation(
-                                                    selectedRequest
-                                                )}
-                                            </p>
+                                        <div>
+                                            <p className="text-[10px] font-medium text-gray-500">Applicant Address</p>
+                                            <p className="font-medium text-gray-900">{selectedRequest?.applicant_address || "N/A"}</p>
                                         </div>
-                                        {selectedRequest.lot_area_sqm && (
-                                            <div className="bg-white p-3 rounded-md border border-emerald-100">
-                                                <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                                    Lot Area
-                                                </p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {parseFloat(
-                                                        selectedRequest.lot_area_sqm
-                                                    ).toLocaleString()}{" "}
-                                                    sqm
-                                                </p>
-                                            </div>
-                                        )}
-                                        {selectedRequest.bldg_improvement_sqm && (
-                                            <div className="bg-white p-3 rounded-md border border-emerald-100">
-                                                <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                                    Building/Improvement Area
-                                                </p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {parseFloat(
-                                                        selectedRequest.bldg_improvement_sqm
-                                                    ).toLocaleString()}{" "}
-                                                    sqm
-                                                </p>
-                                            </div>
-                                        )}
-                                        {selectedRequest.project_area_sqm && (
-                                            <div className="bg-white p-3 rounded-md border border-emerald-100">
-                                                <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                                    Project Area
-                                                </p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {parseFloat(
-                                                        selectedRequest.project_area_sqm
-                                                    ).toLocaleString()}{" "}
-                                                    sqm
-                                                </p>
-                                            </div>
-                                        )}
-                                        {selectedRequest.right_over_land && (
-                                            <div className="bg-white p-3 rounded-md border border-emerald-100">
-                                                <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                                    Right Over Land
-                                                </p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {
-                                                        selectedRequest.right_over_land
-                                                    }
-                                                </p>
-                                            </div>
-                                        )}
-                                        {selectedRequest.project_cost && (
-                                            <div className="bg-white p-3 rounded-md border border-emerald-100">
-                                                <p className="text-xs font-semibold text-emerald-600 uppercase mb-1 flex items-center gap-1">
-                                                    <DollarSign className="h-3 w-3" />
-                                                    Project Cost
-                                                </p>
-                                                <p className="font-semibold text-gray-900">
-                                                    ₱
-                                                    {parseFloat(
-                                                        selectedRequest.project_cost
-                                                    ).toLocaleString()}
-                                                </p>
-                                            </div>
-                                        )}
                                     </div>
+                                    {selectedRequest?.corporation_name && (
+                                        <>
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Corporation Name</p>
+                                                <p className="font-semibold">{selectedRequest.corporation_name}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Corporation Address</p>
+                                                <p className="font-medium">{selectedRequest.corporation_address || "N/A"}</p>
+                                            </div>
+                                        </>
+                                    )}
+                                    {selectedRequest?.authorized_representative_name && (
+                                        <>
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Authorized Representative</p>
+                                                <p className="font-semibold">{selectedRequest.authorized_representative_name}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Representative Address</p>
+                                                <p className="font-medium">{selectedRequest.authorized_representative_address || "N/A"}</p>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
+                            </div>
 
-                                {/* Land Use Information */}
-                                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-5 border border-amber-100">
-                                    <h3 className="text-lg font-bold text-amber-900 flex items-center gap-2 mb-4">
-                                        <div className="p-2 bg-amber-100 rounded-lg">
-                                            <Home className="h-5 w-5 text-amber-600" />
-                                        </div>
-                                        Land Use Information
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {selectedRequest.existing_land_use && (
-                                            <div className="bg-white p-3 rounded-md border border-amber-100">
-                                                <p className="text-xs font-semibold text-amber-600 uppercase mb-1">
-                                                    Existing Land Use
-                                                </p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {
-                                                        selectedRequest.existing_land_use
-                                                    }
-                                                </p>
+                            {/* Project Details */}
+                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                    <Building2 className="h-4 w-4 text-purple-600" />
+                                    Project Details
+                                </h3>
+                                <div className="space-y-3 text-sm">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {selectedRequest?.project_type && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Project Type</p>
+                                                <p className="font-semibold">{selectedRequest.project_type}</p>
                                             </div>
                                         )}
-                                        {selectedRequest.project_nature_duration && (
-                                            <div className="bg-white p-3 rounded-md border border-amber-100">
-                                                <p className="text-xs font-semibold text-amber-600 uppercase mb-1">
-                                                    Project Duration
-                                                </p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {
-                                                        selectedRequest.project_nature_duration
-                                                    }
-                                                    {selectedRequest.project_nature_years &&
-                                                        ` (${selectedRequest.project_nature_years} years)`}
-                                                </p>
+                                        {selectedRequest?.project_nature && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Project Nature</p>
+                                                <p className="font-semibold">{selectedRequest.project_nature}</p>
                                             </div>
                                         )}
                                     </div>
-                                </div>
-
-                                {/* Additional Information */}
-                                {(selectedRequest.has_written_notice ||
-                                    selectedRequest.has_similar_application ||
-                                    selectedRequest.preferred_release_mode) && (
-                                    <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-5 border border-purple-100">
-                                        <h3 className="text-lg font-bold text-purple-900 flex items-center gap-2 mb-4">
-                                            <div className="p-2 bg-purple-100 rounded-lg">
-                                                <Briefcase className="h-5 w-5 text-purple-600" />
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {selectedRequest?.project_nature_duration && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Project Duration</p>
+                                                <p className="font-semibold">
+                                                    {selectedRequest.project_nature_duration}
+                                                    {selectedRequest.project_nature_years && ` (${selectedRequest.project_nature_years} years)`}
+                                                </p>
                                             </div>
-                                            Additional Information
-                                        </h3>
-                                        <div className="space-y-3">
-                                            {selectedRequest.has_written_notice ===
-                                                "yes" && (
-                                                <div className="bg-white p-4 rounded-md border border-purple-100">
-                                                    <p className="text-xs font-semibold text-purple-600 uppercase mb-2">
-                                                        Written Notice Sent
-                                                    </p>
-                                                    <p className="font-semibold text-gray-900 mb-2">
-                                                        Yes
-                                                    </p>
-                                                    {selectedRequest.notice_officer_name && (
-                                                        <p className="text-sm text-gray-700 mt-1">
-                                                            <span className="font-medium">
-                                                                Officer:
-                                                            </span>{" "}
-                                                            {
-                                                                selectedRequest.notice_officer_name
-                                                            }
-                                                        </p>
-                                                    )}
-                                                    {selectedRequest.notice_dates && (
-                                                        <p className="text-sm text-gray-700">
-                                                            <span className="font-medium">
-                                                                Dates:
-                                                            </span>{" "}
-                                                            {
-                                                                selectedRequest.notice_dates
-                                                            }
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )}
-                                            {selectedRequest.has_similar_application ===
-                                                "yes" && (
-                                                <div className="bg-white p-4 rounded-md border border-purple-100">
-                                                    <p className="text-xs font-semibold text-purple-600 uppercase mb-2">
-                                                        Similar Application
-                                                        Filed
-                                                    </p>
-                                                    <p className="font-semibold text-gray-900 mb-2">
-                                                        Yes
-                                                    </p>
-                                                    {selectedRequest.similar_application_offices && (
-                                                        <p className="text-sm text-gray-700 mt-1">
-                                                            <span className="font-medium">
-                                                                Offices:
-                                                            </span>{" "}
-                                                            {
-                                                                selectedRequest.similar_application_offices
-                                                            }
-                                                        </p>
-                                                    )}
-                                                    {selectedRequest.similar_application_dates && (
-                                                        <p className="text-sm text-gray-700">
-                                                            <span className="font-medium">
-                                                                Dates:
-                                                            </span>{" "}
-                                                            {
-                                                                selectedRequest.similar_application_dates
-                                                            }
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )}
-                                            {selectedRequest.preferred_release_mode && (
-                                                <div className="bg-white p-4 rounded-md border border-purple-100">
-                                                    <p className="text-xs font-semibold text-purple-600 uppercase mb-2">
-                                                        Preferred Release Mode
-                                                    </p>
-                                                    <p className="font-semibold text-gray-900 capitalize mb-2">
-                                                        {selectedRequest.preferred_release_mode.replace(
-                                                            "_",
-                                                            " "
-                                                        )}
-                                                    </p>
-                                                    {selectedRequest.release_address && (
-                                                        <p className="text-sm text-gray-700 mt-1">
-                                                            <span className="font-medium">
-                                                                Address:
-                                                            </span>{" "}
-                                                            {
-                                                                selectedRequest.release_address
-                                                            }
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
+                                        )}
+                                        {selectedRequest?.right_over_land && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Right Over Land</p>
+                                                <p className="font-semibold">{selectedRequest.right_over_land}</p>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-
-                                {/* Certificate Information */}
-                                {selectedRequest?.payment_verified &&
-                                    selectedRequest?.certificate_number && (
-                                        <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg p-5 border border-emerald-200">
-                                            <h3 className="text-lg font-bold text-emerald-900 flex items-center gap-2 mb-4">
-                                                <div className="p-2 bg-emerald-100 rounded-lg">
-                                                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                                                </div>
-                                                Certificate Information
-                                            </h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                <div className="bg-white p-4 rounded-md border border-emerald-100">
-                                                    <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                                        Certificate Number
-                                                    </p>
-                                                    <p className="font-bold text-emerald-900 text-lg">
-                                                        {
-                                                            selectedRequest.certificate_number
-                                                        }
-                                                    </p>
-                                                </div>
-                                                <div className="bg-white p-4 rounded-md border border-emerald-100">
-                                                    <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                                        Issued
-                                                    </p>
-                                                    <p className="font-semibold text-emerald-800">
-                                                        {formatDate(
-                                                            selectedRequest.certificate_issued_at
-                                                        )}
-                                                    </p>
-                                                </div>
-                                                {selectedRequest.payment_amount && (
-                                                    <div className="bg-white p-4 rounded-md border border-emerald-100">
-                                                        <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                                            Amount Paid
-                                                        </p>
-                                                        <p className="font-semibold text-emerald-800">
-                                                            ₱
-                                                            {parseFloat(
-                                                                selectedRequest.payment_amount
-                                                            ).toLocaleString()}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                                {selectedRequest.payment_date && (
-                                                    <div className="bg-white p-4 rounded-md border border-emerald-100">
-                                                        <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                                            Payment Date
-                                                        </p>
-                                                        <p className="font-semibold text-emerald-800">
-                                                            {formatDate(
-                                                                selectedRequest.payment_date
-                                                            )}
-                                                        </p>
-                                                    </div>
-                                                )}
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {selectedRequest?.project_area_sqm && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Project Area</p>
+                                                <p className="font-semibold">{parseFloat(selectedRequest.project_area_sqm).toLocaleString()} sqm</p>
                                             </div>
-                                            <div className="flex gap-3">
-                                                <a
-                                                    href={`/certificate/${selectedRequest.certificate_id}/download`}
-                                                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-md hover:shadow-lg"
-                                                >
-                                                    <FileText className="h-5 w-5" />
-                                                    Download Certificate
-                                                </a>
-                                                <a
-                                                    href="/receipt"
-                                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-colors"
-                                                >
-                                                    View Receipt
-                                                </a>
+                                        )}
+                                        {selectedRequest?.lot_area_sqm && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Lot Area</p>
+                                                <p className="font-semibold">{parseFloat(selectedRequest.lot_area_sqm).toLocaleString()} sqm</p>
                                             </div>
+                                        )}
+                                        {selectedRequest?.bldg_improvement_sqm && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Building Area</p>
+                                                <p className="font-semibold">{parseFloat(selectedRequest.bldg_improvement_sqm).toLocaleString()} sqm</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {selectedRequest?.project_cost && (
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">Project Cost</p>
+                                            <p className="font-semibold">₱{parseFloat(selectedRequest.project_cost).toLocaleString()}</p>
                                         </div>
                                     )}
+                                </div>
+                            </div>
+                        </div>
 
-                                {/* Timestamps */}
-                                <div className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg p-4 border border-slate-200">
-                                    <div className="grid grid-cols-2 gap-4 text-sm">
-                                        <div>
-                                            <p className="text-xs font-semibold text-slate-600 uppercase mb-1">
-                                                Created
-                                            </p>
-                                            <p className="font-medium text-gray-900">
-                                                {formatDate(
-                                                    selectedRequest.created_at
-                                                )}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-semibold text-slate-600 uppercase mb-1">
-                                                Last Updated
-                                            </p>
-                                            <p className="font-medium text-gray-900">
-                                                {formatDate(
-                                                    selectedRequest.updated_at
-                                                )}
-                                            </p>
-                                        </div>
+                        {/* Right Column */}
+                        <div className="space-y-6 overflow-y-auto pr-2">
+                            {/* Project Location */}
+                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                    <MapPin className="h-4 w-4 text-green-600" />
+                                    Project Location
+                                </h3>
+                                <div className="space-y-3 text-sm">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {selectedRequest?.project_location_number && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">House/Lot Number</p>
+                                                <p className="font-semibold">{selectedRequest.project_location_number}</p>
+                                            </div>
+                                        )}
+                                        {selectedRequest?.project_location_street && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Street</p>
+                                                <p className="font-semibold">{selectedRequest.project_location_street}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {selectedRequest?.project_location_barangay && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Barangay</p>
+                                                <p className="font-semibold">{selectedRequest.project_location_barangay}</p>
+                                            </div>
+                                        )}
+                                        {(selectedRequest?.project_location_municipality || selectedRequest?.project_location_city) && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Municipality/City</p>
+                                                <p className="font-semibold">{selectedRequest.project_location_municipality || selectedRequest.project_location_city}</p>
+                                            </div>
+                                        )}
+                                        {selectedRequest?.project_location_province && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Province</p>
+                                                <p className="font-semibold">{selectedRequest.project_location_province}</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
-                        )}
+
+                            {/* Land Use Information */}
+                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                    <Home className="h-4 w-4 text-amber-600" />
+                                    Land Use Information
+                                </h3>
+                                <div className="space-y-3 text-sm">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {selectedRequest?.existing_land_use && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Existing Land Use</p>
+                                                <p className="font-semibold">{selectedRequest.existing_land_use}</p>
+                                            </div>
+                                        )}
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">Written Notice to Tenants</p>
+                                            <p className="font-semibold">{selectedRequest?.has_written_notice === "yes" ? "Yes" : "No"}</p>
+                                        </div>
+                                    </div>
+                                    {selectedRequest?.has_written_notice === "yes" && (
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {selectedRequest.notice_officer_name && (
+                                                <div>
+                                                    <p className="text-xs font-medium text-gray-500">Notice Officer Name</p>
+                                                    <p className="font-semibold">{selectedRequest.notice_officer_name}</p>
+                                                </div>
+                                            )}
+                                            {selectedRequest.notice_dates && (
+                                                <div>
+                                                    <p className="text-xs font-medium text-gray-500">Notice Dates</p>
+                                                    <p className="font-semibold">{selectedRequest.notice_dates}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">Similar Application Filed</p>
+                                            <p className="font-semibold">{selectedRequest?.has_similar_application === "yes" ? "Yes" : "No"}</p>
+                                        </div>
+                                    </div>
+                                    {selectedRequest?.has_similar_application === "yes" && (
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {selectedRequest.similar_application_offices && (
+                                                <div>
+                                                    <p className="text-xs font-medium text-gray-500">Application Offices</p>
+                                                    <p className="font-semibold">{selectedRequest.similar_application_offices}</p>
+                                                </div>
+                                            )}
+                                            {selectedRequest.similar_application_dates && (
+                                                <div>
+                                                    <p className="text-xs font-medium text-gray-500">Application Dates</p>
+                                                    <p className="font-semibold">{selectedRequest.similar_application_dates}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Release Preference */}
+                            {selectedRequest?.preferred_release_mode && (
+                                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                    <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                        <Mail className="h-4 w-4 text-teal-600" />
+                                        Release Preference
+                                    </h3>
+                                    <div className="space-y-3 text-sm">
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">Preferred Release Mode</p>
+                                            <p className="font-semibold capitalize">{selectedRequest.preferred_release_mode.replace("_", " ")}</p>
+                                        </div>
+                                        {selectedRequest.release_address && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Release Address</p>
+                                                <p className="font-semibold">{selectedRequest.release_address}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Certificate Information */}
+                            {selectedRequest?.payment_verified && selectedRequest?.certificate_number && (
+                                <div className="border border-emerald-200 rounded-lg p-4 bg-emerald-50">
+                                    <h3 className="font-bold text-emerald-900 mb-3 flex items-center gap-2">
+                                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                                        Certificate Information
+                                    </h3>
+                                    <div className="space-y-3 text-sm mb-4">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Certificate Number</p>
+                                                <p className="font-bold text-emerald-900">{selectedRequest.certificate_number}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">Issued</p>
+                                                <p className="font-semibold text-emerald-800">{formatDate(selectedRequest.certificate_issued_at)}</p>
+                                            </div>
+                                        </div>
+                                        {(selectedRequest.payment_amount || selectedRequest.payment_date) && (
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {selectedRequest.payment_amount && (
+                                                    <div>
+                                                        <p className="text-xs font-medium text-gray-500">Amount Paid</p>
+                                                        <p className="font-semibold text-emerald-800">₱{parseFloat(selectedRequest.payment_amount).toLocaleString()}</p>
+                                                    </div>
+                                                )}
+                                                {selectedRequest.payment_date && (
+                                                    <div>
+                                                        <p className="text-xs font-medium text-gray-500">Payment Date</p>
+                                                        <p className="font-semibold text-emerald-800">{formatDate(selectedRequest.payment_date)}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <a
+                                            href={`/certificate/${selectedRequest.certificate_id}/download`}
+                                            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm"
+                                        >
+                                            <FileText className="h-4 w-4" />
+                                            Download Certificate
+                                        </a>
+                                        <a
+                                            href="/receipt"
+                                            className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm"
+                                        >
+                                            View Receipt
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Timestamps */}
+                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <p className="text-xs font-medium text-gray-500">Created</p>
+                                        <p className="font-semibold text-gray-900">{formatDate(selectedRequest?.created_at)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-medium text-gray-500">Last Updated</p>
+                                        <p className="font-semibold text-gray-900">{formatDate(selectedRequest?.updated_at)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

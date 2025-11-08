@@ -309,103 +309,78 @@ export function AdminPaymentList({ payments }) {
     };
 
     return (
-        <div
-            className="space-y-6 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6"
-            style={{
-                backgroundImage: `
-                 radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                 radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
-                 radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 50%)
-               `,
-            }}
-        >
+        <div className="space-y-6 min-h-screen bg-gray-50 p-6">
             {/* Statistics Cards */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom duration-700">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card
-                    className="group hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-purple-50 to-purple-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    className="cursor-pointer bg-purple-50 border-0"
                     onClick={() => setFilterStatus("all")}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-purple-900 group-hover:text-purple-800 transition-colors">
-                            Total Payments
-                        </CardTitle>
-                        <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg group-hover:shadow-purple-500/50 transition-all duration-300 group-hover:scale-110">
-                            <DollarSign className="h-5 w-5 text-white" />
+                    <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs text-purple-700 font-medium mb-1">Total Payments</p>
+                                <p className="text-2xl font-bold text-purple-900">{stats.total}</p>
+                                <p className="text-xs text-purple-600 mt-0.5">All submissions</p>
+                            </div>
+                            <div className="p-2 bg-purple-500 rounded-lg">
+                                <DollarSign className="h-5 w-5 text-white" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-purple-700 group-hover:text-purple-800 transition-colors mb-2">
-                            {stats.total}
-                        </div>
-                        <p className="text-sm text-purple-600 group-hover:text-purple-700 transition-colors">
-                            All submissions
-                        </p>
                     </CardContent>
                 </Card>
 
                 <Card
-                    className="group hover:shadow-2xl hover:shadow-amber-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-amber-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    className="cursor-pointer bg-yellow-50 border-0"
                     onClick={() => setFilterStatus("pending")}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-amber-900 group-hover:text-amber-800 transition-colors">
-                            Pending
-                        </CardTitle>
-                        <div className="p-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg group-hover:shadow-amber-500/50 transition-all duration-300 group-hover:scale-110">
-                            <Clock className="h-5 w-5 text-white" />
+                    <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs text-yellow-700 font-medium mb-1">Pending</p>
+                                <p className="text-2xl font-bold text-yellow-900">{stats.pending}</p>
+                                <p className="text-xs text-yellow-600 mt-0.5">Awaiting verification</p>
+                            </div>
+                            <div className="p-2 bg-yellow-500 rounded-lg">
+                                <Clock className="h-5 w-5 text-white" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-amber-700 group-hover:text-amber-800 transition-colors mb-2">
-                            {stats.pending}
-                        </div>
-                        <p className="text-sm text-amber-600 group-hover:text-amber-700 transition-colors">
-                            Awaiting verification
-                        </p>
                     </CardContent>
                 </Card>
 
                 <Card
-                    className="group hover:shadow-2xl hover:shadow-emerald-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-emerald-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    className="cursor-pointer bg-green-50 border-0"
                     onClick={() => setFilterStatus("verified")}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-emerald-900 group-hover:text-emerald-800 transition-colors">
-                            Verified
-                        </CardTitle>
-                        <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg group-hover:shadow-emerald-500/50 transition-all duration-300 group-hover:scale-110">
-                            <CheckCircle2 className="h-5 w-5 text-white" />
+                    <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs text-green-700 font-medium mb-1">Verified</p>
+                                <p className="text-2xl font-bold text-green-900">{stats.verified}</p>
+                                <p className="text-xs text-green-600 mt-0.5">Successfully processed</p>
+                            </div>
+                            <div className="p-2 bg-green-500 rounded-lg">
+                                <CheckCircle2 className="h-5 w-5 text-white" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-emerald-700 group-hover:text-emerald-800 transition-colors mb-2">
-                            {stats.verified}
-                        </div>
-                        <p className="text-sm text-emerald-600 group-hover:text-emerald-700 transition-colors">
-                            Successfully processed
-                        </p>
                     </CardContent>
                 </Card>
 
                 <Card
-                    className="group hover:shadow-2xl hover:shadow-rose-500/25 transition-all duration-500 cursor-pointer border-0 bg-gradient-to-br from-white via-rose-50 to-rose-100 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2 rounded-2xl overflow-hidden relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-rose-500/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                    className="cursor-pointer bg-red-50 border-0"
                     onClick={() => setFilterStatus("rejected")}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-                        <CardTitle className="text-sm font-semibold text-rose-900 group-hover:text-rose-800 transition-colors">
-                            Rejected
-                        </CardTitle>
-                        <div className="p-3 bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl shadow-lg group-hover:shadow-rose-500/50 transition-all duration-300 group-hover:scale-110">
-                            <XCircle className="h-5 w-5 text-white" />
+                    <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs text-red-700 font-medium mb-1">Rejected</p>
+                                <p className="text-2xl font-bold text-red-900">{stats.rejected}</p>
+                                <p className="text-xs text-red-600 mt-0.5">Needs attention</p>
+                            </div>
+                            <div className="p-2 bg-red-500 rounded-lg">
+                                <XCircle className="h-5 w-5 text-white" />
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold text-rose-700 group-hover:text-rose-800 transition-colors mb-2">
-                            {stats.rejected}
-                        </div>
-                        <p className="text-sm text-rose-600 group-hover:text-rose-700 transition-colors">
-                            Needs attention
-                        </p>
                     </CardContent>
                 </Card>
             </div>
@@ -592,379 +567,173 @@ export function AdminPaymentList({ payments }) {
                 </CardContent>
             </Card>
 
-            {/* Payment Details Modal - Minimal Design */}
+            {/* Payment Details Modal - Clean Layout */}
             <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-                <DialogContent className="max-w-2xl bg-white border border-gray-200 rounded-lg">
-                    {/* Modal Header with Gradient Background */}
-                    <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
-                        <DialogHeader>
-                            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                                    <DollarSign className="h-6 w-6" />
-                                </div>
-                                Payment Details #{selectedPayment?.id}
-                            </DialogTitle>
-                            <DialogDescription className="text-emerald-100 text-lg">
-                                Submitted on{" "}
-                                {formatDate(selectedPayment?.created_at)} •
-                                Status:{" "}
-                                {selectedPayment?.payment_status
-                                    ?.charAt(0)
-                                    .toUpperCase() +
-                                    selectedPayment?.payment_status?.slice(1)}
-                            </DialogDescription>
-                        </DialogHeader>
-                    </div>
+                <DialogContent className="max-w-[95vw] w-full max-h-[95vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
+                    <DialogHeader className="pb-3 bg-blue-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
+                        <DialogTitle className="text-lg font-bold text-white">
+                            Payment Details #{selectedPayment?.id}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-white">
+                            Submitted on {formatDate(selectedPayment?.created_at)} • Status: {selectedPayment?.payment_status?.charAt(0).toUpperCase() + selectedPayment?.payment_status?.slice(1)}
+                        </DialogDescription>
+                    </DialogHeader>
 
-                    {/* Scrollable Content Area */}
-                    <div className="overflow-y-auto max-h-[calc(85vh-200px)] pr-2">
+                    {/* Content Grid - 2 Column Layout */}
+                    <div className="grid grid-cols-2 gap-6 overflow-y-auto max-h-[calc(90vh-120px)] px-1">
+                        {/* Left Column */}
                         {selectedPayment && (
-                            <div className="space-y-8">
-                                {/* Top Row - Payment Info & Status */}
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                    {/* Payment Information Card */}
-                                    <div className="group hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 bg-gradient-to-br from-white via-blue-50 to-blue-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-blue-200/50">
-                                        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4">
-                                            <h3 className="font-bold text-lg flex items-center gap-2">
-                                                <FileText className="h-5 w-5" />
-                                                Payment Information
-                                            </h3>
+                            <div className="space-y-4">
+                                {/* Applicant Information */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <FileText className="h-4 w-4" />
+                                        Applicant Information
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500">Applicant Name</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedPayment.applicant_name}</p>
                                         </div>
-                                        <div className="p-6 space-y-4">
-                                            <div className="p-3 bg-white/70 rounded-xl border border-blue-200">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Applicant Name
-                                                </p>
-                                                <p className="text-lg font-bold text-blue-900">
-                                                    {
-                                                        selectedPayment.applicant_name
-                                                    }
-                                                </p>
-                                            </div>
-                                            <div className="p-3 bg-white/70 rounded-xl border border-blue-200">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Email Address
-                                                </p>
-                                                <p className="text-base font-semibold text-blue-900">
-                                                    {selectedPayment.applicant_email ||
-                                                        "N/A"}
-                                                </p>
-                                            </div>
-                                            <div className="p-3 bg-white/70 rounded-xl border border-blue-200">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Request ID
-                                                </p>
-                                                <p className="text-lg font-bold text-blue-900 font-mono">
-                                                    #
-                                                    {selectedPayment.request_id}
-                                                </p>
-                                            </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Email Address</p>
+                                            <p className="text-sm font-semibold text-gray-900">{selectedPayment.applicant_email || "N/A"}</p>
                                         </div>
-                                    </div>
-
-                                    {/* Transaction Details Card */}
-                                    <div className="group hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 bg-gradient-to-br from-white via-purple-50 to-purple-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-purple-200/50">
-                                        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4">
-                                            <h3 className="font-bold text-lg flex items-center gap-2">
-                                                <Calendar className="h-5 w-5" />
-                                                Transaction Details
-                                            </h3>
-                                        </div>
-                                        <div className="p-6 space-y-4">
-                                            <div className="p-3 bg-white/70 rounded-xl border border-purple-200">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Payment Method
-                                                </p>
-                                                <p className="text-lg font-bold text-purple-900 capitalize">
-                                                    {selectedPayment.payment_method.replace(
-                                                        "_",
-                                                        " "
-                                                    )}
-                                                </p>
-                                            </div>
-                                            <div className="p-3 bg-white/70 rounded-xl border border-purple-200">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Payment Date
-                                                </p>
-                                                <p className="text-lg font-bold text-purple-900">
-                                                    {formatDate(
-                                                        selectedPayment.payment_date
-                                                    )}
-                                                </p>
-                                            </div>
-                                            <div className="p-3 bg-white/70 rounded-xl border border-purple-200">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Submission Date
-                                                </p>
-                                                <p className="text-lg font-bold text-purple-900">
-                                                    {formatDate(
-                                                        selectedPayment.created_at
-                                                    )}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Status & Amount Card */}
-                                    <div className="group hover:shadow-2xl hover:shadow-emerald-500/25 transition-all duration-500 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-emerald-200/50">
-                                        <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-4">
-                                            <h3 className="font-bold text-lg flex items-center gap-2">
-                                                <DollarSign className="h-5 w-5" />
-                                                Payment Status
-                                            </h3>
-                                        </div>
-                                        <div className="p-6 space-y-4">
-                                            <div className="text-center p-4 bg-white/70 rounded-xl border border-emerald-200">
-                                                <p className="text-sm text-gray-600 font-medium mb-2">
-                                                    Current Status
-                                                </p>
-                                                <Badge
-                                                    className={`${getStatusColor(
-                                                        selectedPayment.payment_status
-                                                    )} text-lg px-4 py-2`}
-                                                >
-                                                    <span className="flex items-center gap-2">
-                                                        {getStatusIcon(
-                                                            selectedPayment.payment_status
-                                                        )}
-                                                        {selectedPayment.payment_status
-                                                            .charAt(0)
-                                                            .toUpperCase() +
-                                                            selectedPayment.payment_status.slice(
-                                                                1
-                                                            )}
-                                                    </span>
-                                                </Badge>
-                                            </div>
-                                            <div className="text-center p-4 bg-gradient-to-r from-emerald-100 to-emerald-200 rounded-xl border border-emerald-300">
-                                                <p className="text-sm text-gray-600 font-medium mb-2">
-                                                    Total Amount
-                                                </p>
-                                                <p className="text-3xl font-bold text-emerald-900">
-                                                    ₱
-                                                    {parseFloat(
-                                                        selectedPayment.amount
-                                                    ).toLocaleString()}
-                                                </p>
-                                            </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Request ID</p>
+                                            <p className="text-sm font-semibold text-gray-900">#{selectedPayment.request_id}</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Payment Summary - Full Width */}
-                                <div className="group hover:shadow-2xl hover:shadow-indigo-500/25 transition-all duration-500 bg-gradient-to-br from-white via-indigo-50 to-indigo-100 backdrop-blur-sm transform hover:scale-[1.01] rounded-2xl overflow-hidden border border-indigo-200/50">
-                                    <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-4">
-                                        <h3 className="font-bold text-xl flex items-center gap-3">
-                                            <FileText className="h-6 w-6" />
-                                            Payment Breakdown & Summary
-                                        </h3>
-                                    </div>
-                                    <div className="p-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            <div className="p-4 bg-white/70 rounded-xl border border-indigo-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Payment ID
-                                                </p>
-                                                <p className="text-xl font-bold text-indigo-900 font-mono">
-                                                    #{selectedPayment.id}
-                                                </p>
+                                {/* Payment Information */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <DollarSign className="h-4 w-4" />
+                                        Payment Information
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500">Amount Paid</p>
+                                            <p className="text-sm font-semibold text-gray-900">₱{parseFloat(selectedPayment.amount).toLocaleString()}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Payment Method</p>
+                                            <p className="text-sm font-semibold text-gray-900 capitalize">{selectedPayment.payment_method.replace("_", " ")}</p>
+                                        </div>
+                                        {selectedPayment.receipt_number && (
+                                            <div>
+                                                <p className="text-xs text-gray-500">Receipt Number</p>
+                                                <p className="text-sm font-semibold text-gray-900">{selectedPayment.receipt_number}</p>
                                             </div>
-                                            <div className="p-4 bg-white/70 rounded-xl border border-indigo-200 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-gray-600 font-medium">
-                                                    Processing Fee
-                                                </p>
-                                                <p className="text-xl font-bold text-indigo-900">
-                                                    ₱0.00
-                                                </p>
-                                            </div>
-                                            <div className="p-4 bg-gradient-to-r from-indigo-200 to-indigo-300 rounded-xl border border-indigo-400 hover:shadow-lg transition-all duration-300">
-                                                <p className="text-sm text-indigo-800 font-medium">
-                                                    Total Amount
-                                                </p>
-                                                <p className="text-2xl font-bold text-indigo-900">
-                                                    ₱
-                                                    {parseFloat(
-                                                        selectedPayment.amount
-                                                    ).toLocaleString()}
-                                                </p>
-                                            </div>
+                                        )}
+                                        <div>
+                                            <p className="text-xs text-gray-500">Payment Date</p>
+                                            <p className="text-sm font-semibold text-gray-900">{formatDate(selectedPayment.payment_date)}</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Bottom Row - Receipt & Additional Info */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    {/* Receipt Document */}
-                                    <div className="group hover:shadow-2xl hover:shadow-amber-500/25 transition-all duration-500 bg-gradient-to-br from-white via-amber-50 to-amber-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-amber-200/50">
-                                        <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4">
-                                            <h3 className="font-bold text-lg">
-                                                Receipt Document
-                                            </h3>
+                                {/* Status Information */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <CheckCircle2 className="h-4 w-4" />
+                                        Status Information
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500">Current Status</p>
+                                            <Badge className={getStatusColor(selectedPayment.payment_status)}>
+                                                <span className="flex items-center gap-1">
+                                                    {getStatusIcon(selectedPayment.payment_status)}
+                                                    {selectedPayment.payment_status.charAt(0).toUpperCase() + selectedPayment.payment_status.slice(1)}
+                                                </span>
+                                            </Badge>
                                         </div>
-                                        <div className="p-6">
-                                            {selectedPayment.receipt_file_path ? (
-                                                <div className="space-y-4">
-                                                    {/* Enhanced Receipt Preview - Landscape Optimized */}
-                                                    {(selectedPayment.receipt_file_path
-                                                        .toLowerCase()
-                                                        .endsWith(".png") ||
-                                                        selectedPayment.receipt_file_path
-                                                            .toLowerCase()
-                                                            .endsWith(".jpg") ||
-                                                        selectedPayment.receipt_file_path
-                                                            .toLowerCase()
-                                                            .endsWith(
-                                                                ".jpeg"
-                                                            )) && (
-                                                        <div className="border-2 border-amber-300 rounded-xl overflow-hidden bg-white shadow-lg hover:shadow-xl transition-all duration-300">
-                                                            <img
-                                                                src={`/storage/${selectedPayment.receipt_file_path}`}
-                                                                alt="Payment Receipt"
-                                                                className="w-full h-auto object-contain"
-                                                                style={{
-                                                                    maxHeight:
-                                                                        "70vh",
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    )}
-
-                                                    {/* Enhanced View Button */}
-                                                    <a
-                                                        href={`/storage/${selectedPayment.receipt_file_path}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl transform hover:scale-105"
-                                                    >
-                                                        <Eye className="h-5 w-5" />
-                                                        View Receipt Document
-                                                    </a>
-                                                </div>
-                                            ) : (
-                                                <div className="text-center py-12">
-                                                    <div className="p-4 bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                                                        <FileText className="h-8 w-8 text-gray-400" />
-                                                    </div>
-                                                    <h4 className="font-bold text-gray-700 mb-2">
-                                                        No Receipt Uploaded
-                                                    </h4>
-                                                    <p className="text-sm text-gray-500">
-                                                        No receipt document was
-                                                        provided with this
-                                                        payment
-                                                    </p>
-                                                </div>
-                                            )}
+                                        <div>
+                                            <p className="text-xs text-gray-500">Submission Date</p>
+                                            <p className="text-sm font-semibold text-gray-900">{formatDate(selectedPayment.created_at)}</p>
                                         </div>
-                                    </div>
-
-                                    {/* Additional Information */}
-                                    <div className="group hover:shadow-2xl hover:shadow-teal-500/25 transition-all duration-500 bg-gradient-to-br from-white via-teal-50 to-teal-100 backdrop-blur-sm transform hover:scale-[1.02] rounded-2xl overflow-hidden border border-teal-200/50">
-                                        <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-4">
-                                            <h3 className="font-bold text-lg">
-                                                Additional Information
-                                            </h3>
-                                        </div>
-                                        <div className="p-6 space-y-4">
-                                            {/* Submission Date */}
-                                            <div className="p-4 bg-white/70 rounded-xl border border-teal-200">
-                                                <div className="flex items-center gap-3">
-                                                    <Calendar className="h-5 w-5 text-teal-600" />
-                                                    <div>
-                                                        <p className="text-sm text-gray-600 font-medium">
-                                                            Submission Date
-                                                        </p>
-                                                        <p className="text-lg font-bold text-teal-900">
-                                                            {formatDate(
-                                                                selectedPayment.created_at
-                                                            )}
-                                                        </p>
-                                                    </div>
+                                        {selectedPayment.verified_by_name && (
+                                            <>
+                                                <div>
+                                                    <p className="text-xs text-gray-500">Verified By</p>
+                                                    <p className="text-sm font-semibold text-gray-900">{selectedPayment.verified_by_name}</p>
                                                 </div>
-                                            </div>
-
-                                            {/* Notes */}
-                                            {selectedPayment.notes && (
-                                                <div className="p-4 bg-white/70 rounded-xl border border-teal-200">
-                                                    <p className="text-sm text-gray-600 font-medium mb-2">
-                                                        Notes
-                                                    </p>
-                                                    <p className="text-base text-teal-900 leading-relaxed">
-                                                        {selectedPayment.notes}
-                                                    </p>
+                                                <div>
+                                                    <p className="text-xs text-gray-500">Verified On</p>
+                                                    <p className="text-sm font-semibold text-gray-900">{formatDate(selectedPayment.verified_at)}</p>
                                                 </div>
-                                            )}
-
-                                            {/* Rejection Reason */}
-                                            {selectedPayment.rejection_reason && (
-                                                <div className="p-4 bg-gradient-to-r from-rose-100 to-rose-200 rounded-xl border border-rose-300">
-                                                    <p className="text-sm text-rose-800 font-bold mb-2">
-                                                        Rejection Reason
-                                                    </p>
-                                                    <p className="text-base text-rose-900 leading-relaxed">
-                                                        {
-                                                            selectedPayment.rejection_reason
-                                                        }
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            {/* Verification Info */}
-                                            {selectedPayment.verified_by_name && (
-                                                <div className="p-4 bg-gradient-to-r from-emerald-100 to-emerald-200 rounded-xl border border-emerald-300">
-                                                    <p className="text-sm text-emerald-800 font-bold mb-2">
-                                                        Verification Information
-                                                    </p>
-                                                    <p className="text-base text-emerald-900">
-                                                        Verified by{" "}
-                                                        <span className="font-bold">
-                                                            {
-                                                                selectedPayment.verified_by_name
-                                                            }
-                                                        </span>
-                                                    </p>
-                                                    <p className="text-sm text-emerald-700 mt-1">
-                                                        on{" "}
-                                                        {formatDate(
-                                                            selectedPayment.verified_at
-                                                        )}
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            {/* Default message if no additional info */}
-                                            {!selectedPayment.notes &&
-                                                !selectedPayment.rejection_reason &&
-                                                !selectedPayment.verified_by_name && (
-                                                    <div className="text-center py-8">
-                                                        <div className="p-3 bg-gray-100 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-                                                            <FileText className="h-6 w-6 text-gray-400" />
-                                                        </div>
-                                                        <p className="text-sm text-gray-500">
-                                                            No additional
-                                                            information
-                                                            available
-                                                        </p>
-                                                    </div>
-                                                )}
-                                        </div>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         )}
-                    </div>
 
-                    {/* Enhanced Footer */}
-                    <div className="border-t bg-white/50 backdrop-blur-sm p-4 -m-6 mt-6 rounded-b-3xl">
-                        <div className="flex justify-end">
-                            <Button
-                                variant="outline"
-                                onClick={() => setIsViewDialogOpen(false)}
-                                className="px-8 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold"
-                            >
-                                Close Details
-                            </Button>
-                        </div>
+                        {/* Right Column */}
+                        {selectedPayment && (
+                            <div className="space-y-4">
+                                {/* Receipt Document */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <FileText className="h-4 w-4" />
+                                        Receipt Document
+                                    </h3>
+                                    {selectedPayment.receipt_file_path ? (
+                                        <div className="space-y-3">
+                                            {(selectedPayment.receipt_file_path.toLowerCase().endsWith(".png") ||
+                                              selectedPayment.receipt_file_path.toLowerCase().endsWith(".jpg") ||
+                                              selectedPayment.receipt_file_path.toLowerCase().endsWith(".jpeg")) && (
+                                                <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+                                                    <img
+                                                        src={`/storage/${selectedPayment.receipt_file_path}`}
+                                                        alt="Payment Receipt"
+                                                        className="w-full h-auto object-contain"
+                                                        style={{ maxHeight: "400px" }}
+                                                    />
+                                                </div>
+                                            )}
+                                            <a
+                                                href={`/storage/${selectedPayment.receipt_file_path}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                                            >
+                                                <Eye className="h-4 w-4" />
+                                                View Full Document
+                                            </a>
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-gray-500">No receipt uploaded</p>
+                                    )}
+                                </div>
+
+                                {/* Additional Information */}
+                                {(selectedPayment.notes || selectedPayment.rejection_reason) && (
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                            <FileText className="h-4 w-4" />
+                                            Additional Information
+                                        </h3>
+                                        <div className="space-y-3">
+                                            {selectedPayment.notes && (
+                                                <div>
+                                                    <p className="text-xs text-gray-500">Notes</p>
+                                                    <p className="text-sm text-gray-900">{selectedPayment.notes}</p>
+                                                </div>
+                                            )}
+                                            {selectedPayment.rejection_reason && (
+                                                <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg">
+                                                    <p className="text-xs text-rose-700 font-semibold mb-1">Rejection Reason</p>
+                                                    <p className="text-sm text-rose-900">{selectedPayment.rejection_reason}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </DialogContent>
             </Dialog>

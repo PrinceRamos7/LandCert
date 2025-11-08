@@ -38,8 +38,17 @@ import {
 
 export default function Applications({ applications = [] }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [selectedApp, setSelectedApp] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Calculate statistics
+  const stats = {
+    total: applications.length,
+    pending: applications.filter(app => app.status === 'pending').length,
+    approved: applications.filter(app => app.status === 'approved').length,
+    rejected: applications.filter(app => app.status === 'rejected').length,
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -83,12 +92,24 @@ export default function Applications({ applications = [] }) {
     return parts.join(', ') || 'Location not specified';
   };
 
-  const filteredApplications = applications.filter(app => 
-    app.applicant_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    app.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    app.project_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    app.id?.toString().includes(searchTerm)
-  );
+  const filteredApplications = applications.filter(app => {
+    // Filter by status
+    if (filterStatus !== "all" && app.status !== filterStatus) {
+      return false;
+    }
+    
+    // Filter by search term
+    if (searchTerm) {
+      return (
+        app.applicant_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.project_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.id?.toString().includes(searchTerm)
+      );
+    }
+    
+    return true;
+  });
 
   return (
     <SidebarProvider>
@@ -109,22 +130,102 @@ export default function Applications({ applications = [] }) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-6 p-6 pt-0 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
-             style={{
-               backgroundImage: `
-                 radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                 radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
-                 radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 50%)
-               `
-             }}>
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-700">
-            <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6">
+        <div className="flex flex-1 flex-col gap-6 p-6 pt-0 min-h-screen bg-gray-50">
+          {/* Statistics Cards */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div
+              className={`cursor-pointer bg-blue-50 border-0 rounded-lg ${filterStatus === "all" ? "ring-2 ring-blue-500" : ""}`}
+              onClick={() => {
+                console.log("Clicked Total - setting filter to 'all'");
+                setFilterStatus("all");
+              }}
+            >
+              <div className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-blue-700 font-medium mb-1">Total</p>
+                    <p className="text-2xl font-bold text-blue-900">{stats.total}</p>
+                    <p className="text-xs text-blue-600 mt-0.5">All requests</p>
+                  </div>
+                  <div className="p-2 bg-blue-500 rounded-lg">
+                    <FileText className="h-5 w-5 text-white" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className={`cursor-pointer bg-yellow-50 border-0 rounded-lg ${filterStatus === "pending" ? "ring-2 ring-yellow-500" : ""}`}
+              onClick={() => {
+                console.log("Clicked Pending - setting filter to 'pending'");
+                setFilterStatus("pending");
+              }}
+            >
+              <div className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-yellow-700 font-medium mb-1">Pending</p>
+                    <p className="text-2xl font-bold text-yellow-900">{stats.pending}</p>
+                    <p className="text-xs text-yellow-600 mt-0.5">Under review</p>
+                  </div>
+                  <div className="p-2 bg-yellow-500 rounded-lg">
+                    <Clock className="h-5 w-5 text-white" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className={`cursor-pointer bg-green-50 border-0 rounded-lg ${filterStatus === "approved" ? "ring-2 ring-green-500" : ""}`}
+              onClick={() => {
+                console.log("Clicked Approved - setting filter to 'approved'");
+                setFilterStatus("approved");
+              }}
+            >
+              <div className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-green-700 font-medium mb-1">Approved</p>
+                    <p className="text-2xl font-bold text-green-900">{stats.approved}</p>
+                    <p className="text-xs text-green-600 mt-0.5">Completed</p>
+                  </div>
+                  <div className="p-2 bg-green-500 rounded-lg">
+                    <CheckCircle2 className="h-5 w-5 text-white" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className={`cursor-pointer bg-red-50 border-0 rounded-lg ${filterStatus === "rejected" ? "ring-2 ring-red-500" : ""}`}
+              onClick={() => {
+                console.log("Clicked Rejected - setting filter to 'rejected'");
+                setFilterStatus("rejected");
+              }}
+            >
+              <div className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-red-700 font-medium mb-1">Rejected</p>
+                    <p className="text-2xl font-bold text-red-900">{stats.rejected}</p>
+                    <p className="text-xs text-red-600 mt-0.5">Need action</p>
+                  </div>
+                  <div className="p-2 bg-red-500 rounded-lg">
+                    <XCircle className="h-5 w-5 text-white" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Card className="bg-white border-0 shadow-sm">
+            <CardHeader className="bg-blue-600 text-white p-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-3 text-xl font-bold">
                   <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
                     <FileText className="h-6 w-6" />
                   </div>
-                  All Applications ({filteredApplications.length})
+                  Applications ({filteredApplications.length}) {filterStatus !== "all" && `- ${filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}`}
                 </CardTitle>
                 <div className="flex items-center gap-4">
                   <Button

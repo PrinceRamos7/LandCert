@@ -418,13 +418,18 @@ export default function RequestForm() {
                 }
             }
 
-            if (data.preferred_release_mode === "mail") {
+            if (data.preferred_release_mode === "mail_other") {
                 if (
                     !data.release_address ||
                     data.release_address.trim() === ""
                 ) {
                     errors.push("Release Address");
                 }
+            }
+
+            // Validate that authorized representative exists if mail_representative is selected
+            if (data.preferred_release_mode === "mail_representative" && !hasRepresentative) {
+                errors.push("Authorized Representative (required for mail to representative option)");
             }
         }
 
@@ -479,10 +484,11 @@ export default function RequestForm() {
                     onClick={() => setCurrentStep(1)}
                 >
                     <div
-                        className={`flex items-center justify-center w-10 h-10 rounded-full font-bold transition-all hover:scale-110 ${currentStep >= 1
+                        className={`flex items-center justify-center w-10 h-10 rounded-full font-bold transition-all hover:scale-110 ${
+                            currentStep >= 1
                                 ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-md"
                                 : "bg-gray-200 text-gray-500"
-                            }`}
+                        }`}
                     >
                         {completedSteps.includes(1) ? (
                             <Check className="h-6 w-6" />
@@ -491,20 +497,22 @@ export default function RequestForm() {
                         )}
                     </div>
                     <span
-                        className={`text-sm ${currentStep >= 1
+                        className={`text-sm ${
+                            currentStep >= 1
                                 ? "font-bold text-blue-900"
                                 : "text-gray-500"
-                            }`}
+                        }`}
                     >
                         Applicant Info
                     </span>
                 </div>
                 <div className="flex-1 h-2 mx-4 bg-gray-200 rounded-full overflow-hidden">
                     <div
-                        className={`h-full transition-all duration-300 ${currentStep >= 2
+                        className={`h-full transition-all duration-300 ${
+                            currentStep >= 2
                                 ? "bg-gradient-to-r from-blue-600 to-blue-700"
                                 : "bg-gray-200"
-                            }`}
+                        }`}
                         style={{ width: currentStep >= 2 ? "100%" : "0%" }}
                     ></div>
                 </div>
@@ -513,10 +521,11 @@ export default function RequestForm() {
                     onClick={() => setCurrentStep(2)}
                 >
                     <div
-                        className={`flex items-center justify-center w-10 h-10 rounded-full font-bold transition-all hover:scale-110 ${currentStep >= 2
+                        className={`flex items-center justify-center w-10 h-10 rounded-full font-bold transition-all hover:scale-110 ${
+                            currentStep >= 2
                                 ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-md"
                                 : "bg-gray-200 text-gray-500"
-                            }`}
+                        }`}
                     >
                         {completedSteps.includes(2) ? (
                             <Check className="h-6 w-6" />
@@ -525,20 +534,22 @@ export default function RequestForm() {
                         )}
                     </div>
                     <span
-                        className={`text-sm ${currentStep >= 2
+                        className={`text-sm ${
+                            currentStep >= 2
                                 ? "font-bold text-blue-900"
                                 : "text-gray-500"
-                            }`}
+                        }`}
                     >
                         Project Details
                     </span>
                 </div>
                 <div className="flex-1 h-2 mx-4 bg-gray-200 rounded-full overflow-hidden">
                     <div
-                        className={`h-full transition-all duration-300 ${currentStep >= 3
+                        className={`h-full transition-all duration-300 ${
+                            currentStep >= 3
                                 ? "bg-gradient-to-r from-blue-600 to-blue-700"
                                 : "bg-gray-200"
-                            }`}
+                        }`}
                         style={{ width: currentStep >= 3 ? "100%" : "0%" }}
                     ></div>
                 </div>
@@ -547,10 +558,11 @@ export default function RequestForm() {
                     onClick={() => setCurrentStep(3)}
                 >
                     <div
-                        className={`flex items-center justify-center w-10 h-10 rounded-full font-bold transition-all hover:scale-110 ${currentStep >= 3
+                        className={`flex items-center justify-center w-10 h-10 rounded-full font-bold transition-all hover:scale-110 ${
+                            currentStep >= 3
                                 ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-md"
                                 : "bg-gray-200 text-gray-500"
-                            }`}
+                        }`}
                     >
                         {completedSteps.includes(3) ? (
                             <Check className="h-6 w-6" />
@@ -559,10 +571,11 @@ export default function RequestForm() {
                         )}
                     </div>
                     <span
-                        className={`text-sm ${currentStep >= 3
+                        className={`text-sm ${
+                            currentStep >= 3
                                 ? "font-bold text-blue-900"
                                 : "text-gray-500"
-                            }`}
+                        }`}
                     >
                         Land Uses
                     </span>
@@ -1410,7 +1423,7 @@ export default function RequestForm() {
                                     />
                                     <span>By mail, address to Applicant</span>
                                 </label>
-                                <label className="flex items-center space-x-2 cursor-pointer">
+                                <label className={`flex items-center space-x-2 ${!hasRepresentative ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
                                     <input
                                         type="radio"
                                         name="preferred_release_mode"
@@ -1419,17 +1432,32 @@ export default function RequestForm() {
                                             data.preferred_release_mode ===
                                             "mail_representative"
                                         }
-                                        onChange={(e) =>
-                                            setData(
-                                                "preferred_release_mode",
-                                                e.target.value
-                                            )
-                                        }
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            // Check if authorized representative exists
+                                            if (value === "mail_representative" && !hasRepresentative) {
+                                                setNotificationModal({
+                                                    isOpen: true,
+                                                    type: "warning",
+                                                    title: "No Authorized Representative",
+                                                    message: "You cannot select 'By mail, address to Authorized Representative' because you have not added an authorized representative in Step 1 (Applicant Information).\n\nPlease either:\n• Go back to Step 1 and add an authorized representative, or\n• Choose a different release mode option.",
+                                                    buttonText: "OK, I Understand",
+                                                });
+                                                return;
+                                            }
+                                            setData("preferred_release_mode", value);
+                                        }}
+                                        disabled={!hasRepresentative}
                                         className="w-4 h-4"
                                     />
-                                    <span>
+                                    <span className="flex items-center gap-2">
                                         By mail, address to Authorized
                                         Representative
+                                        {!hasRepresentative && (
+                                            <span className="text-xs text-amber-600 font-medium">
+                                                (No representative added)
+                                            </span>
+                                        )}
                                     </span>
                                 </label>
                                 <label className="flex items-center space-x-2 cursor-pointer">
@@ -1517,10 +1545,11 @@ export default function RequestForm() {
                             <div className="space-y-1 text-sm">
                                 <div className="flex items-center gap-2">
                                     <span
-                                        className={`w-2 h-2 rounded-full ${isStepFilled(1)
+                                        className={`w-2 h-2 rounded-full ${
+                                            isStepFilled(1)
                                                 ? "bg-green-500"
                                                 : "bg-yellow-500"
-                                            }`}
+                                        }`}
                                     ></span>
                                     <span
                                         className={
@@ -1537,10 +1566,11 @@ export default function RequestForm() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span
-                                        className={`w-2 h-2 rounded-full ${isStepFilled(2)
+                                        className={`w-2 h-2 rounded-full ${
+                                            isStepFilled(2)
                                                 ? "bg-green-500"
                                                 : "bg-yellow-500"
-                                            }`}
+                                        }`}
                                     ></span>
                                     <span
                                         className={
@@ -1557,10 +1587,11 @@ export default function RequestForm() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span
-                                        className={`w-2 h-2 rounded-full ${isStepFilled(3)
+                                        className={`w-2 h-2 rounded-full ${
+                                            isStepFilled(3)
                                                 ? "bg-green-500"
                                                 : "bg-yellow-500"
-                                            }`}
+                                        }`}
                                     ></span>
                                     <span
                                         className={
@@ -1594,399 +1625,422 @@ export default function RequestForm() {
                 )}
             </div>
 
-            {/* Confirmation Dialog - Complete Review */}
+            {/* Confirmation Dialog - Simplified Landscape */}
             <Dialog
                 open={isConfirmDialogOpen}
                 onOpenChange={setIsConfirmDialogOpen}
             >
-                <DialogContent className="max-w-4xl bg-white border border-gray-200 rounded-lg">
-                    <DialogHeader>
-                        <DialogTitle className="text-lg font-semibold">
+                <DialogContent className="max-w-[95vw] w-full max-h-[100vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
+                    <DialogHeader className="pb-3 bg-blue-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
+                        <DialogTitle className="text-lg font-bold text-white">
                             Confirm Application Submission
                         </DialogTitle>
-                        <DialogDescription>
-                            Please review your application details before submitting.
+                        <DialogDescription className="text-sm text-white">
+                            Please review your application details before
+                            submitting.
                         </DialogDescription>
                     </DialogHeader>
 
-                    {/* Scrollable Content */}
-                    <div className="overflow-y-auto max-h-[calc(85vh-200px)] pr-2 space-y-6">
-                        {/* Applicant Information */}
-                        <div className="bg-gradient-to-br from-white via-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-6 shadow-lg">
-                            <h3 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg">
-                                <div className="p-2 bg-blue-200 rounded-lg">
-                                    <User className="h-5 w-5 text-blue-700" />
-                                </div>
-                                Applicant Information
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="bg-white p-3 rounded-lg border border-blue-200">
-                                    <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                        Applicant Name
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.applicant_name}
-                                    </p>
-                                </div>
-                                <div className="bg-white p-3 rounded-lg border border-blue-200">
-                                    <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                        Applicant Address
-                                    </p>
-                                    <p className="font-medium text-gray-700">
-                                        {data.applicant_address}
-                                    </p>
-                                </div>
-                                {data.corporation_name && (
-                                    <>
-                                        <div className="bg-white p-3 rounded-lg border border-blue-200">
-                                            <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                                Corporation Name
+                    {/* Content Grid - Compact 2 Column Layout */}
+                    <div className="grid grid-cols-2 gap-4 py-2 overflow-y-auto max-h-[calc(90vh-160px)]">
+                        {/* Left Column */}
+                        <div className="space-y-3">
+                            {/* Applicant Information */}
+                            <div className="border border-gray-200 rounded-md p-3 bg-gray-50">
+                                <h3 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+                                    <User className="h-3.5 w-3.5 text-blue-600" />
+                                    Applicant Information
+                                </h3>
+                                <div className="space-y-2 text-xs">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <p className="text-[10px] font-medium text-gray-500">
+                                                Applicant Name
                                             </p>
                                             <p className="font-semibold text-gray-900">
-                                                {data.corporation_name}
+                                                {data.applicant_name}
                                             </p>
                                         </div>
-                                        <div className="bg-white p-3 rounded-lg border border-blue-200">
-                                            <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                                Corporation Address
+                                        <div>
+                                            <p className="text-[10px] font-medium text-gray-500">
+                                                Applicant Address
                                             </p>
-                                            <p className="font-medium text-gray-700">
-                                                {data.corporation_address ||
-                                                    "N/A"}
+                                            <p className="font-medium text-gray-900">
+                                                {data.applicant_address}
                                             </p>
                                         </div>
-                                    </>
-                                )}
-                                {hasRepresentative &&
-                                    data.authorized_representative_name && (
+                                    </div>
+                                    {data.corporation_name && (
                                         <>
-                                            <div className="bg-white p-3 rounded-lg border border-blue-200">
-                                                <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                                    Authorized Representative
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Corporation Name
                                                 </p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {
-                                                        data.authorized_representative_name
-                                                    }
+                                                <p className="font-semibold">
+                                                    {data.corporation_name}
                                                 </p>
                                             </div>
-                                            <div className="bg-white p-3 rounded-lg border border-blue-200">
-                                                <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                                    Representative Address
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Corporation Address
                                                 </p>
-                                                <p className="font-medium text-gray-700">
-                                                    {data.authorized_representative_address ||
+                                                <p className="font-medium">
+                                                    {data.corporation_address ||
                                                         "N/A"}
                                                 </p>
                                             </div>
-                                            {data.authorization_letter && (
-                                                <div className="col-span-2 bg-white p-3 rounded-lg border border-blue-200">
-                                                    <p className="text-xs font-semibold text-blue-600 uppercase mb-1">
-                                                        Authorization Letter
+                                        </>
+                                    )}
+                                    {hasRepresentative &&
+                                        data.authorized_representative_name && (
+                                            <>
+                                                <div>
+                                                    <p className="text-xs font-medium text-gray-500">
+                                                        Authorized
+                                                        Representative
                                                     </p>
-                                                    <p className="font-medium text-gray-700 flex items-center gap-2">
-                                                        <FileText className="h-4 w-4 text-blue-600" />
+                                                    <p className="font-semibold">
                                                         {
-                                                            data
-                                                                .authorization_letter
-                                                                .name
+                                                            data.authorized_representative_name
                                                         }
                                                     </p>
                                                 </div>
-                                            )}
-                                        </>
-                                    )}
+                                                <div>
+                                                    <p className="text-xs font-medium text-gray-500">
+                                                        Representative Address
+                                                    </p>
+                                                    <p className="font-medium">
+                                                        {data.authorized_representative_address ||
+                                                            "N/A"}
+                                                    </p>
+                                                </div>
+                                                {data.authorization_letter && (
+                                                    <div>
+                                                        <p className="text-xs font-medium text-gray-500">
+                                                            Authorization Letter
+                                                        </p>
+                                                        <p className="font-medium flex items-center gap-1">
+                                                            <FileText className="h-3 w-3 text-gray-600" />
+                                                            {
+                                                                data
+                                                                    .authorization_letter
+                                                                    .name
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Project Details */}
-                        <div className="bg-gradient-to-br from-white via-purple-50 to-purple-100 border-2 border-purple-200 rounded-2xl p-6 shadow-lg">
-                            <h3 className="font-bold text-purple-900 mb-4 flex items-center gap-2 text-lg">
-                                <div className="p-2 bg-purple-200 rounded-lg">
-                                    <Building2 className="h-5 w-5 text-purple-700" />
-                                </div>
-                                Project Details
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                    <p className="text-xs font-semibold text-purple-600 uppercase mb-1">
-                                        Project Type
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.project_type}
-                                    </p>
-                                </div>
-                                <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                    <p className="text-xs font-semibold text-purple-600 uppercase mb-1">
-                                        Project Nature
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.project_nature}
-                                    </p>
-                                </div>
-                                <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                    <p className="text-xs font-semibold text-purple-600 uppercase mb-1">
-                                        Project Duration
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.project_nature_duration}
-                                        {data.project_nature_years &&
-                                            ` (${data.project_nature_years} years)`}
-                                    </p>
-                                </div>
-                                <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                    <p className="text-xs font-semibold text-purple-600 uppercase mb-1">
-                                        Project Area
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {parseFloat(
-                                            data.project_area_sqm
-                                        ).toLocaleString()}{" "}
-                                        sqm
-                                    </p>
-                                </div>
-                                <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                    <p className="text-xs font-semibold text-purple-600 uppercase mb-1">
-                                        Lot Area
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {parseFloat(
-                                            data.lot_area_sqm
-                                        ).toLocaleString()}{" "}
-                                        sqm
-                                    </p>
-                                </div>
-                                {data.bldg_improvement_sqm && (
-                                    <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                        <p className="text-xs font-semibold text-purple-600 uppercase mb-1">
-                                            Building/Improvement Area
+                            {/* Project Details */}
+                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                    <Building2 className="h-4 w-4 text-purple-600" />
+                                    Project Details
+                                </h3>
+                                <div className="space-y-3 text-sm">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Project Type
+                                            </p>
+                                            <p className="font-semibold">
+                                                {data.project_type}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Project Nature
+                                            </p>
+                                            <p className="font-semibold">
+                                                {data.project_nature}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Project Duration
+                                            </p>
+                                            <p className="font-semibold">
+                                                {data.project_nature_duration}
+                                                {data.project_nature_years &&
+                                                    ` (${data.project_nature_years} years)`}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Right Over Land
+                                            </p>
+                                            <p className="font-semibold">
+                                                {data.right_over_land}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Project Area
+                                            </p>
+                                            <p className="font-semibold">
+                                                {parseFloat(
+                                                    data.project_area_sqm
+                                                ).toLocaleString()}{" "}
+                                                sqm
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Lot Area
+                                            </p>
+                                            <p className="font-semibold">
+                                                {parseFloat(
+                                                    data.lot_area_sqm
+                                                ).toLocaleString()}{" "}
+                                                sqm
+                                            </p>
+                                        </div>
+                                        {data.bldg_improvement_sqm && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Building Area
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {parseFloat(
+                                                        data.bldg_improvement_sqm
+                                                    ).toLocaleString()}{" "}
+                                                    sqm
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-medium text-gray-500">
+                                            Project Cost
                                         </p>
-                                        <p className="font-semibold text-gray-900">
+                                        <p className="font-semibold">
+                                            ₱
                                             {parseFloat(
-                                                data.bldg_improvement_sqm
-                                            ).toLocaleString()}{" "}
-                                            sqm
+                                                data.project_cost
+                                            ).toLocaleString()}
                                         </p>
                                     </div>
-                                )}
-                                <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                    <p className="text-xs font-semibold text-purple-600 uppercase mb-1">
-                                        Right Over Land
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.right_over_land}
-                                    </p>
-                                </div>
-                                <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                    <p className="text-xs font-semibold text-purple-600 uppercase mb-1">
-                                        Project Cost
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        ₱
-                                        {parseFloat(
-                                            data.project_cost
-                                        ).toLocaleString()}
-                                    </p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Project Location */}
-                        <div className="bg-gradient-to-br from-white via-emerald-50 to-emerald-100 border-2 border-emerald-200 rounded-2xl p-6 shadow-lg">
-                            <h3 className="font-bold text-emerald-900 mb-4 flex items-center gap-2 text-lg">
-                                <div className="p-2 bg-emerald-200 rounded-lg">
-                                    <MapPin className="h-5 w-5 text-emerald-700" />
-                                </div>
-                                Project Location
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {data.project_location_number && (
-                                    <div className="bg-white p-3 rounded-lg border border-emerald-200">
-                                        <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                            House/Lot Number
-                                        </p>
-                                        <p className="font-semibold text-gray-900">
-                                            {data.project_location_number}
-                                        </p>
+                        {/* Right Column */}
+                        <div className="space-y-6 overflow-y-auto pr-2">
+                            {/* Project Location */}
+                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                    <MapPin className="h-4 w-4 text-green-600" />
+                                    Project Location
+                                </h3>
+                                <div className="space-y-3 text-sm">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {data.project_location_number && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    House/Lot Number
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        data.project_location_number
+                                                    }
+                                                </p>
+                                            </div>
+                                        )}
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Street
+                                            </p>
+                                            <p className="font-semibold">
+                                                {data.project_location_street}
+                                            </p>
+                                        </div>
                                     </div>
-                                )}
-                                <div className="bg-white p-3 rounded-lg border border-emerald-200">
-                                    <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                        Street
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.project_location_street}
-                                    </p>
-                                </div>
-                                <div className="bg-white p-3 rounded-lg border border-emerald-200">
-                                    <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                        Barangay
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.project_location_barangay}
-                                    </p>
-                                </div>
-                                <div className="bg-white p-3 rounded-lg border border-emerald-200">
-                                    <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                        Municipality/City
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.project_location_municipality}
-                                    </p>
-                                </div>
-                                <div className="bg-white p-3 rounded-lg border border-emerald-200">
-                                    <p className="text-xs font-semibold text-emerald-600 uppercase mb-1">
-                                        Province
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.project_location_province}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Land Use Information */}
-                        <div className="bg-gradient-to-br from-white via-amber-50 to-amber-100 border-2 border-amber-200 rounded-2xl p-6 shadow-lg">
-                            <h3 className="font-bold text-amber-900 mb-4 flex items-center gap-2 text-lg">
-                                <div className="p-2 bg-amber-200 rounded-lg">
-                                    <Home className="h-5 w-5 text-amber-700" />
-                                </div>
-                                Land Use Information
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="bg-white p-3 rounded-lg border border-amber-200">
-                                    <p className="text-xs font-semibold text-amber-600 uppercase mb-1">
-                                        Existing Land Use
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.existing_land_use}
-                                    </p>
-                                </div>
-                                <div className="bg-white p-3 rounded-lg border border-amber-200">
-                                    <p className="text-xs font-semibold text-amber-600 uppercase mb-1">
-                                        Written Notice to Tenants
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.has_written_notice === "yes"
-                                            ? "Yes"
-                                            : "No"}
-                                    </p>
-                                </div>
-                                {data.has_written_notice === "yes" && (
-                                    <>
-                                        <div className="bg-white p-3 rounded-lg border border-amber-200">
-                                            <p className="text-xs font-semibold text-amber-600 uppercase mb-1">
-                                                Notice Officer Name
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Barangay
                                             </p>
-                                            <p className="font-semibold text-gray-900">
-                                                {data.notice_officer_name}
+                                            <p className="font-semibold">
+                                                {data.project_location_barangay}
                                             </p>
                                         </div>
-                                        <div className="bg-white p-3 rounded-lg border border-amber-200">
-                                            <p className="text-xs font-semibold text-amber-600 uppercase mb-1">
-                                                Notice Dates
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Municipality/City
                                             </p>
-                                            <p className="font-semibold text-gray-900">
-                                                {data.notice_dates}
-                                            </p>
-                                        </div>
-                                    </>
-                                )}
-                                <div className="bg-white p-3 rounded-lg border border-amber-200">
-                                    <p className="text-xs font-semibold text-amber-600 uppercase mb-1">
-                                        Similar Application Filed
-                                    </p>
-                                    <p className="font-semibold text-gray-900">
-                                        {data.has_similar_application === "yes"
-                                            ? "Yes"
-                                            : "No"}
-                                    </p>
-                                </div>
-                                {data.has_similar_application === "yes" && (
-                                    <>
-                                        <div className="bg-white p-3 rounded-lg border border-amber-200">
-                                            <p className="text-xs font-semibold text-amber-600 uppercase mb-1">
-                                                Application Offices
-                                            </p>
-                                            <p className="font-semibold text-gray-900">
+                                            <p className="font-semibold">
                                                 {
-                                                    data.similar_application_offices
+                                                    data.project_location_municipality
                                                 }
                                             </p>
                                         </div>
-                                        <div className="bg-white p-3 rounded-lg border border-amber-200">
-                                            <p className="text-xs font-semibold text-amber-600 uppercase mb-1">
-                                                Application Dates
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Province
                                             </p>
-                                            <p className="font-semibold text-gray-900">
-                                                {data.similar_application_dates}
+                                            <p className="font-semibold">
+                                                {data.project_location_province}
                                             </p>
                                         </div>
-                                    </>
-                                )}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Release Preference */}
-                        <div className="bg-gradient-to-br from-white via-teal-50 to-teal-100 border-2 border-teal-200 rounded-2xl p-6 shadow-lg">
-                            <h3 className="font-bold text-teal-900 mb-4 flex items-center gap-2 text-lg">
-                                <div className="p-2 bg-teal-200 rounded-lg">
-                                    <Mail className="h-5 w-5 text-teal-700" />
-                                </div>
-                                Release Preference
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="bg-white p-3 rounded-lg border border-teal-200">
-                                    <p className="text-xs font-semibold text-teal-600 uppercase mb-1">
-                                        Preferred Release Mode
-                                    </p>
-                                    <p className="font-semibold text-gray-900 capitalize">
-                                        {data.preferred_release_mode.replace(
-                                            "_",
-                                            " "
-                                        )}
-                                    </p>
-                                </div>
-                                {data.preferred_release_mode === "mail" &&
-                                    data.release_address && (
-                                        <div className="bg-white p-3 rounded-lg border border-teal-200">
-                                            <p className="text-xs font-semibold text-teal-600 uppercase mb-1">
-                                                Release Address
+                            {/* Land Use Information */}
+                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                    <Home className="h-4 w-4 text-amber-600" />
+                                    Land Use Information
+                                </h3>
+                                <div className="space-y-3 text-sm">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Existing Land Use
                                             </p>
-                                            <p className="font-semibold text-gray-900">
-                                                {data.release_address}
+                                            <p className="font-semibold">
+                                                {data.existing_land_use}
                                             </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Written Notice to Tenants
+                                            </p>
+                                            <p className="font-semibold">
+                                                {data.has_written_notice ===
+                                                "yes"
+                                                    ? "Yes"
+                                                    : "No"}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {data.has_written_notice === "yes" && (
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Notice Officer Name
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {data.notice_officer_name}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Notice Dates
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {data.notice_dates}
+                                                </p>
+                                            </div>
                                         </div>
                                     )}
-                            </div>
-                        </div>
 
-                        {/* Important Note */}
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl p-4">
-                            <div className="flex items-start gap-3">
-                                <div className="p-2 bg-blue-200 rounded-lg">
-                                    <AlertCircle className="h-5 w-5 text-blue-700" />
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Similar Application Filed
+                                            </p>
+                                            <p className="font-semibold">
+                                                {data.has_similar_application ===
+                                                "yes"
+                                                    ? "Yes"
+                                                    : "No"}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {data.has_similar_application === "yes" && (
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Application Offices
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        data.similar_application_offices
+                                                    }
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Application Dates
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        data.similar_application_dates
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                                <div>
-                                    <p className="font-bold text-blue-900 mb-1">
-                                        Important Notice
-                                    </p>
-                                    <p className="text-sm text-blue-800">
-                                        Once submitted, you will receive a
-                                        confirmation email. Your application
-                                        will be reviewed by our admin team.
-                                        Please ensure all information is
-                                        accurate before confirming.
-                                    </p>
+                            </div>
+
+                            {/* Release Preference */}
+                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                    <Mail className="h-4 w-4 text-teal-600" />
+                                    Release Preference
+                                </h3>
+                                <div className="space-y-3 text-sm">
+                                    <div>
+                                        <p className="text-xs font-medium text-gray-500">
+                                            Preferred Release Mode
+                                        </p>
+                                        <p className="font-semibold capitalize">
+                                            {data.preferred_release_mode.replace(
+                                                "_",
+                                                " "
+                                            )}
+                                        </p>
+                                    </div>
+                                    {data.preferred_release_mode === "mail" &&
+                                        data.release_address && (
+                                            <div>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Release Address
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {data.release_address}
+                                                </p>
+                                            </div>
+                                        )}
+                                </div>
+                            </div>
+
+                            {/* Important Note */}
+                            <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                                <div className="flex items-start gap-3">
+                                    <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5" />
+                                    <div>
+                                        <p className="font-bold text-blue-900 mb-1 text-sm">
+                                            Important Notice
+                                        </p>
+                                        <p className="text-xs text-blue-800">
+                                            Once submitted, you will receive a
+                                            confirmation email. Your application
+                                            will be reviewed by our admin team.
+                                            Please ensure all information is
+                                            accurate before confirming.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="border-t bg-white/50 backdrop-blur-sm p-6 -m-6 mt-6 rounded-b-3xl">
+                    <div className="border-t bg-gray-50 p-4 -m-4 mt-4">
                         <DialogFooter>
-                            <div className="flex justify-end gap-4 w-full">
+                            <div className="flex justify-end gap-3 w-full">
                                 <Button
                                     type="button"
                                     variant="outline"
@@ -1994,14 +2048,14 @@ export default function RequestForm() {
                                         setIsConfirmDialogOpen(false)
                                     }
                                     disabled={processing}
-                                    className="px-8 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold text-gray-700 rounded-xl"
+                                    className="px-6 py-2 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 font-medium text-gray-700 rounded-lg"
                                 >
                                     Review Again
                                 </Button>
                                 <Button
                                     onClick={confirmSubmit}
                                     disabled={processing}
-                                    className="px-8 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg disabled:opacity-50"
                                 >
                                     {processing ? (
                                         <span className="flex items-center gap-2">
@@ -2010,7 +2064,7 @@ export default function RequestForm() {
                                         </span>
                                     ) : (
                                         <span className="flex items-center gap-2">
-                                            <CheckCircle2 className="h-5 w-5" />
+                                            <CheckCircle2 className="h-4 w-4" />
                                             Confirm & Submit
                                         </span>
                                     )}
@@ -2020,7 +2074,6 @@ export default function RequestForm() {
                     </div>
                 </DialogContent>
             </Dialog>
-
             {/* Notification Modal */}
             <NotificationModal
                 isOpen={notificationModal.isOpen}

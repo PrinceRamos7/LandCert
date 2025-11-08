@@ -15,10 +15,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed roles first
+        // Seed roles and admin user
         $this->call([
             RoleSeeder::class,
             AdminUserSeeder::class,
+            // RequestSeeder::class, // Uncomment to seed 100 test requests
         ]);
     }
 }

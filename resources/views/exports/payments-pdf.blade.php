@@ -112,7 +112,7 @@
         </div>
         <div class="summary-item">
             <span class="summary-label">Total Amount:</span>
-            <span class="summary-value">₱{{ number_format($totalAmount, 2) }}</span>
+            <span class="summary-value">PHP {{ number_format($totalAmount, 2) }}</span>
         </div>
     </div>
 
@@ -138,7 +138,7 @@
                     <small style="color: #6b7280;">{{ $payment->request?->user?->email ?? '' }}</small>
                 </td>
                 <td>#{{ $payment->request_id }}</td>
-                <td class="amount">₱{{ number_format($payment->amount ?? 0, 2) }}</td>
+                <td class="amount">PHP {{ number_format($payment->amount ?? 0, 2) }}</td>
                 <td>{{ ucfirst(str_replace('_', ' ', $payment->payment_method ?? 'cash')) }}</td>
                 <td>{{ $payment->receipt_number ?? 'N/A' }}</td>
                 <td>{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('M j, Y') : 'N/A' }}</td>
