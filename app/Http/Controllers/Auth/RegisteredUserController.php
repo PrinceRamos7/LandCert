@@ -37,8 +37,11 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'address' => 'nullable|string|max:500',
-            'contact_number' => 'nullable|string|max:20',
+            'contact_number' => 'nullable|string|regex:/^09[0-9]{9}$/|size:11',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'contact_number.regex' => 'Contact number must start with 09 and be exactly 11 digits.',
+            'contact_number.size' => 'Contact number must be exactly 11 digits.',
         ]);
 
         $user = User::create([

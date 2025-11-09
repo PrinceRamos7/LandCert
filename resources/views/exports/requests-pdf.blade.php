@@ -5,6 +5,7 @@
     <title>Requests Export</title>
     <style>
         @page {
+            size: A4 landscape;
             margin: 10mm;
         }
         body {

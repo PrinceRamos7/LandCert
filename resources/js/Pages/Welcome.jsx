@@ -414,7 +414,7 @@ export default function Welcome({ auth }) {
                 </div>
             </footer>
 
-            <style jsx>{`
+            <style>{`
                 @keyframes fade-in-up {
                     from {
                         opacity: 0;

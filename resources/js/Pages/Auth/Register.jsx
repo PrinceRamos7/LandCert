@@ -83,13 +83,22 @@ export default function Register() {
                     <TextInput
                         id="contact_number"
                         name="contact_number"
+                        type="tel"
                         value={data.contact_number}
                         className="mt-1 block w-full"
                         autoComplete="tel"
-                        onChange={(e) => setData('contact_number', e.target.value)}
+                        placeholder="09XXXXXXXXX"
+                        maxLength="11"
+                        onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            setData('contact_number', value);
+                        }}
+                        pattern="09[0-9]{9}"
+                        title="Contact number must be 11 digits starting with 09"
                     />
 
                     <InputError message={errors.contact_number} className="mt-2" />
+                    <p className="mt-1 text-xs text-gray-500">Format: 09XXXXXXXXX (11 digits)</p>
                 </div>
 
                 <div className="mt-4">

@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Mail\ApplicationRejected;
 use App\Mail\PaymentRejected;
+use App\Services\DashboardCacheService;
+use App\Services\AuditLogService;
+use App\Jobs\GeneratePdfExport;
+use App\Models\AuditLog;
 
 class AdminController extends Controller
 {
@@ -20,12 +24,19 @@ class AdminController extends Controller
     /**
      * Display admin dashboard with all applications
      */
+    protected $cacheService;
+
+    public function __construct(DashboardCacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
+
     public function dashboard(Request $request): Response
     {
-        // Get analytics data
-        $analytics = $this->getDashboardAnalytics();
+        // Get cached analytics data
+        $analytics = $this->cacheService->getAnalytics();
         
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('per_page', 25); // Increased default pagination
         
         // Get all requests with their related data
         $requests = RequestModel::with('user')->orderBy('created_at', 'desc')->paginate($perPage);
@@ -71,47 +82,9 @@ class AdminController extends Controller
             ];
         });
 
-        // Get all requests with their status (using same logic as request page)
-        $allRequests = RequestModel::with('user')->get();
-        $applicationsData = Application::with('report')->get()->keyBy(function($app) {
-            return $app->applicant_name . '|' . $app->applicant_address;
-        });
-
-        // Calculate stats using the same logic as request page
-        $statusCounts = ['pending' => 0, 'approved' => 0, 'rejected' => 0];
-        
-        foreach ($allRequests as $request) {
-            $key = $request->applicant_name . '|' . $request->applicant_address;
-            $application = $applicationsData->get($key);
-            $report = $application?->report;
-            
-            // Use report evaluation if available, otherwise use request status
-            $status = $report?->evaluation ?? $request->status;
-            
-            if (isset($statusCounts[$status])) {
-                $statusCounts[$status]++;
-            }
-        }
-        
-        $stats = [
-            'total' => $allRequests->count(),
-            'pending' => $statusCounts['pending'],
-            'approved' => $statusCounts['approved'],
-            'rejected' => $statusCounts['rejected'],
-        ];
-
-        // Add debug logging to verify the data
-        \Log::info('Evaluation Statistics:', [
-            'status_counts' => $statusCounts,
-            'total_requests' => $allRequests->count(),
-            'final_stats' => $stats
-        ]);
-
-        // Get detailed evaluation distribution for the chart
-        $evaluationDistribution = $this->getEvaluationDistribution();
-
-        // Get detailed evaluation distribution for the chart
-        $evaluationDistribution = $this->getEvaluationDistribution();
+        // Get cached stats and evaluation distribution
+        $stats = $this->cacheService->getStats();
+        $evaluationDistribution = $this->cacheService->getEvaluationDistribution();
 
         return Inertia::render('Admin/Dashboard', [
             'applications' => $applications,
@@ -253,7 +226,7 @@ class AdminController extends Controller
      */
     public function applications(Request $request): Response
     {
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', 25); // Increased default pagination
         
         // Get all requests with their related data
         $requests = RequestModel::with('user')->orderBy('created_at', 'desc')->paginate($perPage);
@@ -309,7 +282,7 @@ class AdminController extends Controller
      */
     public function requests(Request $request): Response
     {
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('per_page', 25); // Increased default pagination
         
         // Get all requests with their related data
         $requestsData = RequestModel::with('user')->orderBy('created_at', 'desc')->paginate($perPage);
@@ -373,14 +346,40 @@ class AdminController extends Controller
         $report = Report::findOrFail($reportId);
         $oldEvaluation = $report->evaluation;
         
+        // Store old values for audit log
+        $oldValues = [
+            'evaluation' => $report->evaluation,
+            'description' => $report->description,
+            'amount' => $report->amount,
+            'date_certified' => $report->date_certified,
+            'issued_by' => $report->issued_by,
+        ];
+        
         $report->update([
             'evaluation' => $validated['evaluation'],
             'description' => $validated['description'] ?? $report->description,
             'amount' => $validated['amount'] ?? $report->amount,
             'date_certified' => $validated['date_certified'] ?? $report->date_certified,
             'date_reported' => now(),
-            'issued_by' => $validated['issues_by'] ?? $report->issued_by,
+            'issued_by' => $validated['issued_by'] ?? $report->issued_by,
         ]);
+        
+        // Log the update in audit log
+        $newValues = [
+            'evaluation' => $report->evaluation,
+            'description' => $report->description,
+            'amount' => $report->amount,
+            'date_certified' => $report->date_certified,
+            'issued_by' => $report->issued_by,
+        ];
+        
+        AuditLogService::logUpdate(
+            'Report',
+            $report->id,
+            $oldValues,
+            $newValues,
+            "Updated evaluation status from '{$oldEvaluation}' to '{$report->evaluation}'"
+        );
 
         // Send email notification if status changed
         if ($validated['evaluation'] !== $oldEvaluation) {
@@ -450,7 +449,7 @@ class AdminController extends Controller
      */
     public function users(Request $request): Response
     {
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('per_page', 25); // Increased default pagination
         
         $users = \App\Models\User::where('user_type', 'applicant')
             ->orderBy('created_at', 'desc')
@@ -495,7 +494,7 @@ class AdminController extends Controller
      */
     public function payments(Request $request): Response
     {
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('per_page', 25); // Increased default pagination
         
         $payments = \App\Models\Payment::with(['request', 'application', 'verifier'])
             ->orderBy('created_at', 'desc')
@@ -1456,5 +1455,131 @@ class AdminController extends Controller
         }
         
         return redirect()->back()->with($flashData);
+    }
+
+    /**
+     * Display audit logs
+     */
+    public function auditLogs(Request $request): Response
+    {
+        $perPage = $request->input('per_page', 25);
+        
+        $query = AuditLog::with('user')
+            ->orderBy('created_at', 'desc');
+
+        // Apply filters
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        if ($request->filled('model_type')) {
+            $query->where('model_type', $request->model_type);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->where('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->where('created_at', '<=', $request->date_to . ' 23:59:59');
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                  ->orWhere('user_name', 'like', "%{$search}%")
+                  ->orWhere('user_email', 'like', "%{$search}%")
+                  ->orWhere('ip_address', 'like', "%{$search}%");
+            });
+        }
+
+        $logs = $query->paginate($perPage);
+
+        // Get filter options
+        $users = \App\Models\User::select('id', 'name', 'email')
+            ->orderBy('name')
+            ->get();
+
+        $actions = AuditLog::select('action')
+            ->distinct()
+            ->orderBy('action')
+            ->pluck('action');
+
+        $modelTypes = AuditLog::select('model_type')
+            ->distinct()
+            ->whereNotNull('model_type')
+            ->orderBy('model_type')
+            ->pluck('model_type');
+
+        // Log this view
+        AuditLogService::log(
+            'viewed',
+            'Viewed audit logs page',
+            'AuditLog',
+            null
+        );
+
+        return Inertia::render('Admin/AuditLogs', [
+            'logs' => $logs,
+            'users' => $users,
+            'actions' => $actions,
+            'modelTypes' => $modelTypes,
+            'filters' => $request->only(['user_id', 'action', 'model_type', 'date_from', 'date_to', 'search']),
+        ]);
+    }
+
+    /**
+     * Export audit logs
+     */
+    public function exportAuditLogs(Request $request)
+    {
+        $query = AuditLog::with('user')
+            ->orderBy('created_at', 'desc');
+
+        // Apply same filters as the view
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        if ($request->filled('model_type')) {
+            $query->where('model_type', $request->model_type);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->where('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->where('created_at', '<=', $request->date_to . ' 23:59:59');
+        }
+
+        $logs = $query->get();
+
+        // Log this export
+        AuditLogService::logExport('audit_logs', $logs->count(), 'pdf');
+
+        $pdf = Pdf::loadView('exports.audit-logs-pdf', ['logs' => $logs])
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('audit-logs-' . now()->format('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * View single audit log details
+     */
+    public function viewAuditLog($id)
+    {
+        $log = AuditLog::with('user')->findOrFail($id);
+
+        return response()->json($log);
     }
 }

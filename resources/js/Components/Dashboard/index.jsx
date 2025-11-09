@@ -180,7 +180,7 @@ export function Dashboard({ requests }) {
                         </div>
                     </div>
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                        Welcome to LandCert
+                        Welcome to CPDO System
                     </h1>
                     <p className="text-xl text-gray-600 mb-2">
                         Your Land Certification Dashboard

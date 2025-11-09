@@ -70,8 +70,8 @@
         /* Header Section */
         .header {
             text-align: center;
-            margin-bottom: 15px;
-            padding-bottom: 12px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
             border-bottom: 2px solid #1e40af;
         }
         
@@ -150,7 +150,7 @@
         /* Title Section */
         .title-section {
             text-align: center;
-            margin: 15px 0 12px 0;
+            margin: 10px 0 8px 0;
         }
         
         .main-title {
@@ -173,15 +173,15 @@
         
         /* Content Section */
         .content {
-            margin: 12px 0;
+            margin: 8px 0;
             text-align: justify;
-            font-size: 13px;
-            line-height: 1.5;
+            font-size: 12px;
+            line-height: 1.4;
             color: #374151;
         }
         
         .content p {
-            margin: 10px 0;
+            margin: 6px 0;
             text-indent: 30px;
         }
         
@@ -200,9 +200,9 @@
         
         /* Details Section */
         .details-section {
-            margin: 12px 0;
+            margin: 8px 0;
             background: #f8fafc;
-            padding: 12px 20px;
+            padding: 8px 15px;
             border-radius: 8px;
             border-left: 4px solid #1e40af;
         }
@@ -214,8 +214,8 @@
         }
         
         .details-table td {
-            padding: 6px 0;
-            font-size: 12px;
+            padding: 4px 0;
+            font-size: 11px;
             vertical-align: top;
             border-bottom: 1px solid #e5e7eb;
         }
@@ -243,9 +243,9 @@
         
         /* Issue Date */
         .issue-date {
-            margin: 12px 0;
+            margin: 8px 0;
             text-align: justify;
-            font-size: 13px;
+            font-size: 12px;
             color: #374151;
         }
         

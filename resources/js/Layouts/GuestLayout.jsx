@@ -7,10 +7,10 @@ export default function GuestLayout({ children }) {
                 <Link href="/" className="flex flex-col items-center">
                     <img 
                         src="/images/Ilagan.png" 
-                        alt="LandCert Logo" 
+                        alt="CPDO Logo" 
                         className="h-24 w-24 object-contain"
                     />
-                    <h1 className="mt-2 text-2xl font-bold text-gray-800">LandCert System</h1>
+                    <h1 className="mt-2 text-2xl font-bold text-gray-800">CPDO - Ilagan City</h1>
                 </Link>
             </div>
 

@@ -28,7 +28,7 @@ const teams = [
     {
         name: "LandCert",
         logo: "/images/ilagan1.png",
-        plan: "CDRRMO - Ilagan City",
+        plan: "CPDO - Ilagan City",
     },
 ];
 
@@ -61,7 +61,7 @@ export function AppSidebar({ ...props }) {
     const user = {
         name: auth?.user?.name || "User",
         email: auth?.user?.email || "user@example.com",
-        avatar: "/avatars/default.jpg",
+        avatar: "/avatars/default.svg",
     };
 
     return (

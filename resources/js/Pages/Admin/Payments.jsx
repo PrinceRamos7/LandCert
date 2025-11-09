@@ -27,6 +27,17 @@ export default function Payments({ payments }) {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
+                                    <a 
+                                        href={route('admin.dashboard')} 
+                                        className="text-gray-600 hover:text-gray-900 transition-colors"
+                                    >
+                                        Admin Dashboard
+                                    </a>
+                                </BreadcrumbItem>
+                                <BreadcrumbItem>
+                                    <span className="mx-2 text-gray-400">›</span>
+                                </BreadcrumbItem>
+                                <BreadcrumbItem>
                                     <BreadcrumbPage>Payment Verification</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>

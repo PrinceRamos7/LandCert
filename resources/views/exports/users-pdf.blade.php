@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <title>Users Export</title>
     <style>
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
         body {
             font-family: Arial, sans-serif;
             font-size: 12px;

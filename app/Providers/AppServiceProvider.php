@@ -4,6 +4,12 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use App\Models\Request as RequestModel;
+use App\Models\Payment;
+use App\Models\Report;
+use App\Observers\RequestObserver;
+use App\Observers\PaymentObserver;
+use App\Observers\ReportObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,5 +27,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+        
+        // Register observers for cache invalidation
+        RequestModel::observe(RequestObserver::class);
+        Payment::observe(PaymentObserver::class);
+        Report::observe(ReportObserver::class);
     }
 }

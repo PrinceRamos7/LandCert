@@ -17,6 +17,7 @@ class Request extends Model
         'corporation_address',
         'authorized_representative_name',
         'authorized_representative_address',
+        'authorized_representative_email',
         
         // Page 2: Project Details
         'project_type',

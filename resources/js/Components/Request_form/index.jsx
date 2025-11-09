@@ -56,6 +56,7 @@ export default function RequestForm() {
         corporation_address: "",
         authorized_representative_name: "",
         authorized_representative_address: "",
+        authorized_representative_email: "",
         authorization_letter: null,
 
         // Page 2: Project Details
@@ -121,6 +122,8 @@ export default function RequestForm() {
                 "Authorized Representative Name";
             conditionalFields.authorized_representative_address =
                 "Authorized Representative Address";
+            conditionalFields.authorized_representative_email =
+                "Authorized Representative Email";
             conditionalFields.authorization_letter = "Authorization Letter";
         }
 
@@ -321,6 +324,14 @@ export default function RequestForm() {
                     data.authorized_representative_address.trim() === ""
                 ) {
                     errors.push("Authorized Representative Address");
+                }
+                if (
+                    !data.authorized_representative_email ||
+                    data.authorized_representative_email.trim() === ""
+                ) {
+                    errors.push("Authorized Representative Email");
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.authorized_representative_email)) {
+                    errors.push("Valid Authorized Representative Email");
                 }
                 if (!data.authorization_letter) {
                     errors.push("Authorization Letter");
@@ -681,6 +692,10 @@ export default function RequestForm() {
                                             "authorized_representative_address",
                                             ""
                                         );
+                                        setData(
+                                            "authorized_representative_email",
+                                            ""
+                                        );
                                         setData("authorization_letter", null);
                                     }
                                 }}
@@ -728,6 +743,31 @@ export default function RequestForm() {
                                 {errors.authorized_representative_name && (
                                     <p className="text-sm text-red-500">
                                         {errors.authorized_representative_name}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="authorized_representative_email">
+                                    Email of Authorized Representative{" "}
+                                    <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="authorized_representative_email"
+                                    type="email"
+                                    value={data.authorized_representative_email}
+                                    onChange={(e) =>
+                                        setData(
+                                            "authorized_representative_email",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="representative@example.com"
+                                    required={hasRepresentative}
+                                />
+                                {errors.authorized_representative_email && (
+                                    <p className="text-sm text-red-500">
+                                        {errors.authorized_representative_email}
                                     </p>
                                 )}
                             </div>
@@ -1630,7 +1670,7 @@ export default function RequestForm() {
                 open={isConfirmDialogOpen}
                 onOpenChange={setIsConfirmDialogOpen}
             >
-                <DialogContent className="max-w-[95vw] w-full max-h-[100vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
+                <DialogContent className="max-w-[90vw] w-full bg-white border border-blue-300 rounded-lg overflow-hidden">
                     <DialogHeader className="pb-3 bg-blue-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
                         <DialogTitle className="text-lg font-bold text-white">
                             Confirm Application Submission
@@ -1642,7 +1682,7 @@ export default function RequestForm() {
                     </DialogHeader>
 
                     {/* Content Grid - Compact 2 Column Layout */}
-                    <div className="grid grid-cols-2 gap-4 py-2 overflow-y-auto max-h-[calc(90vh-160px)]">
+                    <div className="grid grid-cols-2 gap-4 py-2 overflow-y-auto max-h-[calc(85vh-200px)]">
                         {/* Left Column */}
                         <div className="space-y-3">
                             {/* Applicant Information */}

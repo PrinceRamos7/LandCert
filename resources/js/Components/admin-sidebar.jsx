@@ -22,7 +22,7 @@ import {
 
 const teams = [
     {
-        name: "LandCert",
+        name: "CPDO - LandCert",
         logo: "/images/ilagan1.png",
         plan: "Administrator",
     },
@@ -59,6 +59,10 @@ const adminNavMain = [
                 title: "Users",
                 url: "/admin/users",
             },
+            {
+                title: "Audit Logs",
+                url: "/admin/audit-logs",
+            },
         ],
     },
 ];
@@ -69,7 +73,7 @@ export function AdminSidebar({ ...props }) {
     const user = {
         name: auth?.user?.name || "Admin",
         email: auth?.user?.email || "admin@example.com",
-        avatar: "/avatars/default.jpg",
+        avatar: "/avatars/default.svg",
     };
 
     return (

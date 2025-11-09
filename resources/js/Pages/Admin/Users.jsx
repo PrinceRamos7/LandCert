@@ -244,6 +244,17 @@ export default function Users({ users }) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
+                  <a 
+                    href={route('admin.dashboard')} 
+                    className="text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    Admin Dashboard
+                  </a>
+                </BreadcrumbItem>
+                <BreadcrumbItem>
+                  <span className="mx-2 text-gray-400">›</span>
+                </BreadcrumbItem>
+                <BreadcrumbItem>
                   <BreadcrumbPage>User Management</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>

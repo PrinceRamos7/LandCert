@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@/Components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/Components/ui/dialog";
 import { Button } from "@/Components/ui/button";
 import { CheckCircle, XCircle, AlertCircle, Info } from "lucide-react";
 
@@ -67,6 +67,8 @@ export function NotificationModal({
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-md p-0 overflow-hidden border-0 bg-white rounded-2xl shadow-2xl">
+                <DialogTitle className="sr-only">{title}</DialogTitle>
+                <DialogDescription className="sr-only">{message}</DialogDescription>
                 <div className="text-center p-8">
                     {/* Icon */}
                     <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${getIconBgColor()} mb-6 shadow-lg`}>

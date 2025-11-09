@@ -507,48 +507,6 @@ export function AnalyticsDashboard({ analytics }) {
                     </div>
                 </TabsContent>
             </Tabs>
-
-            {/* Recent Activity */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-3">
-                        {recent_activity.length === 0 ? (
-                            <p className="text-sm text-gray-500 text-center py-4">No recent activity</p>
-                        ) : (
-                            recent_activity.map((activity) => (
-                                <div
-                                    key={activity.id}
-                                    className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                                >
-                                    <div className="flex-shrink-0 mt-1">
-                                        {activity.entity_type === 'payment' && <DollarSign className="h-4 w-4 text-blue-600" />}
-                                        {activity.entity_type === 'certificate' && <Award className="h-4 w-4 text-purple-600" />}
-                                        {activity.entity_type === 'application' && <Activity className="h-4 w-4 text-green-600" />}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium text-gray-900">
-                                            Request #{activity.request_id} - {activity.entity_type}
-                                        </p>
-                                        <p className="text-xs text-gray-600 mt-1">
-                                            Status changed from <span className="font-medium">{activity.old_status || 'none'}</span> to{' '}
-                                            <span className="font-medium">{activity.new_status}</span>
-                                        </p>
-                                        {activity.notes && (
-                                            <p className="text-xs text-gray-500 mt-1">{activity.notes}</p>
-                                        )}
-                                        <p className="text-xs text-gray-400 mt-1">
-                                            By {activity.changed_by} • {new Date(activity.created_at).toLocaleString()}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
         </div>
     );
 }

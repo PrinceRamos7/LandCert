@@ -145,6 +145,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/bulk/approve', [AdminController::class, 'bulkApprove'])->name('bulk.approve');
     Route::post('/bulk/reject', [AdminController::class, 'bulkReject'])->name('bulk.reject');
     Route::delete('/bulk/delete', [AdminController::class, 'bulkDelete'])->name('bulk.delete');
+    
+    // Audit log routes
+    Route::get('/audit-logs', [AdminController::class, 'auditLogs'])->name('audit-logs');
+    Route::get('/audit-logs/export', [AdminController::class, 'exportAuditLogs'])->name('audit-logs.export');
+    Route::get('/audit-logs/{id}', [AdminController::class, 'viewAuditLog'])->name('audit-logs.view');
 });
 
 // Notification routes

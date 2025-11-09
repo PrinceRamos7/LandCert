@@ -219,7 +219,10 @@ export function AdminPaymentList({ payments }) {
     }, [paymentsData]);
 
     const handleExport = () => {
-        const url = route("admin.export.payments", { status: filterStatus, format: 'pdf' });
+        const url = route("admin.export.payments", {
+            status: filterStatus,
+            format: "pdf",
+        });
         window.location.href = url;
         toast({
             title: "Export Started",
@@ -319,9 +322,15 @@ export function AdminPaymentList({ payments }) {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-purple-700 font-medium mb-1">Total Payments</p>
-                                <p className="text-2xl font-bold text-purple-900">{stats.total}</p>
-                                <p className="text-xs text-purple-600 mt-0.5">All submissions</p>
+                                <p className="text-xs text-purple-700 font-medium mb-1">
+                                    Total Payments
+                                </p>
+                                <p className="text-2xl font-bold text-purple-900">
+                                    {stats.total}
+                                </p>
+                                <p className="text-xs text-purple-600 mt-0.5">
+                                    All submissions
+                                </p>
                             </div>
                             <div className="p-2 bg-purple-500 rounded-lg">
                                 <DollarSign className="h-5 w-5 text-white" />
@@ -337,9 +346,15 @@ export function AdminPaymentList({ payments }) {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-yellow-700 font-medium mb-1">Pending</p>
-                                <p className="text-2xl font-bold text-yellow-900">{stats.pending}</p>
-                                <p className="text-xs text-yellow-600 mt-0.5">Awaiting verification</p>
+                                <p className="text-xs text-yellow-700 font-medium mb-1">
+                                    Pending
+                                </p>
+                                <p className="text-2xl font-bold text-yellow-900">
+                                    {stats.pending}
+                                </p>
+                                <p className="text-xs text-yellow-600 mt-0.5">
+                                    Awaiting verification
+                                </p>
                             </div>
                             <div className="p-2 bg-yellow-500 rounded-lg">
                                 <Clock className="h-5 w-5 text-white" />
@@ -355,9 +370,15 @@ export function AdminPaymentList({ payments }) {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-green-700 font-medium mb-1">Verified</p>
-                                <p className="text-2xl font-bold text-green-900">{stats.verified}</p>
-                                <p className="text-xs text-green-600 mt-0.5">Successfully processed</p>
+                                <p className="text-xs text-green-700 font-medium mb-1">
+                                    Verified
+                                </p>
+                                <p className="text-2xl font-bold text-green-900">
+                                    {stats.verified}
+                                </p>
+                                <p className="text-xs text-green-600 mt-0.5">
+                                    Successfully processed
+                                </p>
                             </div>
                             <div className="p-2 bg-green-500 rounded-lg">
                                 <CheckCircle2 className="h-5 w-5 text-white" />
@@ -373,9 +394,15 @@ export function AdminPaymentList({ payments }) {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-red-700 font-medium mb-1">Rejected</p>
-                                <p className="text-2xl font-bold text-red-900">{stats.rejected}</p>
-                                <p className="text-xs text-red-600 mt-0.5">Needs attention</p>
+                                <p className="text-xs text-red-700 font-medium mb-1">
+                                    Rejected
+                                </p>
+                                <p className="text-2xl font-bold text-red-900">
+                                    {stats.rejected}
+                                </p>
+                                <p className="text-xs text-red-600 mt-0.5">
+                                    Needs attention
+                                </p>
                             </div>
                             <div className="p-2 bg-red-500 rounded-lg">
                                 <XCircle className="h-5 w-5 text-white" />
@@ -569,13 +596,18 @@ export function AdminPaymentList({ payments }) {
 
             {/* Payment Details Modal - Clean Layout */}
             <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-                <DialogContent className="max-w-[95vw] w-full max-h-[95vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
+                <DialogContent className="max-w-[96vw] w-full max-h-[95vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
                     <DialogHeader className="pb-3 bg-blue-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
                         <DialogTitle className="text-lg font-bold text-white">
                             Payment Details #{selectedPayment?.id}
                         </DialogTitle>
                         <DialogDescription className="text-sm text-white">
-                            Submitted on {formatDate(selectedPayment?.created_at)} • Status: {selectedPayment?.payment_status?.charAt(0).toUpperCase() + selectedPayment?.payment_status?.slice(1)}
+                            Submitted on{" "}
+                            {formatDate(selectedPayment?.created_at)} • Status:{" "}
+                            {selectedPayment?.payment_status
+                                ?.charAt(0)
+                                .toUpperCase() +
+                                selectedPayment?.payment_status?.slice(1)}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -592,16 +624,29 @@ export function AdminPaymentList({ payments }) {
                                     </h3>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-xs text-gray-500">Applicant Name</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedPayment.applicant_name}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Applicant Name
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedPayment.applicant_name}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Email Address</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedPayment.applicant_email || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Email Address
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedPayment.applicant_email ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Request ID</p>
-                                            <p className="text-sm font-semibold text-gray-900">#{selectedPayment.request_id}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Request ID
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                #{selectedPayment.request_id}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -614,22 +659,48 @@ export function AdminPaymentList({ payments }) {
                                     </h3>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-xs text-gray-500">Amount Paid</p>
-                                            <p className="text-sm font-semibold text-gray-900">₱{parseFloat(selectedPayment.amount).toLocaleString()}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Amount Paid
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                ₱
+                                                {parseFloat(
+                                                    selectedPayment.amount
+                                                ).toLocaleString()}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Payment Method</p>
-                                            <p className="text-sm font-semibold text-gray-900 capitalize">{selectedPayment.payment_method.replace("_", " ")}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Payment Method
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900 capitalize">
+                                                {selectedPayment.payment_method.replace(
+                                                    "_",
+                                                    " "
+                                                )}
+                                            </p>
                                         </div>
                                         {selectedPayment.receipt_number && (
                                             <div>
-                                                <p className="text-xs text-gray-500">Receipt Number</p>
-                                                <p className="text-sm font-semibold text-gray-900">{selectedPayment.receipt_number}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    Receipt Number
+                                                </p>
+                                                <p className="text-sm font-semibold text-gray-900">
+                                                    {
+                                                        selectedPayment.receipt_number
+                                                    }
+                                                </p>
                                             </div>
                                         )}
                                         <div>
-                                            <p className="text-xs text-gray-500">Payment Date</p>
-                                            <p className="text-sm font-semibold text-gray-900">{formatDate(selectedPayment.payment_date)}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Payment Date
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {formatDate(
+                                                    selectedPayment.payment_date
+                                                )}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -642,27 +713,58 @@ export function AdminPaymentList({ payments }) {
                                     </h3>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-xs text-gray-500">Current Status</p>
-                                            <Badge className={getStatusColor(selectedPayment.payment_status)}>
+                                            <p className="text-xs text-gray-500">
+                                                Current Status
+                                            </p>
+                                            <Badge
+                                                className={getStatusColor(
+                                                    selectedPayment.payment_status
+                                                )}
+                                            >
                                                 <span className="flex items-center gap-1">
-                                                    {getStatusIcon(selectedPayment.payment_status)}
-                                                    {selectedPayment.payment_status.charAt(0).toUpperCase() + selectedPayment.payment_status.slice(1)}
+                                                    {getStatusIcon(
+                                                        selectedPayment.payment_status
+                                                    )}
+                                                    {selectedPayment.payment_status
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                        selectedPayment.payment_status.slice(
+                                                            1
+                                                        )}
                                                 </span>
                                             </Badge>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Submission Date</p>
-                                            <p className="text-sm font-semibold text-gray-900">{formatDate(selectedPayment.created_at)}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Submission Date
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {formatDate(
+                                                    selectedPayment.created_at
+                                                )}
+                                            </p>
                                         </div>
                                         {selectedPayment.verified_by_name && (
                                             <>
                                                 <div>
-                                                    <p className="text-xs text-gray-500">Verified By</p>
-                                                    <p className="text-sm font-semibold text-gray-900">{selectedPayment.verified_by_name}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        Verified By
+                                                    </p>
+                                                    <p className="text-sm font-semibold text-gray-900">
+                                                        {
+                                                            selectedPayment.verified_by_name
+                                                        }
+                                                    </p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs text-gray-500">Verified On</p>
-                                                    <p className="text-sm font-semibold text-gray-900">{formatDate(selectedPayment.verified_at)}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        Verified On
+                                                    </p>
+                                                    <p className="text-sm font-semibold text-gray-900">
+                                                        {formatDate(
+                                                            selectedPayment.verified_at
+                                                        )}
+                                                    </p>
                                                 </div>
                                             </>
                                         )}
@@ -682,15 +784,23 @@ export function AdminPaymentList({ payments }) {
                                     </h3>
                                     {selectedPayment.receipt_file_path ? (
                                         <div className="space-y-3">
-                                            {(selectedPayment.receipt_file_path.toLowerCase().endsWith(".png") ||
-                                              selectedPayment.receipt_file_path.toLowerCase().endsWith(".jpg") ||
-                                              selectedPayment.receipt_file_path.toLowerCase().endsWith(".jpeg")) && (
+                                            {(selectedPayment.receipt_file_path
+                                                .toLowerCase()
+                                                .endsWith(".png") ||
+                                                selectedPayment.receipt_file_path
+                                                    .toLowerCase()
+                                                    .endsWith(".jpg") ||
+                                                selectedPayment.receipt_file_path
+                                                    .toLowerCase()
+                                                    .endsWith(".jpeg")) && (
                                                 <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
                                                     <img
                                                         src={`/storage/${selectedPayment.receipt_file_path}`}
                                                         alt="Payment Receipt"
                                                         className="w-full h-auto object-contain"
-                                                        style={{ maxHeight: "400px" }}
+                                                        style={{
+                                                            maxHeight: "400px",
+                                                        }}
                                                     />
                                                 </div>
                                             )}
@@ -705,12 +815,15 @@ export function AdminPaymentList({ payments }) {
                                             </a>
                                         </div>
                                     ) : (
-                                        <p className="text-sm text-gray-500">No receipt uploaded</p>
+                                        <p className="text-sm text-gray-500">
+                                            No receipt uploaded
+                                        </p>
                                     )}
                                 </div>
 
                                 {/* Additional Information */}
-                                {(selectedPayment.notes || selectedPayment.rejection_reason) && (
+                                {(selectedPayment.notes ||
+                                    selectedPayment.rejection_reason) && (
                                     <div className="bg-gray-50 rounded-lg p-4">
                                         <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                                             <FileText className="h-4 w-4" />
@@ -719,14 +832,24 @@ export function AdminPaymentList({ payments }) {
                                         <div className="space-y-3">
                                             {selectedPayment.notes && (
                                                 <div>
-                                                    <p className="text-xs text-gray-500">Notes</p>
-                                                    <p className="text-sm text-gray-900">{selectedPayment.notes}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        Notes
+                                                    </p>
+                                                    <p className="text-sm text-gray-900">
+                                                        {selectedPayment.notes}
+                                                    </p>
                                                 </div>
                                             )}
                                             {selectedPayment.rejection_reason && (
                                                 <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg">
-                                                    <p className="text-xs text-rose-700 font-semibold mb-1">Rejection Reason</p>
-                                                    <p className="text-sm text-rose-900">{selectedPayment.rejection_reason}</p>
+                                                    <p className="text-xs text-rose-700 font-semibold mb-1">
+                                                        Rejection Reason
+                                                    </p>
+                                                    <p className="text-sm text-rose-900">
+                                                        {
+                                                            selectedPayment.rejection_reason
+                                                        }
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>

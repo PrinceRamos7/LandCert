@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('corporation_address')->nullable();
             $table->string('authorized_representative_name')->nullable();
             $table->text('authorized_representative_address')->nullable();
+            $table->string('authorized_representative_email')->nullable();
             
             // Page 2: Project Details
             $table->string('project_type');
