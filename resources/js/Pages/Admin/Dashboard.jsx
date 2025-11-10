@@ -17,7 +17,7 @@ import {
 export default function Page({ applications = [], stats = {}, analytics = null }) {
   return (
     <SidebarProvider>
-      <Head title="Admin Dashboard" />
+      <Head title="Dashboard" />
       <AdminSidebar />
       <SidebarInset>
         <header

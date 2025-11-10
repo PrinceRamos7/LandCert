@@ -25,7 +25,7 @@ export default function RequestPage() {
 
     return (
         <SidebarProvider>
-            <Head title="New Request" />
+            <Head title="Request" />
             <Sidebar />
             <Toaster />
             <SidebarInset>

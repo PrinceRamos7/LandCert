@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default function Reports() {
   return (
     <SidebarProvider>
-      <Head title="Reports - Admin" />
+      <Head title="Reports" />
       <AdminSidebar />
       <SidebarInset>
         <header

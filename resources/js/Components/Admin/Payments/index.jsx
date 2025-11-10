@@ -40,8 +40,8 @@ import {
     ThumbsUp,
     ThumbsDown,
     DollarSign,
-    Calendar,
     Download,
+    CheckSquare,
 } from "lucide-react";
 import { router } from "@inertiajs/react";
 import { useToast } from "@/Components/ui/use-toast";
@@ -51,9 +51,11 @@ export function AdminPaymentList({ payments }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
     const [selectedPayment, setSelectedPayment] = useState(null);
+    const [selectedPayments, setSelectedPayments] = useState([]);
     const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
     const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
     const [isVerifyDialogOpen, setIsVerifyDialogOpen] = useState(false);
+    const [isBulkVerifyDialogOpen, setIsBulkVerifyDialogOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("");
     const [notificationModal, setNotificationModal] = useState({
         isOpen: false,
@@ -228,6 +230,60 @@ export function AdminPaymentList({ payments }) {
             title: "Export Started",
             description: "Your PDF file will download shortly.",
         });
+    };
+
+    const handleSelectPayment = (paymentId) => {
+        setSelectedPayments(prev => 
+            prev.includes(paymentId) 
+                ? prev.filter(id => id !== paymentId)
+                : [...prev, paymentId]
+        );
+    };
+
+    const handleSelectAll = () => {
+        const pendingPayments = filteredPayments
+            .filter(p => p.payment_status === 'pending')
+            .map(p => p.id);
+        
+        if (selectedPayments.length === pendingPayments.length) {
+            setSelectedPayments([]);
+        } else {
+            setSelectedPayments(pendingPayments);
+        }
+    };
+
+    const handleBulkVerify = () => {
+        setIsBulkVerifyDialogOpen(true);
+    };
+
+    const confirmBulkVerify = () => {
+        router.post(
+            route("admin.bulk.approve"),
+            { payment_ids: selectedPayments },
+            {
+                onSuccess: () => {
+                    setIsBulkVerifyDialogOpen(false);
+                    setSelectedPayments([]);
+                    setNotificationModal({
+                        isOpen: true,
+                        type: "success",
+                        title: "Bulk Verification Complete!",
+                        message: `Successfully verified ${selectedPayments.length} payment(s). Certificates have been generated and applicants will be notified via email.`,
+                        buttonText: "Continue",
+                    });
+                },
+                onError: () => {
+                    setIsBulkVerifyDialogOpen(false);
+                    setNotificationModal({
+                        isOpen: true,
+                        type: "error",
+                        title: "Bulk Verification Failed!",
+                        message: "Failed to verify some payments. Please try again or verify them individually.",
+                        buttonText: "Try Again",
+                    });
+                },
+            }
+        );
     };
 
     const handlePageChange = (url) => {
@@ -454,11 +510,74 @@ export function AdminPaymentList({ payments }) {
                         </div>
                     </div>
                 </CardHeader>
+                
+                {/* Bulk Actions Bar */}
+                {selectedPayments.length > 0 && (
+                    <div className="bg-blue-50 border-b border-blue-200 px-6 py-3">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full text-sm font-semibold">
+                                    {selectedPayments.length}
+                                </div>
+                                <span className="text-sm font-medium text-gray-700">
+                                    {selectedPayments.length} item{selectedPayments.length > 1 ? 's' : ''} selected
+                                </span>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSelectedPayments([])}
+                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 text-sm"
+                                >
+                                    Clear selection
+                                </Button>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    onClick={handleBulkVerify}
+                                    className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                                >
+                                    <CheckCircle2 className="h-4 w-4" />
+                                    Approve
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="gap-2 border-red-300 text-red-600 hover:bg-red-50"
+                                >
+                                    <XCircle className="h-4 w-4" />
+                                    Reject
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={handleExport}
+                                    className="gap-2"
+                                >
+                                    <Download className="h-4 w-4" />
+                                    Export
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="gap-2 border-red-300 text-red-600 hover:bg-red-50"
+                                >
+                                    <XCircle className="h-4 w-4" />
+                                    Delete
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <CardContent>
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b">
+                                    <th className="text-left p-3 font-semibold w-12">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedPayments.length > 0 && selectedPayments.length === filteredPayments.filter(p => p.payment_status === 'pending').length}
+                                            onChange={handleSelectAll}
+                                            className="w-4 h-4 rounded border-gray-300"
+                                        />
+                                    </th>
                                     <th className="text-left p-3 font-semibold">
                                         ID
                                     </th>
@@ -488,6 +607,16 @@ export function AdminPaymentList({ payments }) {
                                         key={payment.id}
                                         className="border-b hover:bg-gray-50"
                                     >
+                                        <td className="p-3">
+                                            {payment.payment_status === 'pending' && (
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedPayments.includes(payment.id)}
+                                                    onChange={() => handleSelectPayment(payment.id)}
+                                                    className="w-4 h-4 rounded border-gray-300"
+                                                />
+                                            )}
+                                        </td>
                                         <td className="p-3 font-mono text-sm">
                                             #{payment.id}
                                         </td>
@@ -958,6 +1087,44 @@ export function AdminPaymentList({ payments }) {
                             onClick={handleRejectSubmit}
                         >
                             Reject Payment
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Bulk Verify Dialog */}
+            <Dialog
+                open={isBulkVerifyDialogOpen}
+                onOpenChange={setIsBulkVerifyDialogOpen}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Bulk Verify Payments</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to verify {selectedPayments.length} payment(s)? 
+                            This will automatically generate and send certificates to all selected applicants.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                        <p className="text-sm font-semibold mb-2">
+                            {selectedPayments.length} payment(s) will be verified
+                        </p>
+                        <p className="text-xs text-gray-600">
+                            Certificates will be generated and email notifications will be sent to all applicants.
+                        </p>
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsBulkVerifyDialogOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            className="bg-emerald-600 hover:bg-emerald-700"
+                            onClick={confirmBulkVerify}
+                        >
+                            Verify All & Generate Certificates
                         </Button>
                     </DialogFooter>
                 </DialogContent>

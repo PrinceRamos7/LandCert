@@ -17,7 +17,7 @@ import { ReceiptList } from "@/Components/Receipt";
 export default function Receipt({ requests }) {
     return (
         <SidebarProvider>
-            <Head title="Payment Receipt" />
+            <Head title="Receipt" />
             <AppSidebar />
             <SidebarInset>
                 <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">

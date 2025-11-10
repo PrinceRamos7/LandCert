@@ -17,7 +17,7 @@ import { AuditLogComponent } from "@/Components/Admin/AuditLog";
 export default function AuditLogs({ logs, users, actions, modelTypes, filters }) {
   return (
     <SidebarProvider>
-      <Head title="Audit Logs - Admin" />
+      <Head title="Audit Logs" />
       <AdminSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">

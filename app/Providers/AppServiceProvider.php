@@ -28,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
         
+        // Set timezone for Carbon
+        \Carbon\Carbon::setLocale('en');
+        date_default_timezone_set('Asia/Manila');
+        
         // Register observers for cache invalidation
         RequestModel::observe(RequestObserver::class);
         Payment::observe(PaymentObserver::class);

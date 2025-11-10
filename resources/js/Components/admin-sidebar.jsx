@@ -5,6 +5,7 @@ import {
     FileText,
     Users,
     Settings,
+    CheckSquare,
 } from "lucide-react";
 import { usePage } from "@inertiajs/react";
 
@@ -22,7 +23,7 @@ import {
 
 const teams = [
     {
-        name: "CPDO - LandCert",
+        name: "CPDO - Ilagan City",
         logo: "/images/ilagan1.png",
         plan: "Administrator",
     },

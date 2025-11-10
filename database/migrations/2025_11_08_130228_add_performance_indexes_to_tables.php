@@ -52,6 +52,13 @@ return new class extends Migration
         Schema::table('certificates', function (Blueprint $table) {
             $table->index('issued_at');
         });
+
+        // Audit logs table indexes for better performance
+        Schema::table('audit_logs', function (Blueprint $table) {
+            $table->index(['created_at', 'user_id']);
+            $table->index('action');
+            $table->index('model_type');
+        });
     }
 
     /**
@@ -92,6 +99,12 @@ return new class extends Migration
 
         Schema::table('certificates', function (Blueprint $table) {
             $table->dropIndex(['certificates_issued_at_index']);
+        });
+
+        Schema::table('audit_logs', function (Blueprint $table) {
+            $table->dropIndex(['audit_logs_created_at_user_id_index']);
+            $table->dropIndex(['audit_logs_action_index']);
+            $table->dropIndex(['audit_logs_model_type_index']);
         });
     }
 };

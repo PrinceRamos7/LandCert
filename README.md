@@ -26,9 +26,15 @@ npm run dev
 ### Access
 - **URL**: http://localhost:8000
 - **Admin Panel**: /admin/dashboard
+- **Payments**: /admin/payments
+
+### Test Accounts
+- **Admin**: admin@cpdo.com / password
+- **Regular User**: user@cpdo.com / password
 
 ## ✨ Features
 
+### Core Features
 - 📋 Request Management
 - 💰 Payment Processing
 - 👥 User Management
@@ -37,9 +43,23 @@ npm run dev
 - 📊 Audit Logs
 - 🚀 Performance Optimized
 
+### 🆕 New Features (November 2025)
+- 🔔 **Real-time Notifications System**
+  - Database-backed persistent notifications
+  - Unread count tracking
+  - Automatic notifications for all events
+  
+- ✅ **Payment Verification with Bulk Actions**
+  - Single-click payment approval
+  - Bulk verify multiple payments
+  - Integrated into payments page
+  - Automatic certificate generation
+
 ## 📚 Documentation
 
-See **SYSTEM_DOCUMENTATION.md** for complete documentation.
+### Main Documentation
+- **SYSTEM_DOCUMENTATION.md** - Complete system documentation
+- **SYSTEM_ANALYSIS_REPORT.md** - System analysis and performance
 
 ## 🛠️ Tech Stack
 

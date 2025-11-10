@@ -18,14 +18,14 @@ Route::get('/', function () {
 
 Route::get('/dashboard', [RequestController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'throttle:60,1'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
     // Request routes
     Route::get('/request', [RequestController::class, 'index'])->name('request.index');
-    Route::post('/request', [RequestController::class, 'store'])->name('request.store');
+    Route::post('/request', [RequestController::class, 'store'])->middleware('throttle:10,1')->name('request.store');
     
     // Payment routes
     Route::get('/receipt', [\App\Http\Controllers\PaymentController::class, 'index'])->name('receipt.index');
@@ -155,7 +155,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 // Notification routes
 Route::middleware('auth')->prefix('notifications')->name('notifications.')->group(function () {
     Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    Route::get('/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('unread-count');
     Route::post('/mark-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read');
+    Route::post('/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::delete('/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
+    Route::delete('/', [\App\Http\Controllers\NotificationController::class, 'clearAll'])->name('clear-all');
 });
 
 require __DIR__.'/auth.php';

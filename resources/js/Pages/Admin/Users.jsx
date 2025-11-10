@@ -233,7 +233,7 @@ export default function Users({ users }) {
 
   return (
     <SidebarProvider>
-      <Head title="User Management - Admin" />
+      <Head title="Users" />
       <AdminSidebar />
       <SidebarInset>
         <header

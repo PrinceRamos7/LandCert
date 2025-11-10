@@ -113,7 +113,7 @@ export default function Applications({ applications = [] }) {
 
   return (
     <SidebarProvider>
-      <Head title="Applications - Admin" />
+      <Head title="Applications" />
       <AdminSidebar />
       <SidebarInset>
         <header

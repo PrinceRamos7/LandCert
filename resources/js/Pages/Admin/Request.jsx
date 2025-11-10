@@ -17,7 +17,7 @@ import {
 export default function AdminRequestPage({ requests = [], flash = {} }) {
   return (
     <SidebarProvider>
-      <Head title="Requests - Admin" />
+      <Head title="Requests" />
       <AdminSidebar />
       <SidebarInset>
         <header
