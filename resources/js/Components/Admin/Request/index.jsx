@@ -134,7 +134,10 @@ export function AdminRequestList({ requests, flash = {} }) {
     };
 
     const handleExport = () => {
-        const url = route("admin.export.requests", { status: filterStatus, format: 'pdf' });
+        const url = route("admin.export.requests", {
+            status: filterStatus,
+            format: "pdf",
+        });
         window.location.href = url;
         toast({
             title: "Export Started",
@@ -665,9 +668,15 @@ export function AdminRequestList({ requests, flash = {} }) {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-purple-700 font-medium mb-1">Total Requests</p>
-                                <p className="text-2xl font-bold text-purple-900">{stats.total}</p>
-                                <p className="text-xs text-purple-600 mt-0.5">All submissions</p>
+                                <p className="text-xs text-purple-700 font-medium mb-1">
+                                    Total Requests
+                                </p>
+                                <p className="text-2xl font-bold text-purple-900">
+                                    {stats.total}
+                                </p>
+                                <p className="text-xs text-purple-600 mt-0.5">
+                                    All submissions
+                                </p>
                             </div>
                             <div className="p-2 bg-purple-500 rounded-lg">
                                 <FileText className="h-5 w-5 text-white" />
@@ -683,9 +692,15 @@ export function AdminRequestList({ requests, flash = {} }) {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-yellow-700 font-medium mb-1">Pending</p>
-                                <p className="text-2xl font-bold text-yellow-900">{stats.pending}</p>
-                                <p className="text-xs text-yellow-600 mt-0.5">Awaiting review</p>
+                                <p className="text-xs text-yellow-700 font-medium mb-1">
+                                    Pending
+                                </p>
+                                <p className="text-2xl font-bold text-yellow-900">
+                                    {stats.pending}
+                                </p>
+                                <p className="text-xs text-yellow-600 mt-0.5">
+                                    Awaiting review
+                                </p>
                             </div>
                             <div className="p-2 bg-yellow-500 rounded-lg">
                                 <Clock className="h-5 w-5 text-white" />
@@ -701,9 +716,15 @@ export function AdminRequestList({ requests, flash = {} }) {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-green-700 font-medium mb-1">Approved</p>
-                                <p className="text-2xl font-bold text-green-900">{stats.approved}</p>
-                                <p className="text-xs text-green-600 mt-0.5">Successfully processed</p>
+                                <p className="text-xs text-green-700 font-medium mb-1">
+                                    Approved
+                                </p>
+                                <p className="text-2xl font-bold text-green-900">
+                                    {stats.approved}
+                                </p>
+                                <p className="text-xs text-green-600 mt-0.5">
+                                    Successfully processed
+                                </p>
                             </div>
                             <div className="p-2 bg-green-500 rounded-lg">
                                 <CheckCircle2 className="h-5 w-5 text-white" />
@@ -719,9 +740,15 @@ export function AdminRequestList({ requests, flash = {} }) {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-red-700 font-medium mb-1">Rejected</p>
-                                <p className="text-2xl font-bold text-red-900">{stats.rejected}</p>
-                                <p className="text-xs text-red-600 mt-0.5">Needs attention</p>
+                                <p className="text-xs text-red-700 font-medium mb-1">
+                                    Rejected
+                                </p>
+                                <p className="text-2xl font-bold text-red-900">
+                                    {stats.rejected}
+                                </p>
+                                <p className="text-xs text-red-600 mt-0.5">
+                                    Needs attention
+                                </p>
                             </div>
                             <div className="p-2 bg-red-500 rounded-lg">
                                 <XCircle className="h-5 w-5 text-white" />
@@ -1011,7 +1038,12 @@ export function AdminRequestList({ requests, flash = {} }) {
                             Request Details #{selectedRequest?.id}
                         </DialogTitle>
                         <DialogDescription className="text-sm text-white">
-                            Submitted on {formatDate(selectedRequest?.created_at)} • Status: {(selectedRequest?.status || "pending").charAt(0).toUpperCase() + (selectedRequest?.status || "pending").slice(1)}
+                            Submitted on{" "}
+                            {formatDate(selectedRequest?.created_at)} • Status:{" "}
+                            {(selectedRequest?.status || "pending")
+                                .charAt(0)
+                                .toUpperCase() +
+                                (selectedRequest?.status || "pending").slice(1)}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -1028,22 +1060,44 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     </h3>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-xs text-gray-500">Name of Applicant</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.applicant_name || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Name of Applicant
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.applicant_name ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Address of Applicant</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.applicant_address || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Address of Applicant
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.applicant_address ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                         {selectedRequest.corporation_name && (
                                             <>
                                                 <div>
-                                                    <p className="text-xs text-gray-500">Name of Corporation</p>
-                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.corporation_name}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        Name of Corporation
+                                                    </p>
+                                                    <p className="text-sm font-semibold text-gray-900">
+                                                        {
+                                                            selectedRequest.corporation_name
+                                                        }
+                                                    </p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs text-gray-500">Address of Corporation</p>
-                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.corporation_address}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        Address of Corporation
+                                                    </p>
+                                                    <p className="text-sm font-semibold text-gray-900">
+                                                        {
+                                                            selectedRequest.corporation_address
+                                                        }
+                                                    </p>
                                                 </div>
                                             </>
                                         )}
@@ -1059,16 +1113,31 @@ export function AdminRequestList({ requests, flash = {} }) {
                                         </h3>
                                         <div className="space-y-3">
                                             <div>
-                                                <p className="text-xs text-gray-500">Name of Authorized Representative</p>
-                                                <p className="text-sm font-semibold text-gray-900">{selectedRequest.authorized_representative_name}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    Name of Authorized
+                                                    Representative
+                                                </p>
+                                                <p className="text-sm font-semibold text-gray-900">
+                                                    {
+                                                        selectedRequest.authorized_representative_name
+                                                    }
+                                                </p>
                                             </div>
                                             <div>
-                                                <p className="text-xs text-gray-500">Address of Authorized Representative</p>
-                                                <p className="text-sm font-semibold text-gray-900">{selectedRequest.authorized_representative_address || "N/A"}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    Address of Authorized
+                                                    Representative
+                                                </p>
+                                                <p className="text-sm font-semibold text-gray-900">
+                                                    {selectedRequest.authorized_representative_address ||
+                                                        "N/A"}
+                                                </p>
                                             </div>
                                             {selectedRequest.authorization_letter_path && (
                                                 <div>
-                                                    <p className="text-xs text-gray-500 mb-2">Authorization Letter</p>
+                                                    <p className="text-xs text-gray-500 mb-2">
+                                                        Authorization Letter
+                                                    </p>
                                                     <a
                                                         href={`/storage/${selectedRequest.authorization_letter_path}`}
                                                         target="_blank"
@@ -1092,12 +1161,22 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     </h3>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-xs text-gray-500">Project Type</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_type || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Project Type
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.project_type ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Project Nature</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_nature || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Project Nature
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.project_nature ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -1110,24 +1189,49 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     </h3>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-xs text-gray-500">House/Building Number</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_location_number || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                House/Building Number
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.project_location_number ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Street</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_location_street || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Street
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.project_location_street ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Barangay</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_location_barangay || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Barangay
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.project_location_barangay ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Municipality</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_location_municipality || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Municipality
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.project_location_municipality ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Province</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_location_province || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Province
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.project_location_province ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -1145,20 +1249,52 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     </h3>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-xs text-gray-500">Project Area (sqm)</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_area_sqm ? parseFloat(selectedRequest.project_area_sqm).toLocaleString() : "N/A"} sqm</p>
+                                            <p className="text-xs text-gray-500">
+                                                Project Area (sqm)
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.project_area_sqm
+                                                    ? parseFloat(
+                                                          selectedRequest.project_area_sqm
+                                                      ).toLocaleString()
+                                                    : "N/A"}{" "}
+                                                sqm
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Lot (sqm)</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.lot_area_sqm ? parseFloat(selectedRequest.lot_area_sqm).toLocaleString() : "N/A"} sqm</p>
+                                            <p className="text-xs text-gray-500">
+                                                Lot (sqm)
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.lot_area_sqm
+                                                    ? parseFloat(
+                                                          selectedRequest.lot_area_sqm
+                                                      ).toLocaleString()
+                                                    : "N/A"}{" "}
+                                                sqm
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Bldg. Improvement (sqm)</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.bldg_improvement_sqm ? parseFloat(selectedRequest.bldg_improvement_sqm).toLocaleString() : "N/A"} sqm</p>
+                                            <p className="text-xs text-gray-500">
+                                                Bldg. Improvement (sqm)
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.bldg_improvement_sqm
+                                                    ? parseFloat(
+                                                          selectedRequest.bldg_improvement_sqm
+                                                      ).toLocaleString()
+                                                    : "N/A"}{" "}
+                                                sqm
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Right Over Land</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.right_over_land || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Right Over Land
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.right_over_land ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -1171,18 +1307,42 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     </h3>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-xs text-gray-500">Project Nature</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_nature_duration || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Project Nature
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.project_nature_duration ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
-                                        {selectedRequest.project_nature_duration === "Temporary" && selectedRequest.project_nature_years && (
-                                            <div>
-                                                <p className="text-xs text-gray-500">Specify Years</p>
-                                                <p className="text-sm font-semibold text-gray-900">{selectedRequest.project_nature_years} years</p>
-                                            </div>
-                                        )}
+                                        {selectedRequest.project_nature_duration ===
+                                            "Temporary" &&
+                                            selectedRequest.project_nature_years && (
+                                                <div>
+                                                    <p className="text-xs text-gray-500">
+                                                        Specify Years
+                                                    </p>
+                                                    <p className="text-sm font-semibold text-gray-900">
+                                                        {
+                                                            selectedRequest.project_nature_years
+                                                        }{" "}
+                                                        years
+                                                    </p>
+                                                </div>
+                                            )}
                                         <div>
-                                            <p className="text-xs text-gray-500">Project Cost/Capitalization (in Pesos)</p>
-                                            <p className="text-sm font-semibold text-gray-900">₱{selectedRequest.project_cost ? parseFloat(selectedRequest.project_cost).toLocaleString() : "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Project Cost/Capitalization (in
+                                                Pesos)
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                ₱
+                                                {selectedRequest.project_cost
+                                                    ? parseFloat(
+                                                          selectedRequest.project_cost
+                                                      ).toLocaleString()
+                                                    : "N/A"}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -1195,38 +1355,83 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     </h3>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-xs text-gray-500">Existing Land Uses of Project Use</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.existing_land_use || "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Existing Land Uses of Project
+                                                Use
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.existing_land_use ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500">Written Notice from Office/Zoning Administrator</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.has_written_notice ? selectedRequest.has_written_notice.toUpperCase() : "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Written Notice from
+                                                Office/Zoning Administrator
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.has_written_notice
+                                                    ? selectedRequest.has_written_notice.toUpperCase()
+                                                    : "N/A"}
+                                            </p>
                                         </div>
-                                        {selectedRequest.has_written_notice === "yes" && (
+                                        {selectedRequest.has_written_notice ===
+                                            "yes" && (
                                             <>
                                                 <div>
-                                                    <p className="text-xs text-gray-500">Name of HSRC Officer/Zoning Administrator</p>
-                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.notice_officer_name || "N/A"}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        Name of HSRC
+                                                        Officer/Zoning
+                                                        Administrator
+                                                    </p>
+                                                    <p className="text-sm font-semibold text-gray-900">
+                                                        {selectedRequest.notice_officer_name ||
+                                                            "N/A"}
+                                                    </p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs text-gray-500">Date(s) of Notice(s)</p>
-                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.notice_dates || "N/A"}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        Date(s) of Notice(s)
+                                                    </p>
+                                                    <p className="text-sm font-semibold text-gray-900">
+                                                        {selectedRequest.notice_dates ||
+                                                            "N/A"}
+                                                    </p>
                                                 </div>
                                             </>
                                         )}
                                         <div>
-                                            <p className="text-xs text-gray-500">Similar Application with Other Offices</p>
-                                            <p className="text-sm font-semibold text-gray-900">{selectedRequest.has_similar_application ? selectedRequest.has_similar_application.toUpperCase() : "N/A"}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Similar Application with Other
+                                                Offices
+                                            </p>
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {selectedRequest.has_similar_application
+                                                    ? selectedRequest.has_similar_application.toUpperCase()
+                                                    : "N/A"}
+                                            </p>
                                         </div>
-                                        {selectedRequest.has_similar_application === "yes" && (
+                                        {selectedRequest.has_similar_application ===
+                                            "yes" && (
                                             <>
                                                 <div>
-                                                    <p className="text-xs text-gray-500">Other HSRC Office(s) Where Filed</p>
-                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.similar_application_offices || "N/A"}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        Other HSRC Office(s)
+                                                        Where Filed
+                                                    </p>
+                                                    <p className="text-sm font-semibold text-gray-900">
+                                                        {selectedRequest.similar_application_offices ||
+                                                            "N/A"}
+                                                    </p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs text-gray-500">Date(s) Filed</p>
-                                                    <p className="text-sm font-semibold text-gray-900">{selectedRequest.similar_application_dates || "N/A"}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        Date(s) Filed
+                                                    </p>
+                                                    <p className="text-sm font-semibold text-gray-900">
+                                                        {selectedRequest.similar_application_dates ||
+                                                            "N/A"}
+                                                    </p>
                                                 </div>
                                             </>
                                         )}
@@ -1241,15 +1446,29 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     </h3>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-xs text-gray-500">Preferred Mode of Release of Decision</p>
+                                            <p className="text-xs text-gray-500">
+                                                Preferred Mode of Release of
+                                                Decision
+                                            </p>
                                             <p className="text-sm font-semibold text-gray-900 capitalize">
-                                                {selectedRequest.preferred_release_mode ? selectedRequest.preferred_release_mode.replace(/_/g, " ") : "N/A"}
+                                                {selectedRequest.preferred_release_mode
+                                                    ? selectedRequest.preferred_release_mode.replace(
+                                                          /_/g,
+                                                          " "
+                                                      )
+                                                    : "N/A"}
                                             </p>
                                         </div>
                                         {selectedRequest.release_address && (
                                             <div>
-                                                <p className="text-xs text-gray-500">Release Address</p>
-                                                <p className="text-sm font-semibold text-gray-900">{selectedRequest.release_address}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    Release Address
+                                                </p>
+                                                <p className="text-sm font-semibold text-gray-900">
+                                                    {
+                                                        selectedRequest.release_address
+                                                    }
+                                                </p>
                                             </div>
                                         )}
                                     </div>
@@ -1273,7 +1492,8 @@ export function AdminRequestList({ requests, flash = {} }) {
                                 Edit Request #{selectedRequest?.id}
                             </DialogTitle>
                             <DialogDescription className="text-blue-100 text-lg">
-                                Update the evaluation status and report details for this request
+                                Update the evaluation status and report details
+                                for this request
                             </DialogDescription>
                         </DialogHeader>
                     </div>
@@ -1297,7 +1517,9 @@ export function AdminRequestList({ requests, flash = {} }) {
                                     }
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                                 >
-                                    <option value="pending">Pending Review</option>
+                                    <option value="pending">
+                                        Pending Review
+                                    </option>
                                     <option value="approved">Approved</option>
                                     <option value="rejected">Rejected</option>
                                 </select>

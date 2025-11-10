@@ -95,22 +95,29 @@ export function Dashboard({ requests }) {
     // Filter requests based on selected status and search term
     const filteredRequests = useMemo(() => {
         let filtered = requestsData;
-        
+
         // Filter by status
         if (filterStatus !== "all") {
             filtered = filtered.filter((r) => r.status === filterStatus);
         }
-        
+
         // Filter by search term
         if (searchTerm) {
-            filtered = filtered.filter((r) =>
-                r.applicant_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                r.project_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                r.project_location_city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                r.id?.toString().includes(searchTerm)
+            filtered = filtered.filter(
+                (r) =>
+                    r.applicant_name
+                        ?.toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                    r.project_type
+                        ?.toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                    r.project_location_city
+                        ?.toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                    r.id?.toString().includes(searchTerm)
             );
         }
-        
+
         return filtered;
     }, [requestsData, filterStatus, searchTerm]);
 
@@ -948,7 +955,9 @@ export function Dashboard({ requests }) {
                                                     )
                                                 )
                                             }
-                                            disabled={currentPage === totalPages}
+                                            disabled={
+                                                currentPage === totalPages
+                                            }
                                             className={
                                                 currentPage === totalPages
                                                     ? "pointer-events-none opacity-50"
@@ -1015,38 +1024,50 @@ export function Dashboard({ requests }) {
 
             {/* Request Details Modal - Compact Layout */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-[95vw] w-full max-h-[100vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
+                <DialogContent className="max-w-[97vw] w-full max-h-[100vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
                     <DialogHeader className="pb-3 bg-blue-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
                         <DialogTitle className="text-lg font-bold text-white">
                             Request Details #{selectedRequest?.id}
                         </DialogTitle>
                         <DialogDescription className="text-sm text-white">
-                            Submitted on {formatDate(selectedRequest?.created_at)} • Status: {(selectedRequest?.status || "pending").charAt(0).toUpperCase() + (selectedRequest?.status || "pending").slice(1)}
+                            Submitted on{" "}
+                            {formatDate(selectedRequest?.created_at)} • Status:{" "}
+                            {(selectedRequest?.status || "pending")
+                                .charAt(0)
+                                .toUpperCase() +
+                                (selectedRequest?.status || "pending").slice(1)}
                         </DialogDescription>
                     </DialogHeader>
 
                     {/* Rejection Reason Alert - Only show for rejected requests */}
-                    {selectedRequest?.status === "rejected" && selectedRequest?.report_description && (
-                        <div className="mx-4 mb-4 p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
-                            <div className="flex items-start gap-2">
-                                <XCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                                <div className="flex-1">
-                                    <h3 className="text-sm font-semibold text-red-800 mb-1">
-                                        Application Rejected
-                                    </h3>
-                                    <p className="text-xs text-red-700 mb-2">Reason for rejection:</p>
-                                    <div className="bg-white p-2 rounded border border-red-200">
-                                        <p className="text-xs text-gray-800 leading-relaxed">
-                                            {selectedRequest.report_description}
+                    {selectedRequest?.status === "rejected" &&
+                        selectedRequest?.report_description && (
+                            <div className="mx-4 mb-4 p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                                <div className="flex items-start gap-2">
+                                    <XCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1">
+                                        <h3 className="text-sm font-semibold text-red-800 mb-1">
+                                            Application Rejected
+                                        </h3>
+                                        <p className="text-xs text-red-700 mb-2">
+                                            Reason for rejection:
+                                        </p>
+                                        <div className="bg-white p-2 rounded border border-red-200">
+                                            <p className="text-xs text-gray-800 leading-relaxed">
+                                                {
+                                                    selectedRequest.report_description
+                                                }
+                                            </p>
+                                        </div>
+                                        <p className="text-xs text-red-600 mt-2">
+                                            💡 Please review the feedback and
+                                            submit a new application with
+                                            corrections.
                                         </p>
                                     </div>
-                                    <p className="text-xs text-red-600 mt-2">
-                                        💡 Please review the feedback and submit a new application with corrections.
-                                    </p>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
                     {/* Content Grid - Compact 2 Column Layout */}
                     <div className="grid grid-cols-2 gap-4 py-2 overflow-y-auto max-h-[calc(90vh-160px)]">
@@ -1061,35 +1082,67 @@ export function Dashboard({ requests }) {
                                 <div className="space-y-2 text-xs">
                                     <div className="grid grid-cols-2 gap-2">
                                         <div>
-                                            <p className="text-[10px] font-medium text-gray-500">Applicant Name</p>
-                                            <p className="font-semibold text-gray-900">{selectedRequest?.applicant_name || "N/A"}</p>
+                                            <p className="text-[10px] font-medium text-gray-500">
+                                                Applicant Name
+                                            </p>
+                                            <p className="font-semibold text-gray-900">
+                                                {selectedRequest?.applicant_name ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-medium text-gray-500">Applicant Address</p>
-                                            <p className="font-medium text-gray-900">{selectedRequest?.applicant_address || "N/A"}</p>
+                                            <p className="text-[10px] font-medium text-gray-500">
+                                                Applicant Address
+                                            </p>
+                                            <p className="font-medium text-gray-900">
+                                                {selectedRequest?.applicant_address ||
+                                                    "N/A"}
+                                            </p>
                                         </div>
                                     </div>
                                     {selectedRequest?.corporation_name && (
                                         <>
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Corporation Name</p>
-                                                <p className="font-semibold">{selectedRequest.corporation_name}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Corporation Name
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        selectedRequest.corporation_name
+                                                    }
+                                                </p>
                                             </div>
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Corporation Address</p>
-                                                <p className="font-medium">{selectedRequest.corporation_address || "N/A"}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Corporation Address
+                                                </p>
+                                                <p className="font-medium">
+                                                    {selectedRequest.corporation_address ||
+                                                        "N/A"}
+                                                </p>
                                             </div>
                                         </>
                                     )}
                                     {selectedRequest?.authorized_representative_name && (
                                         <>
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Authorized Representative</p>
-                                                <p className="font-semibold">{selectedRequest.authorized_representative_name}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Authorized Representative
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        selectedRequest.authorized_representative_name
+                                                    }
+                                                </p>
                                             </div>
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Representative Address</p>
-                                                <p className="font-medium">{selectedRequest.authorized_representative_address || "N/A"}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Representative Address
+                                                </p>
+                                                <p className="font-medium">
+                                                    {selectedRequest.authorized_representative_address ||
+                                                        "N/A"}
+                                                </p>
                                             </div>
                                         </>
                                     )}
@@ -1106,58 +1159,109 @@ export function Dashboard({ requests }) {
                                     <div className="grid grid-cols-2 gap-3">
                                         {selectedRequest?.project_type && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Project Type</p>
-                                                <p className="font-semibold">{selectedRequest.project_type}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Project Type
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        selectedRequest.project_type
+                                                    }
+                                                </p>
                                             </div>
                                         )}
                                         {selectedRequest?.project_nature && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Project Nature</p>
-                                                <p className="font-semibold">{selectedRequest.project_nature}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Project Nature
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        selectedRequest.project_nature
+                                                    }
+                                                </p>
                                             </div>
                                         )}
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         {selectedRequest?.project_nature_duration && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Project Duration</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Project Duration
+                                                </p>
                                                 <p className="font-semibold">
-                                                    {selectedRequest.project_nature_duration}
-                                                    {selectedRequest.project_nature_years && ` (${selectedRequest.project_nature_years} years)`}
+                                                    {
+                                                        selectedRequest.project_nature_duration
+                                                    }
+                                                    {selectedRequest.project_nature_years &&
+                                                        ` (${selectedRequest.project_nature_years} years)`}
                                                 </p>
                                             </div>
                                         )}
                                         {selectedRequest?.right_over_land && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Right Over Land</p>
-                                                <p className="font-semibold">{selectedRequest.right_over_land}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Right Over Land
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        selectedRequest.right_over_land
+                                                    }
+                                                </p>
                                             </div>
                                         )}
                                     </div>
                                     <div className="grid grid-cols-3 gap-3">
                                         {selectedRequest?.project_area_sqm && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Project Area</p>
-                                                <p className="font-semibold">{parseFloat(selectedRequest.project_area_sqm).toLocaleString()} sqm</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Project Area
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {parseFloat(
+                                                        selectedRequest.project_area_sqm
+                                                    ).toLocaleString()}{" "}
+                                                    sqm
+                                                </p>
                                             </div>
                                         )}
                                         {selectedRequest?.lot_area_sqm && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Lot Area</p>
-                                                <p className="font-semibold">{parseFloat(selectedRequest.lot_area_sqm).toLocaleString()} sqm</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Lot Area
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {parseFloat(
+                                                        selectedRequest.lot_area_sqm
+                                                    ).toLocaleString()}{" "}
+                                                    sqm
+                                                </p>
                                             </div>
                                         )}
                                         {selectedRequest?.bldg_improvement_sqm && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Building Area</p>
-                                                <p className="font-semibold">{parseFloat(selectedRequest.bldg_improvement_sqm).toLocaleString()} sqm</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Building Area
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {parseFloat(
+                                                        selectedRequest.bldg_improvement_sqm
+                                                    ).toLocaleString()}{" "}
+                                                    sqm
+                                                </p>
                                             </div>
                                         )}
                                     </div>
                                     {selectedRequest?.project_cost && (
                                         <div>
-                                            <p className="text-xs font-medium text-gray-500">Project Cost</p>
-                                            <p className="font-semibold">₱{parseFloat(selectedRequest.project_cost).toLocaleString()}</p>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Project Cost
+                                            </p>
+                                            <p className="font-semibold">
+                                                ₱
+                                                {parseFloat(
+                                                    selectedRequest.project_cost
+                                                ).toLocaleString()}
+                                            </p>
                                         </div>
                                     )}
                                 </div>
@@ -1176,34 +1280,64 @@ export function Dashboard({ requests }) {
                                     <div className="grid grid-cols-2 gap-3">
                                         {selectedRequest?.project_location_number && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">House/Lot Number</p>
-                                                <p className="font-semibold">{selectedRequest.project_location_number}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    House/Lot Number
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        selectedRequest.project_location_number
+                                                    }
+                                                </p>
                                             </div>
                                         )}
                                         {selectedRequest?.project_location_street && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Street</p>
-                                                <p className="font-semibold">{selectedRequest.project_location_street}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Street
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        selectedRequest.project_location_street
+                                                    }
+                                                </p>
                                             </div>
                                         )}
                                     </div>
                                     <div className="grid grid-cols-3 gap-3">
                                         {selectedRequest?.project_location_barangay && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Barangay</p>
-                                                <p className="font-semibold">{selectedRequest.project_location_barangay}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Barangay
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        selectedRequest.project_location_barangay
+                                                    }
+                                                </p>
                                             </div>
                                         )}
-                                        {(selectedRequest?.project_location_municipality || selectedRequest?.project_location_city) && (
+                                        {(selectedRequest?.project_location_municipality ||
+                                            selectedRequest?.project_location_city) && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Municipality/City</p>
-                                                <p className="font-semibold">{selectedRequest.project_location_municipality || selectedRequest.project_location_city}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Municipality/City
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {selectedRequest.project_location_municipality ||
+                                                        selectedRequest.project_location_city}
+                                                </p>
                                             </div>
                                         )}
                                         {selectedRequest?.project_location_province && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Province</p>
-                                                <p className="font-semibold">{selectedRequest.project_location_province}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Province
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        selectedRequest.project_location_province
+                                                    }
+                                                </p>
                                             </div>
                                         )}
                                     </div>
@@ -1220,49 +1354,95 @@ export function Dashboard({ requests }) {
                                     <div className="grid grid-cols-2 gap-3">
                                         {selectedRequest?.existing_land_use && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Existing Land Use</p>
-                                                <p className="font-semibold">{selectedRequest.existing_land_use}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Existing Land Use
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        selectedRequest.existing_land_use
+                                                    }
+                                                </p>
                                             </div>
                                         )}
                                         <div>
-                                            <p className="text-xs font-medium text-gray-500">Written Notice to Tenants</p>
-                                            <p className="font-semibold">{selectedRequest?.has_written_notice === "yes" ? "Yes" : "No"}</p>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Written Notice to Tenants
+                                            </p>
+                                            <p className="font-semibold">
+                                                {selectedRequest?.has_written_notice ===
+                                                "yes"
+                                                    ? "Yes"
+                                                    : "No"}
+                                            </p>
                                         </div>
                                     </div>
-                                    {selectedRequest?.has_written_notice === "yes" && (
+                                    {selectedRequest?.has_written_notice ===
+                                        "yes" && (
                                         <div className="grid grid-cols-2 gap-3">
                                             {selectedRequest.notice_officer_name && (
                                                 <div>
-                                                    <p className="text-xs font-medium text-gray-500">Notice Officer Name</p>
-                                                    <p className="font-semibold">{selectedRequest.notice_officer_name}</p>
+                                                    <p className="text-xs font-medium text-gray-500">
+                                                        Notice Officer Name
+                                                    </p>
+                                                    <p className="font-semibold">
+                                                        {
+                                                            selectedRequest.notice_officer_name
+                                                        }
+                                                    </p>
                                                 </div>
                                             )}
                                             {selectedRequest.notice_dates && (
                                                 <div>
-                                                    <p className="text-xs font-medium text-gray-500">Notice Dates</p>
-                                                    <p className="font-semibold">{selectedRequest.notice_dates}</p>
+                                                    <p className="text-xs font-medium text-gray-500">
+                                                        Notice Dates
+                                                    </p>
+                                                    <p className="font-semibold">
+                                                        {
+                                                            selectedRequest.notice_dates
+                                                        }
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>
                                     )}
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
-                                            <p className="text-xs font-medium text-gray-500">Similar Application Filed</p>
-                                            <p className="font-semibold">{selectedRequest?.has_similar_application === "yes" ? "Yes" : "No"}</p>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Similar Application Filed
+                                            </p>
+                                            <p className="font-semibold">
+                                                {selectedRequest?.has_similar_application ===
+                                                "yes"
+                                                    ? "Yes"
+                                                    : "No"}
+                                            </p>
                                         </div>
                                     </div>
-                                    {selectedRequest?.has_similar_application === "yes" && (
+                                    {selectedRequest?.has_similar_application ===
+                                        "yes" && (
                                         <div className="grid grid-cols-2 gap-3">
                                             {selectedRequest.similar_application_offices && (
                                                 <div>
-                                                    <p className="text-xs font-medium text-gray-500">Application Offices</p>
-                                                    <p className="font-semibold">{selectedRequest.similar_application_offices}</p>
+                                                    <p className="text-xs font-medium text-gray-500">
+                                                        Application Offices
+                                                    </p>
+                                                    <p className="font-semibold">
+                                                        {
+                                                            selectedRequest.similar_application_offices
+                                                        }
+                                                    </p>
                                                 </div>
                                             )}
                                             {selectedRequest.similar_application_dates && (
                                                 <div>
-                                                    <p className="text-xs font-medium text-gray-500">Application Dates</p>
-                                                    <p className="font-semibold">{selectedRequest.similar_application_dates}</p>
+                                                    <p className="text-xs font-medium text-gray-500">
+                                                        Application Dates
+                                                    </p>
+                                                    <p className="font-semibold">
+                                                        {
+                                                            selectedRequest.similar_application_dates
+                                                        }
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>
@@ -1279,13 +1459,26 @@ export function Dashboard({ requests }) {
                                     </h3>
                                     <div className="space-y-3 text-sm">
                                         <div>
-                                            <p className="text-xs font-medium text-gray-500">Preferred Release Mode</p>
-                                            <p className="font-semibold capitalize">{selectedRequest.preferred_release_mode.replace("_", " ")}</p>
+                                            <p className="text-xs font-medium text-gray-500">
+                                                Preferred Release Mode
+                                            </p>
+                                            <p className="font-semibold capitalize">
+                                                {selectedRequest.preferred_release_mode.replace(
+                                                    "_",
+                                                    " "
+                                                )}
+                                            </p>
                                         </div>
                                         {selectedRequest.release_address && (
                                             <div>
-                                                <p className="text-xs font-medium text-gray-500">Release Address</p>
-                                                <p className="font-semibold">{selectedRequest.release_address}</p>
+                                                <p className="text-xs font-medium text-gray-500">
+                                                    Release Address
+                                                </p>
+                                                <p className="font-semibold">
+                                                    {
+                                                        selectedRequest.release_address
+                                                    }
+                                                </p>
                                             </div>
                                         )}
                                     </div>
@@ -1293,68 +1486,107 @@ export function Dashboard({ requests }) {
                             )}
 
                             {/* Certificate Information */}
-                            {selectedRequest?.payment_verified && selectedRequest?.certificate_number && (
-                                <div className="border border-emerald-200 rounded-lg p-4 bg-emerald-50">
-                                    <h3 className="font-bold text-emerald-900 mb-3 flex items-center gap-2">
-                                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                                        Certificate Information
-                                    </h3>
-                                    <div className="space-y-3 text-sm mb-4">
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div>
-                                                <p className="text-xs font-medium text-gray-500">Certificate Number</p>
-                                                <p className="font-bold text-emerald-900">{selectedRequest.certificate_number}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-medium text-gray-500">Issued</p>
-                                                <p className="font-semibold text-emerald-800">{formatDate(selectedRequest.certificate_issued_at)}</p>
-                                            </div>
-                                        </div>
-                                        {(selectedRequest.payment_amount || selectedRequest.payment_date) && (
+                            {selectedRequest?.payment_verified &&
+                                selectedRequest?.certificate_number && (
+                                    <div className="border border-emerald-200 rounded-lg p-4 bg-emerald-50">
+                                        <h3 className="font-bold text-emerald-900 mb-3 flex items-center gap-2">
+                                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                                            Certificate Information
+                                        </h3>
+                                        <div className="space-y-3 text-sm mb-4">
                                             <div className="grid grid-cols-2 gap-3">
-                                                {selectedRequest.payment_amount && (
-                                                    <div>
-                                                        <p className="text-xs font-medium text-gray-500">Amount Paid</p>
-                                                        <p className="font-semibold text-emerald-800">₱{parseFloat(selectedRequest.payment_amount).toLocaleString()}</p>
-                                                    </div>
-                                                )}
-                                                {selectedRequest.payment_date && (
-                                                    <div>
-                                                        <p className="text-xs font-medium text-gray-500">Payment Date</p>
-                                                        <p className="font-semibold text-emerald-800">{formatDate(selectedRequest.payment_date)}</p>
-                                                    </div>
-                                                )}
+                                                <div>
+                                                    <p className="text-xs font-medium text-gray-500">
+                                                        Certificate Number
+                                                    </p>
+                                                    <p className="font-bold text-emerald-900">
+                                                        {
+                                                            selectedRequest.certificate_number
+                                                        }
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-medium text-gray-500">
+                                                        Issued
+                                                    </p>
+                                                    <p className="font-semibold text-emerald-800">
+                                                        {formatDate(
+                                                            selectedRequest.certificate_issued_at
+                                                        )}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        )}
+                                            {(selectedRequest.payment_amount ||
+                                                selectedRequest.payment_date) && (
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    {selectedRequest.payment_amount && (
+                                                        <div>
+                                                            <p className="text-xs font-medium text-gray-500">
+                                                                Amount Paid
+                                                            </p>
+                                                            <p className="font-semibold text-emerald-800">
+                                                                ₱
+                                                                {parseFloat(
+                                                                    selectedRequest.payment_amount
+                                                                ).toLocaleString()}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                    {selectedRequest.payment_date && (
+                                                        <div>
+                                                            <p className="text-xs font-medium text-gray-500">
+                                                                Payment Date
+                                                            </p>
+                                                            <p className="font-semibold text-emerald-800">
+                                                                {formatDate(
+                                                                    selectedRequest.payment_date
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <a
+                                                href={`/certificate/${selectedRequest.certificate_id}/download`}
+                                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm"
+                                            >
+                                                <FileText className="h-4 w-4" />
+                                                Download Certificate
+                                            </a>
+                                            <a
+                                                href="/receipt"
+                                                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm"
+                                            >
+                                                View Receipt
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div className="flex gap-2">
-                                        <a
-                                            href={`/certificate/${selectedRequest.certificate_id}/download`}
-                                            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm"
-                                        >
-                                            <FileText className="h-4 w-4" />
-                                            Download Certificate
-                                        </a>
-                                        <a
-                                            href="/receipt"
-                                            className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm"
-                                        >
-                                            View Receipt
-                                        </a>
-                                    </div>
-                                </div>
-                            )}
+                                )}
 
                             {/* Timestamps */}
                             <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <p className="text-xs font-medium text-gray-500">Created</p>
-                                        <p className="font-semibold text-gray-900">{formatDate(selectedRequest?.created_at)}</p>
+                                        <p className="text-xs font-medium text-gray-500">
+                                            Created
+                                        </p>
+                                        <p className="font-semibold text-gray-900">
+                                            {formatDate(
+                                                selectedRequest?.created_at
+                                            )}
+                                        </p>
                                     </div>
                                     <div>
-                                        <p className="text-xs font-medium text-gray-500">Last Updated</p>
-                                        <p className="font-semibold text-gray-900">{formatDate(selectedRequest?.updated_at)}</p>
+                                        <p className="text-xs font-medium text-gray-500">
+                                            Last Updated
+                                        </p>
+                                        <p className="font-semibold text-gray-900">
+                                            {formatDate(
+                                                selectedRequest?.updated_at
+                                            )}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
