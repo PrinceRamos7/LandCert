@@ -143,7 +143,7 @@
                 <th style="width: 3%;">Bldg (sqm)</th>
                 <th style="width: 4%;">Right Over Land</th>
                 <th style="width: 4%;">Duration</th>
-                <th style="width: 4%;">Cost</th>
+                <th style="width: 6%;">Cost</th>
                 <th style="width: 5%;">Land Use</th>
                 <th style="width: 4%;">Written Notice</th>
                 <th style="width: 4%;">Similar App</th>
@@ -186,7 +186,7 @@
                         <br><span class="small-text">({{ $req->project_nature_years }} yrs)</span>
                     @endif
                 </td>
-                <td>{{ isset($req->project_cost) && $req->project_cost ? '₱' . number_format($req->project_cost, 2) : '-' }}</td>
+                <td>{{ isset($req->project_cost) && $req->project_cost ? 'PHP  ' . number_format($req->project_cost, 2) : '-' }}</td>
                 <td>{{ $req->existing_land_use ?? '-' }}</td>
                 <td>
                     {{ isset($req->has_written_notice) && $req->has_written_notice ? strtoupper($req->has_written_notice) : '-' }}
@@ -221,7 +221,7 @@
 
     <div class="footer">
         <p>This is a computer-generated document. No signature is required.</p>
-        <p>© {{ date('Y') }} - Request Management System</p>
+        <p>© {{ date('Y') }} - City Planning and Development Office. All rights reserved.</p>
     </div>
 </body>
 </html>

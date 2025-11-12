@@ -1,16 +1,16 @@
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { Head } from '@inertiajs/react';
+import { Head } from "@inertiajs/react";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbList,
+    BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
+    SidebarInset,
+    SidebarProvider,
+    SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AdminPaymentList } from "@/Components/Admin/Payments";
 
@@ -23,22 +23,29 @@ export default function Payments({ payments }) {
                 <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
-                        <Separator orientation="vertical" className="mr-2 h-4" />
+                        <Separator
+                            orientation="vertical"
+                            className="mr-2 h-4"
+                        />
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
-                                    <a 
-                                        href={route('admin.dashboard')} 
+                                    <a
+                                        href={route("admin.dashboard")}
                                         className="text-gray-600 hover:text-gray-900 transition-colors"
                                     >
-                                        Admin Dashboard
+                                        Dashboard
                                     </a>
                                 </BreadcrumbItem>
                                 <BreadcrumbItem>
-                                    <span className="mx-2 text-gray-400">›</span>
+                                    <span className="mx-2 text-gray-400">
+                                        ›
+                                    </span>
                                 </BreadcrumbItem>
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>Payment Verification</BreadcrumbPage>
+                                    <BreadcrumbPage>
+                                        Payment Verification
+                                    </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>

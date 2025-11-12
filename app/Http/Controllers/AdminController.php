@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Application;
 use App\Models\Report;
 use App\Models\Request as RequestModel;
+use App\Models\Payment;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -412,6 +414,18 @@ class AdminController extends Controller
                                     )
                                 );
                                 \Log::info('Application approval email sent to: ' . $user->email . ' for request ID: ' . $requestModel->id);
+                                
+                                // Schedule automatic payment reminder for 3 days
+                                try {
+                                    app(\App\Services\ReminderService::class)->schedulePaymentReminder(
+                                        $requestModel->id,
+                                        $user->id,
+                                        3
+                                    );
+                                    \Log::info('Payment reminder scheduled for request ID: ' . $requestModel->id . ' (3 days)');
+                                } catch (\Exception $e) {
+                                    \Log::error('Failed to schedule payment reminder: ' . $e->getMessage());
+                                }
                             } elseif ($validated['evaluation'] === 'rejected') {
                                 // Send rejection email immediately (not queued)
                                 \Mail::to($user->email)->send(
@@ -1008,6 +1022,76 @@ class AdminController extends Controller
     }
     
     /**
+     * Global search across all modules
+     */
+    public function search(Request $request)
+    {
+        $query = $request->input('q', '');
+        
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $results = [];
+
+        // Search Requests
+        $requests = RequestModel::where('applicant_name', 'LIKE', "%{$query}%")
+            ->orWhere('corporation_name', 'LIKE', "%{$query}%")
+            ->orWhere('project_location_barangay', 'LIKE', "%{$query}%")
+            ->orWhere('id', 'LIKE', "%{$query}%")
+            ->limit(5)
+            ->get();
+
+        foreach ($requests as $req) {
+            $results[] = [
+                'type' => 'request',
+                'title' => $req->applicant_name,
+                'description' => "Request #{$req->id} - {$req->project_type}",
+                'meta' => $req->project_location_barangay,
+                'url' => route('admin.requests'),
+            ];
+        }
+
+        // Search Payments
+        $payments = Payment::whereHas('request', function($q) use ($query) {
+                $q->where('applicant_name', 'LIKE', "%{$query}%");
+            })
+            ->orWhere('receipt_number', 'LIKE', "%{$query}%")
+            ->orWhere('id', 'LIKE', "%{$query}%")
+            ->with('request')
+            ->limit(5)
+            ->get();
+
+        foreach ($payments as $payment) {
+            $results[] = [
+                'type' => 'payment',
+                'title' => $payment->request->applicant_name ?? 'Payment',
+                'description' => "Payment #{$payment->id} - ₱" . number_format($payment->amount, 2),
+                'meta' => ucfirst($payment->payment_status),
+                'url' => route('admin.payments'),
+            ];
+        }
+
+        // Search Users
+        $users = User::where('name', 'LIKE', "%{$query}%")
+            ->orWhere('email', 'LIKE', "%{$query}%")
+            ->limit(5)
+            ->get();
+
+        foreach ($users as $user) {
+            $results[] = [
+                'type' => 'user',
+                'title' => $user->name,
+                'description' => $user->email,
+                'meta' => ucfirst($user->user_type),
+                'url' => route('admin.users'),
+            ];
+        }
+
+        return response()->json($results);
+    }
+
+    /**
      * Export requests to CSV or PDF
      */
     public function exportRequests(Request $request)
@@ -1031,8 +1115,8 @@ class AdminController extends Controller
                 'applicant_address' => $request->applicant_address,
                 'corporation_name' => $request->corporation_name,
                 'corporation_address' => $request->corporation_address,
-                'authorized_representative_name' => $application?->authorized_representative_name,
-                'authorized_representative_address' => $application?->authorized_representative_address,
+                'authorized_representative_name' => $request->authorized_representative_name ?? $application?->authorized_representative_name,
+                'authorized_representative_address' => $request->authorized_representative_address ?? $application?->authorized_representative_address,
                 'authorization_letter_path' => $application?->authorization_letter_path,
                 'project_type' => $request->project_type,
                 'project_nature' => $request->project_nature,
@@ -1331,6 +1415,14 @@ class AdminController extends Controller
                         $requestModel->applicant_name,
                         $requestModel->id
                     ));
+                    
+                    // Schedule automatic payment reminder for 3 days
+                    app(\App\Services\ReminderService::class)->schedulePaymentReminder(
+                        $requestModel->id,
+                        $requestModel->user_id,
+                        3
+                    );
+                    \Log::info('Payment reminder scheduled for request ID: ' . $requestModel->id . ' (3 days)');
                 } catch (\Exception $e) {
                     \Log::error("Failed to send approval email for request {$requestId}: " . $e->getMessage());
                 }

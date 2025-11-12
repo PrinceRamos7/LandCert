@@ -21,7 +21,7 @@ class TestAuditLog extends Command
         $admin = User::where('user_type', 'admin')->first();
         
         if (!$admin) {
-            $this->error('No admin user found. Please create an admin user first.');
+            $this->error('No a6dmin user found. Please create an admin user first.');
             return 1;
         }
 

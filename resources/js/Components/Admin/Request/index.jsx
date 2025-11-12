@@ -1032,7 +1032,7 @@ export function AdminRequestList({ requests, flash = {} }) {
 
             {/* Request Details Modal - Complete View */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-[95vw] w-full max-h-[95vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
+                <DialogContent className="max-w-[98vw] w-full max-h-[95vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
                     <DialogHeader className="pb-3 bg-blue-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
                         <DialogTitle className="text-lg font-bold text-white">
                             Request Details #{selectedRequest?.id}
@@ -1481,9 +1481,9 @@ export function AdminRequestList({ requests, flash = {} }) {
 
             {/* Edit Modal - Minimal Design */}
             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                <DialogContent className="max-w-2xl bg-white border border-gray-200 rounded-lg">
+                <DialogContent className="max-w-2xl ">
                     {/* Modal Header with Gradient Background */}
-                    <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6 -m-6 mb-6 rounded-t-3xl">
+                    <div className="bg-blue-600  text-white p-6 -m-6 mb-6 rounded-t-3xl">
                         <DialogHeader>
                             <DialogTitle className="text-2xl font-bold flex items-center gap-3">
                                 <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
@@ -1491,7 +1491,7 @@ export function AdminRequestList({ requests, flash = {} }) {
                                 </div>
                                 Edit Request #{selectedRequest?.id}
                             </DialogTitle>
-                            <DialogDescription className="text-blue-100 text-lg">
+                            <DialogDescription className="text-blue-600 text-lg">
                                 Update the evaluation status and report details
                                 for this request
                             </DialogDescription>

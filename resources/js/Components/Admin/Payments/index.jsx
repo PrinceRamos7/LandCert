@@ -233,18 +233,18 @@ export function AdminPaymentList({ payments }) {
     };
 
     const handleSelectPayment = (paymentId) => {
-        setSelectedPayments(prev => 
-            prev.includes(paymentId) 
-                ? prev.filter(id => id !== paymentId)
+        setSelectedPayments((prev) =>
+            prev.includes(paymentId)
+                ? prev.filter((id) => id !== paymentId)
                 : [...prev, paymentId]
         );
     };
 
     const handleSelectAll = () => {
         const pendingPayments = filteredPayments
-            .filter(p => p.payment_status === 'pending')
-            .map(p => p.id);
-        
+            .filter((p) => p.payment_status === "pending")
+            .map((p) => p.id);
+
         if (selectedPayments.length === pendingPayments.length) {
             setSelectedPayments([]);
         } else {
@@ -278,7 +278,8 @@ export function AdminPaymentList({ payments }) {
                         isOpen: true,
                         type: "error",
                         title: "Bulk Verification Failed!",
-                        message: "Failed to verify some payments. Please try again or verify them individually.",
+                        message:
+                            "Failed to verify some payments. Please try again or verify them individually.",
                         buttonText: "Try Again",
                     });
                 },
@@ -510,7 +511,7 @@ export function AdminPaymentList({ payments }) {
                         </div>
                     </div>
                 </CardHeader>
-                
+
                 {/* Bulk Actions Bar */}
                 {selectedPayments.length > 0 && (
                     <div className="bg-blue-50 border-b border-blue-200 px-6 py-3">
@@ -520,7 +521,11 @@ export function AdminPaymentList({ payments }) {
                                     {selectedPayments.length}
                                 </div>
                                 <span className="text-sm font-medium text-gray-700">
-                                    {selectedPayments.length} item{selectedPayments.length > 1 ? 's' : ''} selected
+                                    {selectedPayments.length} item
+                                    {selectedPayments.length > 1
+                                        ? "s"
+                                        : ""}{" "}
+                                    selected
                                 </span>
                                 <Button
                                     variant="ghost"
@@ -573,7 +578,15 @@ export function AdminPaymentList({ payments }) {
                                     <th className="text-left p-3 font-semibold w-12">
                                         <input
                                             type="checkbox"
-                                            checked={selectedPayments.length > 0 && selectedPayments.length === filteredPayments.filter(p => p.payment_status === 'pending').length}
+                                            checked={
+                                                selectedPayments.length > 0 &&
+                                                selectedPayments.length ===
+                                                    filteredPayments.filter(
+                                                        (p) =>
+                                                            p.payment_status ===
+                                                            "pending"
+                                                    ).length
+                                            }
                                             onChange={handleSelectAll}
                                             className="w-4 h-4 rounded border-gray-300"
                                         />
@@ -608,11 +621,18 @@ export function AdminPaymentList({ payments }) {
                                         className="border-b hover:bg-gray-50"
                                     >
                                         <td className="p-3">
-                                            {payment.payment_status === 'pending' && (
+                                            {payment.payment_status ===
+                                                "pending" && (
                                                 <input
                                                     type="checkbox"
-                                                    checked={selectedPayments.includes(payment.id)}
-                                                    onChange={() => handleSelectPayment(payment.id)}
+                                                    checked={selectedPayments.includes(
+                                                        payment.id
+                                                    )}
+                                                    onChange={() =>
+                                                        handleSelectPayment(
+                                                            payment.id
+                                                        )
+                                                    }
                                                     className="w-4 h-4 rounded border-gray-300"
                                                 />
                                             )}
@@ -725,7 +745,7 @@ export function AdminPaymentList({ payments }) {
 
             {/* Payment Details Modal - Clean Layout */}
             <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-                <DialogContent className="max-w-[96vw] w-full max-h-[95vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
+                <DialogContent className="max-w-[98vw] w-full max-h-[95vh] bg-white border border-blue-300 rounded-lg overflow-hidden">
                     <DialogHeader className="pb-3 bg-blue-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
                         <DialogTitle className="text-lg font-bold text-white">
                             Payment Details #{selectedPayment?.id}
@@ -747,7 +767,7 @@ export function AdminPaymentList({ payments }) {
                             <div className="space-y-4">
                                 {/* Applicant Information */}
                                 <div className="bg-gray-50 rounded-lg p-4">
-                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2 ">
                                         <FileText className="h-4 w-4" />
                                         Applicant Information
                                     </h3>
@@ -1101,16 +1121,20 @@ export function AdminPaymentList({ payments }) {
                     <DialogHeader>
                         <DialogTitle>Bulk Verify Payments</DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to verify {selectedPayments.length} payment(s)? 
-                            This will automatically generate and send certificates to all selected applicants.
+                            Are you sure you want to verify{" "}
+                            {selectedPayments.length} payment(s)? This will
+                            automatically generate and send certificates to all
+                            selected applicants.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
                         <p className="text-sm font-semibold mb-2">
-                            {selectedPayments.length} payment(s) will be verified
+                            {selectedPayments.length} payment(s) will be
+                            verified
                         </p>
                         <p className="text-xs text-gray-600">
-                            Certificates will be generated and email notifications will be sent to all applicants.
+                            Certificates will be generated and email
+                            notifications will be sent to all applicants.
                         </p>
                     </div>
                     <DialogFooter>

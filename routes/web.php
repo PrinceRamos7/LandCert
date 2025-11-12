@@ -119,6 +119,7 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
 // Admin routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/search', [AdminController::class, 'search'])->name('search');
     Route::get('/requests', [AdminController::class, 'requests'])->name('requests');
     Route::get('/applications', [AdminController::class, 'applications'])->name('applications');
     Route::get('/reports', function () {
