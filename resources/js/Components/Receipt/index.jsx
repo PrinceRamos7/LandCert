@@ -19,7 +19,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { NotificationModal } from "@/Components/ui/notification-modal";
+
 import {
     Select,
     SelectContent,
@@ -38,7 +38,7 @@ import {
     Loader2,
 } from "lucide-react";
 import { router } from "@inertiajs/react";
-import { useToast } from "@/Components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 export function ReceiptList({ requests = [] }) {
     const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -53,13 +53,6 @@ export function ReceiptList({ requests = [] }) {
         notes: "",
         receipt_file: null,
         other_method: "",
-    });
-    const [notificationModal, setNotificationModal] = useState({
-        isOpen: false,
-        type: "success",
-        title: "",
-        message: "",
-        buttonText: "Continue",
     });
     const { toast } = useToast();
 
@@ -101,38 +94,32 @@ export function ReceiptList({ requests = [] }) {
         e.preventDefault();
 
         if (!formData.receipt_file) {
-            setNotificationModal({
-                isOpen: true,
-                type: "warning",
+            toast({
+                variant: "destructive",
                 title: "Receipt File Required",
-                message:
+                description:
                     "Please upload a receipt file to proceed with your payment submission.",
-                buttonText: "OK",
             });
             return;
         }
 
         if (!formData.amount || parseFloat(formData.amount) <= 0) {
-            setNotificationModal({
-                isOpen: true,
-                type: "warning",
+            toast({
+                variant: "destructive",
                 title: "Invalid Amount",
-                message:
+                description:
                     "Please enter a valid payment amount greater than zero.",
-                buttonText: "OK",
             });
             return;
         }
 
         // Validate receipt number for non-cash payments
         if (formData.payment_method !== "cash" && !formData.receipt_number) {
-            setNotificationModal({
-                isOpen: true,
-                type: "warning",
+            toast({
+                variant: "destructive",
                 title: "Receipt Number Required",
-                message:
+                description:
                     "Receipt or reference number is required for non-cash payments. Please provide the transaction reference.",
-                buttonText: "OK",
             });
             return;
         }
@@ -142,13 +129,11 @@ export function ReceiptList({ requests = [] }) {
             formData.payment_method === "other" &&
             !formData.other_method.trim()
         ) {
-            setNotificationModal({
-                isOpen: true,
-                type: "warning",
+            toast({
+                variant: "destructive",
                 title: "Payment Method Required",
-                message:
+                description:
                     "Please specify the payment method you used for this transaction.",
-                buttonText: "OK",
             });
             return;
         }
@@ -184,24 +169,19 @@ export function ReceiptList({ requests = [] }) {
                     notes: "",
                     receipt_file: null,
                 });
-                setNotificationModal({
-                    isOpen: true,
-                    type: "success",
+                toast({
                     title: "Receipt Submitted!",
-                    message: `Your payment receipt for Request #${selectedRequest.id} has been submitted successfully! Please wait for admin verification. You will receive an email notification once your payment is verified.`,
-                    buttonText: "Continue",
+                    description: `Your payment receipt for Request #${selectedRequest.id} has been submitted successfully! Please wait for admin verification. You will receive an email notification once your payment is verified.`,
                 });
             },
             onError: (errors) => {
                 setIsConfirmDialogOpen(false);
                 setIsSubmitting(false);
-                setNotificationModal({
-                    isOpen: true,
-                    type: "error",
+                toast({
+                    variant: "destructive",
                     title: "Submission Failed!",
-                    message:
+                    description:
                         "Failed to submit your payment receipt. Please check your information and try again. If the problem persists, contact support.",
-                    buttonText: "Try Again",
                 });
             },
         });
@@ -877,18 +857,6 @@ export function ReceiptList({ requests = [] }) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-
-            {/* Notification Modal */}
-            <NotificationModal
-                isOpen={notificationModal.isOpen}
-                onClose={() =>
-                    setNotificationModal((prev) => ({ ...prev, isOpen: false }))
-                }
-                type={notificationModal.type}
-                title={notificationModal.title}
-                message={notificationModal.message}
-                buttonText={notificationModal.buttonText}
-            />
         </div>
     );
 }

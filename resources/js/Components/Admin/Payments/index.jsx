@@ -13,7 +13,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { NotificationModal } from "@/Components/ui/notification-modal";
+import { useToast } from "@/components/ui/use-toast";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -44,7 +44,6 @@ import {
     CheckSquare,
 } from "lucide-react";
 import { router } from "@inertiajs/react";
-import { useToast } from "@/Components/ui/use-toast";
 
 export function AdminPaymentList({ payments }) {
     const paymentsData = payments?.data || [];
@@ -57,13 +56,6 @@ export function AdminPaymentList({ payments }) {
     const [isVerifyDialogOpen, setIsVerifyDialogOpen] = useState(false);
     const [isBulkVerifyDialogOpen, setIsBulkVerifyDialogOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("");
-    const [notificationModal, setNotificationModal] = useState({
-        isOpen: false,
-        type: "success",
-        title: "",
-        message: "",
-        buttonText: "Continue",
-    });
     const { toast } = useToast();
 
     const getStatusColor = (status) => {
@@ -103,23 +95,17 @@ export function AdminPaymentList({ payments }) {
                 onSuccess: () => {
                     setIsVerifyDialogOpen(false);
                     setSelectedPayment(null);
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "success",
+                    toast({
                         title: "Payment Verified!",
-                        message: `Payment for Request #${selectedPayment.request_id} has been verified successfully. The certificate has been generated and the applicant will be notified via email.`,
-                        buttonText: "Continue",
+                        description: `Payment for Request #${selectedPayment.request_id} has been verified successfully. The certificate has been generated and the applicant will be notified via email.`,
                     });
                 },
                 onError: () => {
                     setIsVerifyDialogOpen(false);
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "error",
+                    toast({
+                        variant: "destructive",
                         title: "Verification Failed!",
-                        message:
-                            "Failed to verify the payment. Please try again or contact support if the problem persists.",
-                        buttonText: "Try Again",
+                        description: "Failed to verify the payment. Please try again or contact support if the problem persists.",
                     });
                 },
             }
@@ -133,13 +119,10 @@ export function AdminPaymentList({ payments }) {
 
     const handleRejectSubmit = () => {
         if (!rejectionReason.trim()) {
-            setNotificationModal({
-                isOpen: true,
-                type: "warning",
+            toast({
+                variant: "destructive",
                 title: "Rejection Reason Required",
-                message:
-                    "Please provide a reason for rejecting this payment. This feedback will be sent to the applicant to help them understand what needs to be corrected.",
-                buttonText: "OK",
+                description: "Please provide a reason for rejecting this payment. This feedback will be sent to the applicant to help them understand what needs to be corrected.",
             });
             return;
         }
@@ -153,23 +136,17 @@ export function AdminPaymentList({ payments }) {
                 onSuccess: () => {
                     setIsRejectDialogOpen(false);
                     setRejectionReason("");
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "success",
+                    toast({
                         title: "Payment Rejected!",
-                        message: `Payment for Request #${selectedPayment.request_id} has been rejected. The applicant has been notified via email with your feedback.`,
-                        buttonText: "Continue",
+                        description: `Payment for Request #${selectedPayment.request_id} has been rejected. The applicant has been notified via email with your feedback.`,
                     });
                 },
                 onError: () => {
                     setIsRejectDialogOpen(false);
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "error",
+                    toast({
+                        variant: "destructive",
                         title: "Rejection Failed!",
-                        message:
-                            "Failed to reject the payment. Please try again or contact support if the problem persists.",
-                        buttonText: "Try Again",
+                        description: "Failed to reject the payment. Please try again or contact support if the problem persists.",
                     });
                 },
             }
@@ -264,23 +241,17 @@ export function AdminPaymentList({ payments }) {
                 onSuccess: () => {
                     setIsBulkVerifyDialogOpen(false);
                     setSelectedPayments([]);
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "success",
+                    toast({
                         title: "Bulk Verification Complete!",
-                        message: `Successfully verified ${selectedPayments.length} payment(s). Certificates have been generated and applicants will be notified via email.`,
-                        buttonText: "Continue",
+                        description: `Successfully verified ${selectedPayments.length} payment(s). Certificates have been generated and applicants will be notified via email.`,
                     });
                 },
                 onError: () => {
                     setIsBulkVerifyDialogOpen(false);
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "error",
+                    toast({
+                        variant: "destructive",
                         title: "Bulk Verification Failed!",
-                        message:
-                            "Failed to verify some payments. Please try again or verify them individually.",
-                        buttonText: "Try Again",
+                        description: "Failed to verify some payments. Please try again or verify them individually.",
                     });
                 },
             }
@@ -1153,18 +1124,6 @@ export function AdminPaymentList({ payments }) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-
-            {/* Notification Modal */}
-            <NotificationModal
-                isOpen={notificationModal.isOpen}
-                onClose={() =>
-                    setNotificationModal((prev) => ({ ...prev, isOpen: false }))
-                }
-                type={notificationModal.type}
-                title={notificationModal.title}
-                message={notificationModal.message}
-                buttonText={notificationModal.buttonText}
-            />
         </div>
     );
 }

@@ -19,8 +19,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
-import { useToast } from "@/Components/ui/use-toast";
-import { NotificationModal } from "@/Components/ui/notification-modal";
+import { useToast } from "@/components/ui/use-toast";
 import {
     Check,
     FileText,
@@ -38,13 +37,6 @@ export default function RequestForm() {
     const [completedSteps, setCompletedSteps] = useState([]);
     const [hasRepresentative, setHasRepresentative] = useState(false);
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-    const [notificationModal, setNotificationModal] = useState({
-        isOpen: false,
-        type: "success",
-        title: "",
-        message: "",
-        buttonText: "Continue",
-    });
     const { toast } = useToast();
     const page = usePage();
     const flash = page.props.flash || {};
@@ -224,12 +216,10 @@ export default function RequestForm() {
             errorMessage +=
                 "💡 Tip: You can navigate to any section using the step indicators above to complete the missing fields.";
 
-            setNotificationModal({
-                isOpen: true,
-                type: "warning",
+            toast({
+                variant: "destructive",
                 title: "Complete Required Fields",
-                message: errorMessage,
-                buttonText: "OK, I'll Complete the Form",
+                description: errorMessage,
             });
             return false;
         }
@@ -259,28 +249,22 @@ export default function RequestForm() {
                     page.props.flash?.success ||
                     "Your application has been submitted successfully! You will receive a confirmation email shortly.";
                 setIsConfirmDialogOpen(false);
-                setNotificationModal({
-                    isOpen: true,
-                    type: "success",
+                toast({
                     title: "Success!",
-                    message: successMessage,
-                    buttonText: "Continue",
+                    description: successMessage,
                 });
-                reset();
-                setCurrentStep(1);
-                setCompletedSteps([]);
-                setHasRepresentative(false);
+                setTimeout(() => {
+                    window.location.href = route('dashboard');
+                }, 2000);
             },
             onError: (errors) => {
                 setIsConfirmDialogOpen(false);
                 const errorMessage =
                     "There was an error submitting your application. Please check the form and try again.";
-                setNotificationModal({
-                    isOpen: true,
-                    type: "error",
+                toast({
+                    variant: "destructive",
                     title: "Error!",
-                    message: errorMessage,
-                    buttonText: "Try Again",
+                    description: errorMessage,
                 });
             },
         });
@@ -1476,12 +1460,10 @@ export default function RequestForm() {
                                             const value = e.target.value;
                                             // Check if authorized representative exists
                                             if (value === "mail_representative" && !hasRepresentative) {
-                                                setNotificationModal({
-                                                    isOpen: true,
-                                                    type: "warning",
+                                                toast({
+                                                    variant: "destructive",
                                                     title: "No Authorized Representative",
-                                                    message: "You cannot select 'By mail, address to Authorized Representative' because you have not added an authorized representative in Step 1 (Applicant Information).\n\nPlease either:\n• Go back to Step 1 and add an authorized representative, or\n• Choose a different release mode option.",
-                                                    buttonText: "OK, I Understand",
+                                                    description: "You cannot select 'By mail, address to Authorized Representative' because you have not added an authorized representative in Step 1 (Applicant Information).\n\nPlease either:\n• Go back to Step 1 and add an authorized representative, or\n• Choose a different release mode option.",
                                                 });
                                                 return;
                                             }
@@ -2114,17 +2096,6 @@ export default function RequestForm() {
                     </div>
                 </DialogContent>
             </Dialog>
-            {/* Notification Modal */}
-            <NotificationModal
-                isOpen={notificationModal.isOpen}
-                onClose={() =>
-                    setNotificationModal((prev) => ({ ...prev, isOpen: false }))
-                }
-                type={notificationModal.type}
-                title={notificationModal.title}
-                message={notificationModal.message}
-                buttonText={notificationModal.buttonText}
-            />
         </form>
     );
 }

@@ -321,7 +321,7 @@ export default function Applications({ applications = [] }) {
 
       {/* View Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Application Details #{selectedApp?.id}</DialogTitle>
             <DialogDescription>

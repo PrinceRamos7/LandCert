@@ -11,7 +11,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { NotificationModal } from "@/Components/ui/notification-modal";
 import BulkActions from "@/Components/ui/bulk-actions";
 import {
     DropdownMenu,
@@ -51,7 +50,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useForm, router } from "@inertiajs/react";
-import { useToast } from "@/Components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 export function AdminRequestList({ requests, flash = {} }) {
     const [searchTerm, setSearchTerm] = useState("");
@@ -199,13 +198,7 @@ export function AdminRequestList({ requests, flash = {} }) {
     const [isDeclineDialogOpen, setIsDeclineDialogOpen] = useState(false);
     const [requestToAction, setRequestToAction] = useState(null);
     const [rejectionFeedback, setRejectionFeedback] = useState("");
-    const [notificationModal, setNotificationModal] = useState({
-        isOpen: false,
-        type: "success",
-        title: "",
-        message: "",
-        buttonText: "Continue",
-    });
+
 
     const handleDeleteClick = (request) => {
         setRequestToDelete(request);
@@ -220,24 +213,19 @@ export function AdminRequestList({ requests, flash = {} }) {
             onSuccess: () => {
                 setIsDeleteDialogOpen(false);
                 setRequestToDelete(null);
-                setNotificationModal({
-                    isOpen: true,
-                    type: "success",
+                toast({
                     title: "Request Deleted!",
-                    message: `Request #${requestToDelete.id} has been permanently deleted from the system.`,
-                    buttonText: "Continue",
+                    description: `Request #${requestToDelete.id} has been permanently deleted from the system.`,
                 });
             },
             onError: (errors) => {
                 console.error("Delete error:", errors);
                 setIsDeleteDialogOpen(false);
-                setNotificationModal({
-                    isOpen: true,
-                    type: "error",
+                toast({
+                    variant: "destructive",
                     title: "Delete Failed!",
-                    message:
+                    description:
                         "Failed to delete the request. Please try again or contact support if the problem persists.",
-                    buttonText: "Try Again",
                 });
             },
         });
@@ -245,13 +233,11 @@ export function AdminRequestList({ requests, flash = {} }) {
 
     const handleAcceptClick = (request) => {
         if (!request.report_id) {
-            setNotificationModal({
-                isOpen: true,
-                type: "error",
+            toast({
+                variant: "destructive",
                 title: "Error",
-                message:
+                description:
                     "No report found for this request. Please contact support if this issue persists.",
-                buttonText: "OK",
             });
             return;
         }
@@ -273,23 +259,18 @@ export function AdminRequestList({ requests, flash = {} }) {
                 onSuccess: () => {
                     setIsAcceptDialogOpen(false);
                     setRequestToAction(null);
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "success",
+                    toast({
                         title: "Request Approved!",
-                        message: `Request #${requestToAction.id} from ${requestToAction.applicant_name} has been approved successfully. The applicant will be notified via email.`,
-                        buttonText: "Continue",
+                        description: `Request #${requestToAction.id} from ${requestToAction.applicant_name} has been approved successfully. The applicant will be notified via email.`,
                     });
                 },
                 onError: (errors) => {
                     setIsAcceptDialogOpen(false);
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "error",
+                    toast({
+                        variant: "destructive",
                         title: "Approval Failed!",
-                        message:
+                        description:
                             "Failed to approve the request. Please try again or contact support if the problem persists.",
-                        buttonText: "Try Again",
                     });
                 },
             }
@@ -298,13 +279,11 @@ export function AdminRequestList({ requests, flash = {} }) {
 
     const handleDeclineClick = (request) => {
         if (!request.report_id) {
-            setNotificationModal({
-                isOpen: true,
-                type: "error",
+            toast({
+                variant: "destructive",
                 title: "Error",
-                message:
+                description:
                     "No report found for this request. Please contact support if this issue persists.",
-                buttonText: "OK",
             });
             return;
         }
@@ -318,13 +297,11 @@ export function AdminRequestList({ requests, flash = {} }) {
 
         // Validate that feedback is provided
         if (!rejectionFeedback.trim()) {
-            setNotificationModal({
-                isOpen: true,
-                type: "warning",
+            toast({
+                variant: "destructive",
                 title: "Feedback Required",
-                message:
+                description:
                     "Please provide feedback explaining why this request is being rejected. This feedback will be sent to the applicant to help them understand what needs to be corrected.",
-                buttonText: "OK",
             });
             return;
         }
@@ -342,23 +319,18 @@ export function AdminRequestList({ requests, flash = {} }) {
                     setIsDeclineDialogOpen(false);
                     setRequestToAction(null);
                     setRejectionFeedback("");
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "success",
+                    toast({
                         title: "Request Declined!",
-                        message: `Request #${requestToAction.id} from ${requestToAction.applicant_name} has been declined. The applicant has been notified via email with your feedback.`,
-                        buttonText: "Continue",
+                        description: `Request #${requestToAction.id} from ${requestToAction.applicant_name} has been declined. The applicant has been notified via email with your feedback.`,
                     });
                 },
                 onError: (errors) => {
                     setIsDeclineDialogOpen(false);
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "error",
+                    toast({
+                        variant: "destructive",
                         title: "Decline Failed!",
-                        message:
+                        description:
                             "Failed to decline the request. Please try again or contact support if the problem persists.",
-                        buttonText: "Try Again",
                     });
                 },
             }
@@ -1802,18 +1774,6 @@ export function AdminRequestList({ requests, flash = {} }) {
                     </div>
                 </DialogContent>
             </Dialog>
-
-            {/* Notification Modal */}
-            <NotificationModal
-                isOpen={notificationModal.isOpen}
-                onClose={() =>
-                    setNotificationModal((prev) => ({ ...prev, isOpen: false }))
-                }
-                type={notificationModal.type}
-                title={notificationModal.title}
-                message={notificationModal.message}
-                buttonText={notificationModal.buttonText}
-            />
         </div>
     );
 }

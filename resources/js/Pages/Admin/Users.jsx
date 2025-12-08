@@ -62,7 +62,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { NotificationModal } from "@/Components/ui/notification-modal";
+import { useToast } from "@/components/ui/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function Users({ users }) {
     const [editingUser, setEditingUser] = useState(null);
@@ -70,13 +71,7 @@ export default function Users({ users }) {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [notificationModal, setNotificationModal] = useState({
-        isOpen: false,
-        type: "success",
-        title: "",
-        message: "",
-        buttonText: "Continue",
-    });
+    const { toast } = useToast();
 
     const usersData = users?.data || users;
 
@@ -188,23 +183,17 @@ export default function Users({ users }) {
                 onSuccess: () => {
                     setIsDeleteDialogOpen(false);
                     setUserToDelete(null);
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "success",
+                    toast({
                         title: "User Deleted!",
-                        message: `User "${userToDelete.name}" has been permanently deleted from the system.`,
-                        buttonText: "Continue",
+                        description: `User "${userToDelete.name}" has been permanently deleted from the system.`,
                     });
                 },
                 onError: () => {
                     setIsDeleteDialogOpen(false);
-                    setNotificationModal({
-                        isOpen: true,
-                        type: "error",
+                    toast({
+                        variant: "destructive",
                         title: "Delete Failed!",
-                        message:
-                            "Failed to delete the user. Please try again or contact support if the problem persists.",
-                        buttonText: "Try Again",
+                        description: "Failed to delete the user. Please try again or contact support if the problem persists.",
                     });
                 },
             });
@@ -215,13 +204,10 @@ export default function Users({ users }) {
         if (editingUser) {
             // Basic validation
             if (!editingUser.name?.trim() || !editingUser.email?.trim()) {
-                setNotificationModal({
-                    isOpen: true,
-                    type: "warning",
+                toast({
+                    variant: "destructive",
                     title: "Required Fields Missing",
-                    message:
-                        "Please fill in both name and email fields before saving.",
-                    buttonText: "OK",
+                    description: "Please fill in both name and email fields before saving.",
                 });
                 return;
             }
@@ -238,23 +224,17 @@ export default function Users({ users }) {
                     onSuccess: () => {
                         setIsEditDialogOpen(false);
                         setEditingUser(null);
-                        setNotificationModal({
-                            isOpen: true,
-                            type: "success",
+                        toast({
                             title: "User Updated!",
-                            message: `User "${editingUser.name}" has been updated successfully.`,
-                            buttonText: "Continue",
+                            description: `User "${editingUser.name}" has been updated successfully.`,
                         });
                     },
                     onError: () => {
                         setIsEditDialogOpen(false);
-                        setNotificationModal({
-                            isOpen: true,
-                            type: "error",
+                        toast({
+                            variant: "destructive",
                             title: "Update Failed!",
-                            message:
-                                "Failed to update the user information. Please check the data and try again.",
-                            buttonText: "Try Again",
+                            description: "Failed to update the user information. Please check the data and try again.",
                         });
                     },
                 }
@@ -659,18 +639,7 @@ export default function Users({ users }) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-
-            {/* Notification Modal */}
-            <NotificationModal
-                isOpen={notificationModal.isOpen}
-                onClose={() =>
-                    setNotificationModal((prev) => ({ ...prev, isOpen: false }))
-                }
-                type={notificationModal.type}
-                title={notificationModal.title}
-                message={notificationModal.message}
-                buttonText={notificationModal.buttonText}
-            />
+            <Toaster />
         </SidebarProvider>
     );
 }

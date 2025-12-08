@@ -10,7 +10,7 @@ import {
   AlertTriangle,
   Loader2
 } from 'lucide-react';
-import { NotificationModal } from '@/Components/ui/notification-modal';
+import { useToast } from '@/components/ui/use-toast';
 
 function BulkActions({ 
   selectedItems = [], 
@@ -27,7 +27,7 @@ function BulkActions({
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
-  const [notification, setNotification] = useState(null);
+  const { toast } = useToast();
 
   const selectedCount = selectedItems.length;
 
@@ -38,47 +38,45 @@ function BulkActions({
   const handleBulkApprove = async () => {
     try {
       await onBulkApprove(selectedItems);
-      setNotification({
-        type: 'success',
+      toast({
         title: 'Requests Approved',
-        message: `Successfully approved ${selectedCount} request(s).`
+        description: `Successfully approved ${selectedCount} request(s).`
       });
       setShowApproveModal(false);
       onClearSelection();
     } catch (error) {
-      setNotification({
-        type: 'error',
+      toast({
+        variant: 'destructive',
         title: 'Approval Failed',
-        message: 'Failed to approve some requests. Please try again.'
+        description: 'Failed to approve some requests. Please try again.'
       });
     }
   };
 
   const handleBulkReject = async () => {
     if (!rejectionReason.trim()) {
-      setNotification({
-        type: 'warning',
+      toast({
+        variant: 'destructive',
         title: 'Rejection Reason Required',
-        message: 'Please provide a reason for rejection.'
+        description: 'Please provide a reason for rejection.'
       });
       return;
     }
 
     try {
       await onBulkReject(selectedItems, rejectionReason);
-      setNotification({
-        type: 'success',
+      toast({
         title: 'Requests Rejected',
-        message: `Successfully rejected ${selectedCount} request(s).`
+        description: `Successfully rejected ${selectedCount} request(s).`
       });
       setShowRejectModal(false);
       setRejectionReason('');
       onClearSelection();
     } catch (error) {
-      setNotification({
-        type: 'error',
+      toast({
+        variant: 'destructive',
         title: 'Rejection Failed',
-        message: 'Failed to reject some applications. Please try again.'
+        description: 'Failed to reject some applications. Please try again.'
       });
     }
   };
@@ -86,18 +84,17 @@ function BulkActions({
   const handleBulkDelete = async () => {
     try {
       await onBulkDelete(selectedItems);
-      setNotification({
-        type: 'success',
+      toast({
         title: 'Requests Deleted',
-        message: `Successfully deleted ${selectedCount} request(s).`
+        description: `Successfully deleted ${selectedCount} request(s).`
       });
       setShowDeleteModal(false);
       onClearSelection();
     } catch (error) {
-      setNotification({
-        type: 'error',
+      toast({
+        variant: 'destructive',
         title: 'Deletion Failed',
-        message: 'Failed to delete some applications. Please try again.'
+        description: 'Failed to delete some applications. Please try again.'
       });
     }
   };
@@ -345,17 +342,6 @@ function BulkActions({
             </CardContent>
           </Card>
         </div>
-      )}
-
-      {/* Notification Modal */}
-      {notification && (
-        <NotificationModal
-          type={notification.type}
-          title={notification.title}
-          message={notification.message}
-          isOpen={true}
-          onClose={() => setNotification(null)}
-        />
       )}
     </>
   );

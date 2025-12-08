@@ -13,6 +13,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ReceiptList } from "@/Components/Receipt";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function Receipt({ requests }) {
     return (
@@ -48,6 +49,7 @@ export default function Receipt({ requests }) {
                     <ReceiptList requests={requests} />
                 </div>
             </SidebarInset>
+            <Toaster />
         </SidebarProvider>
     );
 }

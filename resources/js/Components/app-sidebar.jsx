@@ -32,7 +32,7 @@ const teams = [
     },
 ];
 
-const navMain = [1
+const navMain = [
     {
         title: "Main Menu",
         url: "#",

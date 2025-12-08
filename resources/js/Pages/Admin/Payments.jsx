@@ -13,6 +13,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AdminPaymentList } from "@/Components/Admin/Payments";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function Payments({ payments }) {
     return (
@@ -55,6 +56,7 @@ export default function Payments({ payments }) {
                     <AdminPaymentList payments={payments} />
                 </div>
             </SidebarInset>
+            <Toaster />
         </SidebarProvider>
     );
 }

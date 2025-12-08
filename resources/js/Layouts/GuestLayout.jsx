@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { Toaster } from '@/components/ui/toaster';
 
 export default function GuestLayout({ children }) {
     return (
@@ -17,6 +18,7 @@ export default function GuestLayout({ children }) {
             <div className="mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-xl sm:max-w-md sm:rounded-lg border border-gray-200">
                 {children}
             </div>
+            <Toaster />
         </div>
     );
 }

@@ -13,6 +13,7 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function AdminRequestPage({ requests = [], flash = {} }) {
     return (
@@ -55,6 +56,7 @@ export default function AdminRequestPage({ requests = [], flash = {} }) {
                     <AdminRequestList requests={requests} flash={flash} />
                 </div>
             </SidebarInset>
+            <Toaster />
         </SidebarProvider>
     );
 }
