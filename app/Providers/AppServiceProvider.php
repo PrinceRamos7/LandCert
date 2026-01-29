@@ -7,9 +7,11 @@ use Illuminate\Support\ServiceProvider;
 use App\Models\Request as RequestModel;
 use App\Models\Payment;
 use App\Models\Report;
+use App\Models\StatusHistory;
 use App\Observers\RequestObserver;
 use App\Observers\PaymentObserver;
 use App\Observers\ReportObserver;
+use App\Observers\StatusHistoryObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,5 +38,8 @@ class AppServiceProvider extends ServiceProvider
         RequestModel::observe(RequestObserver::class);
         Payment::observe(PaymentObserver::class);
         Report::observe(ReportObserver::class);
+        
+        // Register observer for status change notifications
+        StatusHistory::observe(StatusHistoryObserver::class);
     }
 }

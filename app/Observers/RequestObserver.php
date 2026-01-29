@@ -5,6 +5,8 @@ namespace App\Observers;
 use App\Models\Request;
 use App\Services\DashboardCacheService;
 use App\Services\AuditLogService;
+use App\Mail\ApplicationSubmitted;
+use Illuminate\Support\Facades\Mail;
 
 class RequestObserver
 {
@@ -28,6 +30,27 @@ class RequestObserver
             $request->toArray(),
             "Created new request for {$request->applicant_name}"
         );
+        
+        // Send email notification to the user
+        if ($request->user && $request->user->email) {
+            try {
+                Mail::to($request->user->email)->send(
+                    new ApplicationSubmitted(
+                        (object)[
+                            'id' => $request->id,
+                            'applicant_name' => $request->applicant_name,
+                            'applicant_address' => $request->applicant_address,
+                            'project_type' => $request->project_type,
+                            'project_nature' => $request->project_nature,
+                        ],
+                        $request->user->name
+                    )
+                );
+                \Log::info('Application submitted email sent to: ' . $request->user->email . ' for request ID: ' . $request->id);
+            } catch (\Exception $e) {
+                \Log::error('Failed to send application submitted email: ' . $e->getMessage());
+            }
+        }
     }
 
     /**
